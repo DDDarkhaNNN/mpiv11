@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="kk">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>MPI Lab | Практикум</title><link rel="stylesheet" href="styles/reference.css"><link rel="stylesheet" href="styles/lesson.css"></head>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>MPI Lab | Практикум</title><link rel="stylesheet" href="styles/reference.css"><link rel="stylesheet" href="styles/lesson.css"><link rel="stylesheet" href="styles/module-refresh.css"></head>
 <body class="page-practice">
   <header class="app-header">
 <a class="brand" href="index.html" aria-label="MPI Lab"><span class="brand-mark">M<span>:</span></span><span><strong>mpi<span>lab</span></strong><small data-kk="Параллель есептеу практикумы" data-ru="Практикум параллельных вычислений">Параллель есептеу практикумы</small></span></a>
@@ -13,17 +13,18 @@
 <div class="module-tabs" role="tablist" aria-label="Модульдер"><button class="module-tab active" data-module="1" role="tab" aria-selected="true">Модуль 1</button><button class="module-tab" data-module="2" role="tab" aria-selected="false">Модуль 2</button><button class="module-tab" data-module="3" role="tab" aria-selected="false">Модуль 3</button></div>
 <div class="task-filter"><label for="taskSelect" data-kk="Тапсырма" data-ru="Задача">Тапсырма</label><select id="taskSelect"></select></div>
 <div class="task-filter search-filter"><label for="taskSearch" data-kk="Іздеу" data-ru="Поиск">Іздеу</label><input id="taskSearch" type="search" placeholder="MPIBegin нөмірі"></div><div id="taskList" hidden></div></aside>
+      <div id="moduleBrief" class="module-brief" aria-live="polite"></div>
 
       <div id="learningProgress" class="learning-progress"></div>
       <section class="calculator-shell" aria-labelledby="taskTitle">
-        <div class="calculator-header"><div class="task-heading"><div class="breadcrumb"><span id="taskModule">Модуль 1</span><span>/</span><span id="taskCode">MPIBegin3</span></div><h2 id="taskTitle">MPIBegin3</h2><p id="taskDescription"></p></div><div class="process-control"><label for="processCount">Процесс саны</label><div class="stepper"><button id="decreaseProcesses" type="button" aria-label="Процестер санын азайту">−</button><input id="processCount" type="number" min="2" max="12" step="1" value="4"><button id="increaseProcesses" type="button" aria-label="Процестер санын көбейту">+</button></div></div></div>
+        <div class="calculator-header"><div class="task-heading"><div class="breadcrumb"><span id="taskModule">Модуль 1</span><span>/</span><span id="taskCode">MPIBegin3</span></div><h2 id="taskTitle">MPIBegin3</h2><p id="taskDescription"></p></div><div class="process-control"><label for="processCount" data-kk="Процестер саны" data-ru="Количество процессов">Процестер саны</label><div class="stepper"><button id="decreaseProcesses" type="button" aria-label="Процестер санын азайту">−</button><input id="processCount" type="number" min="2" max="12" step="1" value="4"><button id="increaseProcesses" type="button" aria-label="Процестер санын көбейту">+</button></div></div></div>
         <nav id="lessonTabs" class="lesson-tabs" aria-label="Task views"></nav>
         <section id="lessonPanel" class="lesson-panel" hidden></section>
         <div class="process-overview"><span class="overline">MPI_COMM_WORLD</span><div class="process-strip" id="processStrip" aria-label="Процестер"></div></div>
-        <form id="calculatorForm" class="calculator-form"><div id="dynamicFields"></div><div class="form-actions"><button class="button primary" type="submit">Есептеу <span aria-hidden="true">→</span></button><button class="button ghost" type="button" id="resetExample">Мысалды қалпына келтіру</button></div></form>
+        <form id="calculatorForm" class="calculator-form"><div id="dynamicFields"></div><div class="form-actions"><button class="button primary" type="submit" data-kk="Нәтижені есептеу" data-ru="Рассчитать результат">Нәтижені есептеу</button><button class="button ghost" type="button" id="resetExample" data-kk="Файлдағы мысалды жүктеу" data-ru="Загрузить пример из файлов">Файлдағы мысалды жүктеу</button></div></form>
         <section class="result-panel" aria-live="polite"><div class="result-heading"><div><span class="status-dot"></span><strong>Есептеу нәтижесі</strong></div><button id="copyResult" type="button">Көшіру</button></div><div id="resultContent" class="result-content"><p class="result-placeholder">Мәндерді енгізіп, есептеуді бастаңыз.</p></div></section>
       </section>
     </section></main>
   <footer class="app-footer"><span><b>MPI Lab</b> · Оқу практикумы</span><span>Нәтижелер браузерде модельденеді; нақты параллель орындалу іске қосылмайды.</span></footer>
-<script src="scripts/task-data.js"></script><script src="scripts/lesson-data.js"></script><script src="scripts/source-code.js"></script><script src="scripts/lesson-engine.js"></script><script src="scripts/app.js"></script><script src="scripts/lesson-ui.js"></script><script src="scripts/localization.js"></script>
+<script src="scripts/task-data.js"></script><script src="scripts/lesson-data.js"></script><script src="scripts/file-examples.js"></script><script src="scripts/source-code.js"></script><script src="scripts/lesson-engine.js"></script><script src="scripts/app.js"></script><script src="scripts/lesson-ui.js"></script><script src="scripts/localization.js"></script>
 </body></html>

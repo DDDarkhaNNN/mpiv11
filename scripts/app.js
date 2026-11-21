@@ -17,6 +17,7 @@ const resultContent = document.querySelector('#resultContent');
 
 const clampK = () => Math.max(2, Math.min(12, Math.trunc(Number(processCount.value)) || 2));
 const nums = value => value.trim().split(/[\s,;]+/).filter(Boolean).map(Number);
+const isInt32 = value => Number.isInteger(value) && value >= -2147483648 && value <= 2147483647;
 const fmt = value => { assert(Number.isFinite(value), 'Нәтиже сандық диапазоннан асты. Кіші мәндерді енгізіңіз.'); return Number.isInteger(value) ? String(value) : String(Number(value.toPrecision(12))); };
 const field = (label, id, value, type = 'number', attrs = '') => `<div class="input-group"><label for="${id}">${label}</label><input id="${id}" name="${id}" type="${type}" value="${value}" required ${attrs.replace(/step="0\.[^"]+"/g,'step="any"')}></div>`;
 const area = (label, id, values) => `<div class="input-group"><label for="${id}">${label}</label><textarea id="${id}" name="${id}" spellcheck="false">${values.join(' ')}</textarea></div>`;
@@ -43,8 +44,21 @@ function selectTask(id) {
   taskTitle.textContent = task.short;
   if (taskCode) taskCode.textContent = `MPIBegin${id}`;
   taskDescription.textContent = task.description;
+  const brief=document.querySelector('#moduleBrief');
+  if(currentModule===1) {
+    brief.innerHTML='<div><span class="brief-kicker" data-kk="МОДУЛЬ 1 · ЖЕРГІЛІКТІ ЕСЕПТЕУ" data-ru="МОДУЛЬ 1 · ЛОКАЛЬНЫЕ ВЫЧИСЛЕНИЯ">МОДУЛЬ 1 · ЖЕРГІЛІКТІ ЕСЕПТЕУ</span><p data-kk="Ранг пен дерек типін таңдауды үйреніңіз. C++ оқу нұсқалары MPI-сіз жұмыс істейді." data-ru="Изучите ранги и типы данных. Учебные версии C++ работают без MPI.">Ранг пен дерек типін таңдауды үйреніңіз. C++ оқу нұсқалары MPI-сіз жұмыс істейді.</p></div>';
+  } else {
+    const title=currentModule===2?['Хабар алмасу және тегтер','Сообщения и теги']:['Ұжымдық операциялар және дерек типтері','Коллективные операции и типы данных'];
+    brief.innerHTML=`<div><span class="brief-kicker">МОДУЛЬ ${currentModule} · MICROSOFT MPI</span><h2 data-kk="${title[0]}" data-ru="${title[1]}">${title[0]}</h2><p data-kk="Есептер браузерде модельденеді. Код бөлімінде сіз берген нақты MPI бағдарламалары бар." data-ru="Задачи моделируются в браузере. В разделе кода — реальные MPI программы из ваших файлов.">Есептер браузерде модельденеді. Код бөлімінде сіз берген нақты MPI бағдарламалары бар.</p></div><div class="brief-links"><a href="downloads/module-${currentModule}-variant-11.zip" download data-kk="Модульді жүктеу" data-ru="Скачать модуль">Модульді жүктеу</a><a href="resources.html" data-kk="Іске қосу шарттары" data-ru="Требования для запуска">Іске қосу шарттары</a></div>`;
+  }
+  const exampleButton=document.querySelector('#resetExample');
+  exampleButton.dataset.kk=currentModule===1?'Мысалды қалпына келтіру':'Файлдағы мысалды жүктеу';
+  exampleButton.dataset.ru=currentModule===1?'Сбросить пример':'Загрузить пример из файлов';
+  exampleButton.textContent=document.documentElement.lang==='ru'?exampleButton.dataset.ru:exampleButton.dataset.kk;
   renderTaskList();
+  if (window.MpiFileExamples?.[id]) processCount.value = window.MpiFileExamples[id].k;
   renderInputs();
+  fillFileExample();
   resultContent.innerHTML = '<p class="result-placeholder" data-kk="Нәтиже осы жерде көрсетіледі. Мәндерді енгізіп, «Есептеу» батырмасын басыңыз." data-ru="Результат появится здесь. Введите значения и нажмите «Рассчитать».">Нәтиже осы жерде көрсетіледі. Мәндерді енгізіп, «Есептеу» батырмасын басыңыз.</p>';
 }
 
@@ -72,7 +86,7 @@ function renderInputs() {
   } else if (currentTask === 11) {
     html = '<p class="form-note">Негізгі процесс мәндерді P1, P2, … ретімен таратады.</p><div class="field-grid">' + Array.from({ length: k - 1 }, (_, i) => i + 1).map(r => card(0, field(`P${r} үшін мән`, `v_${r}`, r + .5, 'number', 'step="0.1"'))).join('') + '</div>';
   } else if (currentTask === 16) {
-    html = '<div class="field-grid">' + Array.from({ length: k - 1 }, (_, i) => i + 1).map(r => card(r, field('N', `v_${r}`, r % 2 ? r : -r, 'number', 'step="1"'))).join('') + '</div>';
+    html = '<p class="form-note">P0-де қанша оң сан күтілетінін көрсетіңіз. Бұл сан нақты оң мәндер санына тең болуы керек.</p><div class="field-grid">' + card(0, field('Күтілетін оң сандар саны', 'expected_0', Math.ceil((k - 1) / 2), 'number', `min="1" max="${k-1}" step="1"`)) + Array.from({ length: k - 1 }, (_, i) => i + 1).map(r => card(r, field('N', `v_${r}`, r % 2 ? r : -r, 'number', 'step="1"'))).join('') + '</div>';
   } else if (currentTask === 18) {
     html = '<div class="field-grid">' + Array.from({ length: k }, (_, r) => card(r, field('Бастапқы бүтін сан', `v_${r}`, (r + 1) * 10, 'number', 'step="1"'))).join('') + '</div>';
   } else if (currentTask === 21) {
@@ -108,12 +122,27 @@ function setValues(k, prefix = 'set') { return Array.from({ length: k }, (_, r) 
 function table(headers, rows) { return `<table class="result-table"><thead><tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr></thead><tbody>${rows.map(row => `<tr>${row.map((v, i) => `<td class="${i === row.length - 1 ? 'result-value' : ''}">${v}</td>`).join('')}</tr>`).join('')}</tbody></table>`; }
 function assert(condition, message) { if (!condition) throw new Error(message); }
 function sameLength(sets, expected) { assert(sets.every(s => s.length === expected && s.every(Number.isFinite)), `Әр процесте дәл ${expected} дұрыс сан болуы керек.`); }
+function fillFileExample() {
+  const example=window.MpiFileExamples?.[currentTask];
+  if(!example || currentModule===1) return;
+  for(const [id, val] of Object.entries(example.values)) {
+    const input=document.getElementById(id);
+    if(input) input.value=val;
+  }
+}
+function loadFileExample() {
+  const example=window.MpiFileExamples?.[currentTask];
+  if(!example || currentModule===1) {renderInputs();return;}
+  processCount.value=example.k;
+  renderInputs();
+  fillFileExample();
+}
 
 function calculate() {
   const k = clampK();
   let rows = [];
-  if([3,16,18].includes(currentTask)) for(let r=currentTask===16?1:0;r<k;r++) {const v=value(`v_${r}`);if(currentTask!==3||r%2===0)assert(Number.isSafeInteger(v),`P${r}: бүтін сан енгізіңіз.`);}
-  if([62,64,67,69].includes(currentTask)) for(let r=currentTask===64?0:1;r<k;r++) {assert(Number.isSafeInteger(value(`x_${r}`))&&Number.isSafeInteger(value(`${currentTask===69?'y':'z'}_${r}`)),`P${r}: бүтін өрістерге бүтін сан енгізіңіз.`);}
+  if([3,16,18].includes(currentTask)) for(let r=currentTask===16?1:0;r<k;r++) {const v=value(`v_${r}`);if(currentTask!==3||r%2===0)assert(isInt32(v),`P${r}: 32-биттік бүтін сан енгізіңіз.`);}
+  if([62,64,67,69].includes(currentTask)) for(let r=currentTask===64?0:1;r<k;r++) {assert(isInt32(value(`x_${r}`))&&isInt32(value(`${currentTask===69?'y':'z'}_${r}`)),`P${r}: бүтін өрістерге 32-биттік сан енгізіңіз.`);}
 
   if (currentTask === 3) {
     rows = Array.from({ length: k }, (_, r) => [`P${r}`, r % 2 ? 'нақты' : 'бүтін', fmt(value(`v_${r}`) * 2)]);
@@ -125,7 +154,7 @@ function calculate() {
     return table(['Процесс', 'Операция', 'Нәтиже'], rows);
   }
   if (currentTask === 10) {
-    rows = Array.from({ length: k - 1 }, (_, i) => i + 1).map(r => { const s = nums(document.querySelector(`#set_${r}`).value); assert(s.length >= 1 && s.length <= 4 && s.every(Number.isInteger), `P${r}: 1–4 бүтін сан енгізіңіз.`); return [`P${r}`, s.length, s.join(' ')]; });
+    rows = Array.from({ length: k - 1 }, (_, i) => i + 1).map(r => { const s = nums(document.querySelector(`#set_${r}`).value); assert(s.length >= 1 && s.length <= 4 && s.every(isInt32), `P${r}: 1–4 бүтін сан енгізіңіз.`); return [`P${r}`, s.length, s.join(' ')]; });
     return table(['Жіберуші', 'N', 'Негізгі процесс алған мәндер'], rows);
   }
   if (currentTask === 11) {
@@ -133,8 +162,10 @@ function calculate() {
     return table(['Қабылдаушы', 'Алынған сан'], rows);
   }
   if (currentTask === 16) {
+    const expected=value('expected_0');
+    assert(Number.isInteger(expected)&&expected>=1&&expected<k,'P0: күтілетін сан 1…K−1 аралығында болуы керек.');
     const positives = Array.from({ length: k - 1 }, (_, i) => value(`v_${i + 1}`)).filter(v => v > 0);
-    assert(positives.length>0,'Кемінде бір оң N енгізіңіз.');
+    assert(positives.length===expected,'P0 күткен сан нақты оң мәндер санымен сәйкес емес.');
     return table(['Оң мәндер саны', 'Негізгі процестегі қосынды'], [[positives.length, fmt(positives.reduce((a,b)=>a+b,0))]]);
   }
   if (currentTask === 18) {
@@ -157,17 +188,17 @@ function calculate() {
     const ordered=Array(k); ranks.forEach(r=>ordered[value(`n_${r}`)]=value(`a_${r}`)); return table(['N','A'],ranks.map(i=>[i,fmt(ordered[i])]));
   }
   if (currentTask === 29) {
-    rows=Array.from({length:k-1},(_,i)=>i+1).map(r=>{const t=value(`t_${r}`);const s=nums(document.querySelector(`#set_${r}`).value);assert(s.length>=1&&s.length<=10&&s.every(Number.isFinite),`P${r}: 1–10 дұрыс сан енгізіңіз.`);assert(t===0||t===1,'T = 0 немесе 1.');assert(t===1||s.every(Number.isSafeInteger),`P${r}: T=0 кезінде бүтін сандар керек.`);return [`P${r}`,t===0?'int':'double',s.map(fmt).join(' ')];}); return table(['Жіберуші','Тип','Негізгі процесс алған мәндер'],rows);
+    rows=Array.from({length:k-1},(_,i)=>i+1).map(r=>{const t=value(`t_${r}`);const s=nums(document.querySelector(`#set_${r}`).value);assert(s.length<=10&&s.every(Number.isFinite),`P${r}: 0–10 дұрыс сан енгізіңіз.`);assert(t===0||t===1,'T = 0 немесе 1.');assert(t===1||s.every(isInt32),`P${r}: T=0 кезінде бүтін сандар керек.`);return [`P${r}`,t===0?'int':'double',s.length?s.map(fmt).join(' '):'∅'];}); return table(['Жіберуші','Тип','Негізгі процесс алған мәндер'],rows);
   }
   if ([48,51,57].includes(currentTask)) {
     const sets=setValues(k);sameLength(sets,k+5);
-    if(currentTask!==51)assert(sets.every(s=>s.every(Number.isSafeInteger)),'Бұл есепте бүтін сандар қажет.');
+    if(currentTask!==51)assert(sets.every(s=>s.every(isInt32)),'Бұл есепте 32-биттік бүтін сандар қажет.');
     if(currentTask===48){const out=sets[0].map((_,i)=>sets.reduce((a,s)=>a+s[i],0));return table(['Нәтиже орны','Қосынды'],out.map((v,i)=>[i,fmt(v)]));}
     if(currentTask===51){const out=sets[0].map((_,i)=>sets.reduce((a,s)=>a*s[i],1));return table(['Процесс','Барлық позициялық көбейтінді'],Array.from({length:k},(_,r)=>[`P${r}`,out.map(fmt).join(' ')]));}
     let prefix=Array(k+5).fill(-Infinity); rows=sets.map((s,r)=>{prefix=prefix.map((v,i)=>Math.max(v,s[i]));return [`P${r}`,prefix.join(' ')];});return table(['Процесс','0…R префикстік максимумдар'],rows);
   }
   if(currentTask===54){const sets=setValues(k);sameLength(sets,2*k);const max=sets[0].map((_,i)=>Math.max(...sets.map(s=>s[i])));return table(['Процесс','Алынған екі максимум'],Array.from({length:k},(_,r)=>[`P${r}`,`${fmt(max[2*r])} ${fmt(max[2*r+1])}`]));}
-  if(currentTask===59){rows=Array.from({length:k-1},(_,i)=>i+1).map(r=>{const s=nums(document.querySelector(`#set_${r}`).value);assert(s.length===3&&s.every(Number.isInteger),`P${r} үшін 3 бүтін сан керек.`);return [`P${r}`,s.join(' ')];});return table(['Қабылдаушы','Үштік'],rows);}
+  if(currentTask===59){rows=Array.from({length:k-1},(_,i)=>i+1).map(r=>{const s=nums(document.querySelector(`#set_${r}`).value);assert(s.length===3&&s.every(isInt32),`P${r} үшін 3 бүтін сан керек.`);return [`P${r}`,s.join(' ')];});return table(['Қабылдаушы','Үштік'],rows);}
   if([62,67].includes(currentTask)){rows=Array.from({length:k-1},(_,i)=>i+1).map(r=>[`P${r}`,`${value(`x_${r}`)} ${fmt(value(`y_${r}`))} ${value(`z_${r}`)}`]);return table(['Қабылдаушы',currentTask===67?'Оралған және ашылған үштік':'Алынған үштік'],rows);}
   if(currentTask===64){const all=Array.from({length:k},(_,r)=>`${value(`x_${r}`)} ${fmt(value(`y_${r}`))} ${value(`z_${r}`)}`).join('  |  ');return table(['Процесс','Ранг ретімен жиналған үштіктер'],Array.from({length:k},(_,r)=>[`P${r}`,all]));}
   if(currentTask===69){rows=Array.from({length:k-1},(_,i)=>i+1).map(r=>[`P${r}`,`${value(`x_${r}`)} ${value(`y_${r}`)} ${fmt(value(`z_${r}`))}`]);return table(['Жіберуші','Негізгі процесс алған үштік'],rows);}
@@ -184,7 +215,7 @@ document.querySelectorAll('.module-tab').forEach(tab => tab.addEventListener('cl
 processCount.addEventListener('change', renderInputs);
 document.querySelector('#decreaseProcesses').addEventListener('click', () => { processCount.value = clampK() - 1; renderInputs(); });
 document.querySelector('#increaseProcesses').addEventListener('click', () => { processCount.value = clampK() + 1; renderInputs(); });
-document.querySelector('#resetExample').addEventListener('click', renderInputs);
+document.querySelector('#resetExample').addEventListener('click', loadFileExample);
 form.addEventListener('submit', event => {
   event.preventDefault();
   try { resultContent.innerHTML = calculate(); window.MpiLessonUI?.success(); }
@@ -207,4 +238,11 @@ document.querySelector('#copyResult').addEventListener('click', async event => {
 document.querySelector('#taskSearch').addEventListener('input', renderTaskList);
 taskSelect.addEventListener('change', () => { if (taskSelect.value) selectTask(Number(taskSelect.value)); });
 
-selectTask(3);
+const route=new URLSearchParams(location.search);
+const routeModule=Number(route.get('module'));
+const routeTask=Number(route.get('task'));
+if([1,2,3].includes(routeModule)) {
+  currentModule=routeModule;
+  document.querySelectorAll('.module-tab').forEach(t=>{t.classList.toggle('active',Number(t.dataset.module)===routeModule);t.setAttribute('aria-selected',String(Number(t.dataset.module)===routeModule));});
+}
+selectTask(TASKS[currentModule].some(t=>t.id===routeTask)?routeTask:TASKS[currentModule][0].id);
