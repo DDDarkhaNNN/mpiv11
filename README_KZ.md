@@ -1,6 +1,8 @@
 # MPI Lab · 11-нұсқа
 
-Сайт: https://aluakasdarkhan7.github.io/mpiv11/
+Сайт: https://dddarkhannn.github.io/mpiv11/
+
+Репозиторий: https://github.com/DDDarkhaNNN/mpiv11
 
 Бұл оқу сайты 1–3 модульдегі 19 MPIBegin есебін көрсетеді. Есептің шарты, мәндерді енгізу, нәтиже, қадамдық сызба және C++ коды бөлек қойындыларда. Интерфейс қазақша және орысша.
 
