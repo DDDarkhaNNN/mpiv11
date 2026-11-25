@@ -186,7 +186,7 @@ inline int launch(const Rows& rows) {
     argv.push_back(nullptr);
     std::cout << std::flush;
     auto code = _wspawnvp(_P_WAIT, L"mpiexec.exe", argv.data());
-    if (code == -1) throw std::runtime_error("Не удалось запустить mpiexec.exe из Microsoft MPI.");
+    if (code == -1) throw std::runtime_error("Не удалось запустить mpiexec.exe (MPI).");
     return static_cast<int>(code);
 }
 

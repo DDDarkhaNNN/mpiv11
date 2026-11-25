@@ -10,5 +10,5 @@ for %%N in (30 34 37 40 43 45 71 75 77 79 80) do (
 popd
 exit /b 0
 :missing
-echo Microsoft MPI SDK is required to compile these programs.
+echo MPI SDK is required to compile these programs.
 exit /b 1

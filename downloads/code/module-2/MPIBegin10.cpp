@@ -1,4 +1,4 @@
-// MPIBegin10, М. Э. Абрамян. Сборка для Windows, C++17 + Microsoft MPI.
+// MPIBegin10, М. Э. Абрамян. Сборка для Windows, C++17 + MPI.
 // При обычном запуске собираем ввод для процессов. Ключ --mpi использует mpiexec.
 #include <windows.h>
 #include <process.h>
@@ -152,7 +152,7 @@ int launch(const std::vector<Batch>& batches, const std::vector<int>& lengths) {
     pointers.push_back(nullptr);
     std::cout << std::flush;
     auto code = _wspawnvp(_P_WAIT, L"mpiexec.exe", pointers.data());
-    if (code == -1) throw std::runtime_error("Не удалось запустить mpiexec.exe из Microsoft MPI.");
+    if (code == -1) throw std::runtime_error("Не удалось запустить mpiexec.exe (MPI).");
     return static_cast<int>(code);
 }
 
