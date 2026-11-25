@@ -556,6 +556,256 @@ function loadFileExample() {
   fillFileExample();
 }
 
+function randInt(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function randReal(min = -9, max = 12) {
+  const quarters = ['.0', '.5', '.25', '.75'];
+  const base = randInt(min, max);
+  const frac = quarters[randInt(0, quarters.length - 1)];
+  if (base === 0 && Math.random() < 0.35) return '-0.5';
+  return `${base}${frac}`;
+}
+
+function shuffled(arr) {
+  const copy = [...arr];
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = randInt(0, i);
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
+}
+
+function setVal(id, val) {
+  const el = document.getElementById(id);
+  if (el) el.value = String(val);
+}
+
+function generateRandomInputs() {
+  let k = clampK();
+  if (currentTask === 24 && k % 2 !== 0) k = k < 12 ? k + 1 : 12;
+  else if ((currentTask === 85 || currentTask === 96) && (k < 4 || k % 2 !== 0)) k = k < 4 ? 4 : (k % 2 ? k + 1 : k);
+  else if (currentTask === 92 && k !== 8 && k !== 12) k = 8;
+  else if (currentTask === 100 && ![7, 10, 13].includes(k)) k = 7;
+  else if (currentTask === 83 && k < 2) k = 6;
+  processCount.value = k;
+  renderInputs();
+
+  const id = currentTask;
+  if (id === 3) {
+    for (let r = 0; r < k; r++) setVal(`v_${r}`, r % 2 === 0 ? randInt(-15, 25) : randReal(-8, 12));
+  } else if (id === 5) {
+    for (let r = 0; r < k; r++) setVal(`set_${r}`, Array.from({ length: randInt(2, 5) }, () => randReal(-6, 10)).join(' '));
+  } else if (id === 10) {
+    for (let r = 1; r < k; r++) setVal(`set_${r}`, Array.from({ length: randInt(1, 4) }, () => randInt(-9, 20)).join(' '));
+  } else if (id === 11) {
+    for (let r = 1; r < k; r++) setVal(`v_${r}`, randReal(-9, 15));
+  } else if (id === 16) {
+    const workers = Array.from({ length: k - 1 }, (_, i) => i + 1);
+    const posCount = randInt(1, k - 1);
+    const posRanks = new Set(shuffled(workers).slice(0, posCount));
+    setVal('expected_0', posCount);
+    for (const r of workers) setVal(`v_${r}`, posRanks.has(r) ? randInt(1, 25) : randInt(-15, 0));
+  } else if (id === 18) {
+    for (let r = 0; r < k; r++) setVal(`v_${r}`, randInt(-20, 40));
+  } else if (id === 21) {
+    const perm = shuffled(Array.from({ length: k }, (_, r) => r));
+    for (let r = 0; r < k; r++) {
+      setVal(`a_${r}`, randReal(-9, 15));
+      setVal(`n_${r}`, perm[r]);
+    }
+  } else if (id === 24) {
+    for (let r = 0; r < k; r++) setVal(`set_${r}`, Array.from({ length: randInt(1, 4) }, () => randReal(-8, 12)).join(' '));
+  } else if (id === 26) {
+    const perm = shuffled(Array.from({ length: k - 1 }, (_, i) => i + 1));
+    for (let r = 1; r < k; r++) {
+      setVal(`a_${r}`, randReal(-9, 15));
+      setVal(`n_${r}`, perm[r - 1]);
+    }
+  } else if (id === 29) {
+    for (let r = 1; r < k; r++) {
+      const t = randInt(0, 1);
+      const len = randInt(1, 4);
+      setVal(`t_${r}`, t);
+      setVal(`set_${r}`, Array.from({ length: len }, () => t === 0 ? randInt(-12, 20) : randReal(-8, 12)).join(' '));
+    }
+  } else if (id === 30) {
+    setVal('v_0', randInt(-30, 50));
+  } else if (id === 34) {
+    for (let r = 0; r < k; r++) setVal(`set_${r}`, Array.from({ length: r + 2 }, () => randInt(-9, 25)).join(' '));
+  } else if (id === 37) {
+    setVal('set_0', Array.from({ length: k }, () => randReal(-10, 20)).join(' '));
+  } else if (id === 40 || id === 75 || id === 92 || id === 96) {
+    for (let r = 0; r < k; r++) setVal(`v_${r}`, randReal(-9, 15));
+  } else if (id === 43) {
+    for (let r = 0; r < k; r++) setVal(`set_${r}`, Array.from({ length: k }, () => randReal(-8, 15)).join(' '));
+  } else if (id === 45) {
+    const total = (k * (k + 1)) / 2;
+    for (let r = 0; r < k; r++) setVal(`set_${r}`, Array.from({ length: total }, () => randInt(-9, 30)).join(' '));
+  } else if (id === 48 || id === 57) {
+    const count = k + 5;
+    for (let r = 0; r < k; r++) setVal(`set_${r}`, Array.from({ length: count }, () => randInt(-10, 20)).join(' '));
+  } else if (id === 51) {
+    const count = k + 5;
+    const smallReals = ['-2.0', '-1.5', '-1.0', '-0.5', '0.5', '1.0', '1.5', '2.0', '2.5'];
+    for (let r = 0; r < k; r++) setVal(`set_${r}`, Array.from({ length: count }, () => smallReals[randInt(0, smallReals.length - 1)]).join(' '));
+  } else if (id === 54) {
+    const count = 2 * k;
+    for (let r = 0; r < k; r++) setVal(`set_${r}`, Array.from({ length: count }, () => randReal(-8, 12)).join(' '));
+  } else if (id === 59) {
+    for (let r = 1; r < k; r++) setVal(`set_${r}`, [randInt(-12, 15), randInt(-12, 15), randInt(-12, 15)].join(' '));
+  } else if (id === 62 || id === 67) {
+    for (let r = 1; r < k; r++) {
+      setVal(`x_${r}`, randInt(-12, 15));
+      setVal(`y_${r}`, randReal(-8, 12));
+      setVal(`z_${r}`, randInt(-12, 15));
+    }
+  } else if (id === 64) {
+    for (let r = 0; r < k; r++) {
+      setVal(`x_${r}`, randInt(-12, 15));
+      setVal(`y_${r}`, randReal(-8, 12));
+      setVal(`z_${r}`, randInt(-12, 15));
+    }
+  } else if (id === 69) {
+    for (let r = 1; r < k; r++) {
+      setVal(`x_${r}`, randInt(-12, 15));
+      setVal(`y_${r}`, randInt(-12, 15));
+      setVal(`z_${r}`, randReal(-8, 12));
+    }
+  } else if (id === 71) {
+    const evenCount = Math.floor((k + 1) / 2);
+    setVal('set_0', Array.from({ length: evenCount }, () => randInt(-15, 35)).join(' '));
+  } else if (id === 77 || id === 79) {
+    const flags = Array.from({ length: k }, () => randInt(0, 1));
+    if (!flags.includes(1)) flags[randInt(0, k - 1)] = 1;
+    for (let r = 0; r < k; r++) setVal(`n_${r}`, flags[r]);
+    syncConditionalInputs(k);
+    for (let r = 0; r < k; r++) if (flags[r] === 1) setVal(`a_${r}`, randReal(-9, 15));
+  } else if (id === 80) {
+    const groups = Array.from({ length: k }, () => randInt(1, 2));
+    if (!groups.includes(1)) groups[0] = 1;
+    if (!groups.includes(2)) groups[k - 1] = 2;
+    for (let r = 0; r < k; r++) {
+      setVal(`n_${r}`, groups[r]);
+      setVal(`a_${r}`, randInt(-20, 50));
+    }
+  } else if (id === 83) {
+    const divs = [];
+    for (let d = 2; d <= k; d++) if (k % d === 0) divs.push(d);
+    setVal('n_0', divs[randInt(0, divs.length - 1)]);
+  } else if (id === 85) {
+    setVal('v_0', randReal(-9, 15));
+    setVal(`v_${k / 2}`, randReal(-9, 15));
+  } else if (id === 94) {
+    const pairs = [];
+    for (let m = 1; m <= k; m++) for (let n = 1; m * n <= k; n++) if (m * n >= 2) pairs.push([m, n]);
+    const [m, n] = pairs[randInt(0, pairs.length - 1)];
+    setVal('m_0', m);
+    setVal('n_0', n);
+    syncConditionalInputs(k);
+    for (let r = 0; r < m * n; r++) {
+      const validX = Math.random() < 0.78;
+      setVal(`x_${r}`, validX ? randInt(0, m - 1) : (Math.random() < 0.5 ? -1 : m));
+      setVal(`y_${r}`, randInt(-n - 1, 2 * n));
+    }
+  } else if (id === 100) {
+    for (let r = 0; r < k; r++) setVal(`v_${r}`, randInt(-20, 60));
+  }
+
+  syncConditionalInputs(k);
+  runCalculationNow();
+}
+
+function runCalculationNow() {
+  dynamicFields.querySelectorAll('.rank-row.input-error').forEach(row => row.classList.remove('input-error'));
+  try {
+    resultContent.innerHTML = calculate();
+    window.MpiLessonUI?.success();
+    return true;
+  } catch (error) {
+    const body = error instanceof BiError
+      ? bi(error.kk, error.ru)
+      : escapeHtml(error.message);
+    resultContent.innerHTML = `<div class="result-error">${bi('Тексеру қажет:', 'Ошибка ввода:', 'strong')} ${body}</div>`;
+    const rank = String(error.kk || error.message).match(/P(\d+)/)?.[1];
+    const row = rank == null ? null : dynamicFields.querySelector(`.rank-row[data-rank="${rank}"]`);
+    row?.classList.add('input-error');
+    (row?.querySelector('input:not(:disabled),select:not(:disabled)') || dynamicFields.querySelector('input:not(:disabled):placeholder-shown,select:invalid'))?.focus();
+    window.MpiLessonUI?.failure();
+    return false;
+  }
+}
+
+function exportPdfReport() {
+  if (!resultContent.querySelector('.result-table')) {
+    const hasAnyInput = Array.from(dynamicFields.querySelectorAll('input,select')).some(el => !el.disabled && String(el.value).trim() !== '');
+    if (!hasAnyInput) loadFileExample();
+    if (!runCalculationNow()) return;
+  }
+  const container = document.getElementById('printReportContainer');
+  if (!container) return;
+  const ru = document.documentElement.lang === 'ru';
+  const k = clampK();
+  const task = TASKS[currentModule].find(t => t.id === currentTask);
+  const lesson = window.MpiLessons?.tasks?.[currentTask];
+  const dateStr = new Date().toLocaleDateString(ru ? 'ru-RU' : 'kk-KZ');
+
+  const inputRows = Array.from(dynamicFields.querySelectorAll('.rank-row')).map(row => {
+    const tag = row.querySelector('.rank-tag')?.textContent?.trim() || '';
+    const items = Array.from(row.querySelectorAll('.input-group')).map(grp => {
+      const lbl = grp.querySelector('label')?.textContent?.trim() || '';
+      const ctrl = grp.querySelector('input,select,textarea');
+      if (!ctrl) return '';
+      if (ctrl.disabled) return `${escapeHtml(lbl)}: <em>${escapeHtml(ctrl.placeholder || '—')}</em>`;
+      const val = ctrl.tagName === 'SELECT'
+        ? (ctrl.options[ctrl.selectedIndex]?.textContent?.trim() || ctrl.value)
+        : ctrl.value;
+      return `${escapeHtml(lbl)}: <code>${escapeHtml(val)}</code>`;
+    }).filter(Boolean).join(' &nbsp;·&nbsp; ');
+    return `<tr><td class="rep-rank">${escapeHtml(tag)}</td><td>${items}</td></tr>`;
+  }).join('');
+
+  const codeText = escapeHtml(window.MpiSourceCode?.[currentTask] || '');
+  const givenText = lesson ? escapeHtml(lesson.given[ru ? 1 : 0]) : '';
+  const findText = lesson ? escapeHtml(lesson.find[ru ? 1 : 0]) : '';
+  const apiText = lesson ? escapeHtml(lesson.api) : '';
+
+  container.innerHTML = `
+    <div class="print-report">
+      <header class="rep-header">
+        <div>
+          <div class="rep-kicker">MPI Lab · ${ru ? 'Вариант 11' : '11-нұсқа'} · Модуль ${currentModule}</div>
+          <h1>MPIBegin${currentTask} — ${escapeHtml(task?.short || '')}</h1>
+        </div>
+        <div class="rep-meta">
+          <div><b>${ru ? 'Процессов (K):' : 'Процестер (K):'}</b> ${k}</div>
+          <div><b>MPI API:</b> ${apiText}</div>
+          <div><b>${ru ? 'Дата:' : 'Күні:'}</b> ${escapeHtml(dateStr)}</div>
+        </div>
+      </header>
+      <section class="rep-section">
+        <h2>1. ${ru ? 'Условие задачи' : 'Есептің шарты'}</h2>
+        <p><b>${ru ? 'Дано:' : 'Берілгені:'}</b> ${givenText}</p>
+        <p><b>${ru ? 'Требуется:' : 'Орындау керек:'}</b> ${findText}</p>
+      </section>
+      <section class="rep-section">
+        <h2>2. ${ru ? 'Входные данные' : 'Кіріс деректері'} (K = ${k})</h2>
+        <table class="rep-table"><thead><tr><th>${ru ? 'Процесс' : 'Процесс'}</th><th>${ru ? 'Значения' : 'Енгізілген мәндер'}</th></tr></thead><tbody>${inputRows}</tbody></table>
+      </section>
+      <section class="rep-section">
+        <h2>3. ${ru ? 'Результат вычисления' : 'Есептеу нәтижесі'}</h2>
+        <div class="rep-result">${resultContent.innerHTML}</div>
+      </section>
+      <section class="rep-section rep-code-section">
+        <h2>4. ${ru ? 'Исходный код C++ (MPI)' : 'Бастапқы C++ коды (MPI)'} — MPIBegin${currentTask}.cpp</h2>
+        <pre class="rep-code"><code>${codeText}</code></pre>
+      </section>
+    </div>`;
+
+  window.print();
+}
+
 function calculate() {
   const k = clampK();
 
@@ -955,7 +1205,9 @@ processCount.addEventListener('change', renderInputs);
 document.querySelector('#decreaseProcesses').addEventListener('click', () => { processCount.value = clampK() - 1; renderInputs(); });
 document.querySelector('#increaseProcesses').addEventListener('click', () => { processCount.value = clampK() + 1; renderInputs(); });
 document.querySelector('#resetExample').addEventListener('click', loadFileExample);
+document.querySelector('#randomFill')?.addEventListener('click', generateRandomInputs);
 document.querySelector('#clearFields')?.addEventListener('click', renderInputs);
+document.querySelector('#exportReport')?.addEventListener('click', exportPdfReport);
 
 form.addEventListener('input', () => {
   dynamicFields.querySelectorAll('.rank-row.input-error').forEach(row => row.classList.remove('input-error'));
@@ -964,29 +1216,22 @@ form.addEventListener('input', () => {
 form.addEventListener('submit', async event => {
   event.preventDefault();
   const button = form.querySelector('button[type="submit"]');
-  if (button.disabled) return;
-  const original = button.innerHTML;
-  button.disabled = true;
-  button.innerHTML = bi('Есептелуде…', 'Вычисляем…');
+  if (button?.disabled) return;
+  const original = button ? button.innerHTML : '';
+  if (button) {
+    button.disabled = true;
+    button.innerHTML = bi('Есептелуде…', 'Вычисляем…');
+  }
   resultContent.setAttribute('aria-busy', 'true');
   await new Promise(resolve => setTimeout(resolve, 180));
   try {
-    resultContent.innerHTML = calculate();
-    window.MpiLessonUI?.success();
-  } catch (error) {
-    const body = error instanceof BiError
-      ? bi(error.kk, error.ru)
-      : escapeHtml(error.message);
-    resultContent.innerHTML = `<div class="result-error">${bi('Тексеру қажет:', 'Ошибка ввода:', 'strong')} ${body}</div>`;
-    const rank = String(error.kk || error.message).match(/P(\d+)/)?.[1];
-    const row = rank == null ? null : dynamicFields.querySelector(`.rank-row[data-rank="${rank}"]`);
-    row?.classList.add('input-error');
-    (row?.querySelector('input:not(:disabled),select:not(:disabled)') || dynamicFields.querySelector('input:not(:disabled):placeholder-shown,select:invalid'))?.focus();
-    window.MpiLessonUI?.failure();
+    runCalculationNow();
   } finally {
     resultContent.removeAttribute('aria-busy');
-    button.innerHTML = original;
-    button.disabled = false;
+    if (button) {
+      button.innerHTML = original;
+      button.disabled = false;
+    }
   }
 });
 

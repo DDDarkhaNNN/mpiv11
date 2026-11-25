@@ -135,6 +135,42 @@
 .result-footer-nav,.lesson-footer-nav{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 14px;border-top:1px solid var(--line);background:#fafbfd}
 .lesson-footer-nav{margin-top:16px;padding:12px 0 0;background:transparent}
 .nav-step-bottom{flex:1;min-height:38px;padding:7px 11px;font-size:.85rem;text-align:center}
+/* Result tools, Module 5 topology SVG visuals, and printable PDF report */
+.result-tools{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+#exportReport{border-color:#c6d4fb;background:#eef3ff;color:#2848b8;font-weight:600}
+#exportReport:hover{background:#e0e9ff}
+.trace-diagram .wire{stroke:#cfd8ea;stroke-width:1.8;fill:none}
+.trace-diagram .wire-periodic{stroke:#99aee8;stroke-dasharray:5 4;stroke-width:1.5}
+.trace-diagram .topo-caption{fill:#4c5d7e;font:600 12.5px 'Segoe UI',sans-serif;text-anchor:middle}
+.trace-diagram text.node-sub{fill:#6a7894;font:600 9.5px Consolas,'Segoe UI',monospace}
+.trace-diagram .receiver text.node-sub{fill:#dbe4ff}
+.trace-diagram .inactive-node .node{fill:#f4f6fa;stroke:#d6dde8;stroke-dasharray:3 3}
+.trace-diagram .inactive-node text{fill:#9aa5b8}
+.topo-preview-card{margin-top:14px;padding:14px 18px;background:#fafbfe;border:1px solid var(--line);border-radius:10px}
+.topo-preview-card h3{font-size:1rem!important;margin:0 0 6px!important;color:#334463}
+.topo-static{max-height:260px;margin:0 auto}
+.print-report-container{display:none}
+@media print{
+  @page{margin:14mm}
+  body{background:#fff!important;color:#111!important;font-size:11pt}
+  .app-header,.app-main,.app-footer{display:none!important}
+  .print-report-container{display:block!important}
+  .print-report{font-family:'Segoe UI',Arial,sans-serif;color:#182030;line-height:1.45}
+  .rep-header{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;padding-bottom:10px;margin-bottom:14px;border-bottom:2px solid #243b6b}
+  .rep-kicker{font-size:9pt;font-weight:700;color:#3657c9;text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px}
+  .rep-header h1{font-size:16pt;margin:0;color:#141b2d}
+  .rep-meta{font-size:9.5pt;color:#3f4b60;text-align:right}
+  .rep-section{margin-bottom:14px;break-inside:avoid}
+  .rep-code-section{break-inside:auto}
+  .rep-section h2{font-size:11.5pt;margin:0 0 6px;color:#1f325c;border-bottom:1px solid #d8dfec;padding-bottom:3px}
+  .rep-section p{margin:0 0 5px;font-size:10pt}
+  .rep-table,.rep-result table{width:100%;border-collapse:collapse;font-size:9.5pt}
+  .rep-table th,.rep-table td,.rep-result th,.rep-result td{border:1px solid #cbd3e1;padding:5px 8px;text-align:left}
+  .rep-table th,.rep-result th{background:#f2f5fb!important;color:#2b3850;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .rep-rank{width:76px;font-family:Consolas,monospace;font-weight:700;color:#24429e}
+  .rep-table code{font-family:Consolas,monospace;font-weight:600}
+  .rep-code{margin:0;padding:9px 11px;border:1px solid #d3dae6;border-radius:6px;background:#f8fafd!important;font:8.5pt/1.4 Consolas,monospace;white-space:pre-wrap;overflow-wrap:anywhere;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
 @media(max-width:1050px){.page-practice .calculator-shell{grid-template-columns:minmax(0,1fr)}.page-practice .calculator-form{grid-column:1;grid-row:3}.page-practice .result-panel{grid-column:1;grid-row:4}.header-controls{width:100%;justify-content:space-between}}
 @media(max-width:600px){.rank-row{flex-wrap:wrap;gap:4px 8px}.rank-fields{flex-basis:100%}.task-QuickNav{width:100%}.task-QuickNav .button{flex:1}.result-footer-nav,.lesson-footer-nav{flex-direction:column;align-items:stretch}}
 /* Motion is limited to task changes, active input, and newly calculated results. */
