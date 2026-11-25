@@ -127,10 +127,10 @@ const fmt = value => {
 };
 
 const field = (labelHtml, id, value, mode = 'int', extraAttrs = '') =>
-  `<div class="input-group"><label for="${id}">${labelHtml}</label><input id="${id}" name="${id}" class="num-input" type="text" inputmode="${mode === 'int' ? 'numeric' : 'decimal'}" autocomplete="off" spellcheck="false" value="${escapeHtml(value)}" ${extraAttrs}></div>`;
+  `<div class="input-group"><label for="${id}">${labelHtml}</label><input id="${id}" name="${id}" class="num-input" type="text" inputmode="${mode === 'int' ? 'numeric' : 'decimal'}" autocomplete="off" spellcheck="false" placeholder="${escapeHtml(value)}" value="" ${extraAttrs}></div>`;
 
 const area = (labelHtml, id, values) =>
-  `<div class="input-group"><label for="${id}">${labelHtml}</label><textarea id="${id}" name="${id}" spellcheck="false">${escapeHtml(values.join(' '))}</textarea></div>`;
+  `<div class="input-group"><label for="${id}">${labelHtml}</label><textarea id="${id}" name="${id}" spellcheck="false" placeholder="${escapeHtml(values.join(' '))}"></textarea></div>`;
 
 const card = (rank, body, note = '') =>
   `<section class="field-card"><h4>P${rank} <span>rank ${rank}${rank === 0 ? ' · main' : ''}</span></h4>${body}${note}</section>`;
@@ -182,7 +182,6 @@ function selectTask(id) {
   renderTaskList();
   if (window.MpiFileExamples?.[id]) processCount.value = window.MpiFileExamples[id].k;
   renderInputs();
-  fillFileExample();
   resultContent.innerHTML = bi(
     'Нәтиже осы жерде көрсетіледі. Мәндерді енгізіп, «Нәтижені есептеу» батырмасын басыңыз.',
     'Результат появится здесь. Введите значения и нажмите «Рассчитать результат».',
@@ -211,7 +210,6 @@ function syncConditionalInputs(k) {
         inp.placeholder = document.documentElement.lang === 'ru' ? 'При N=0 не вводится' : 'N=0 кезінде енгізілмейді';
       } else {
         inp.placeholder = '1.5';
-        if (!inp.value.trim()) inp.value = (r + 0.5).toFixed(1);
       }
     }
   } else if (currentTask === 94) {
@@ -235,8 +233,6 @@ function syncConditionalInputs(k) {
       } else {
         xi.placeholder = '0';
         yi.placeholder = '0';
-        if (!xi.value.trim()) xi.value = String(r % Math.max(1, m));
-        if (!yi.value.trim()) yi.value = String(r);
       }
     }
   }
@@ -375,6 +371,10 @@ function renderInputs() {
   }
 
   dynamicFields.innerHTML = `<h3 class="section-label"><span>01</span>${bi('Бастапқы деректер', 'Исходные данные', 'b')}</h3>` + html;
+  dynamicFields.querySelectorAll('select').forEach(select => {
+    select.insertAdjacentHTML('afterbegin', `<option value="" selected disabled>${document.documentElement.lang === 'ru' ? 'Выберите' : 'Таңдаңыз'}</option>`);
+    select.value = '';
+  });
   dynamicFields.querySelectorAll('select[data-toggle-a], input[data-grid-dim]').forEach(el => el.addEventListener('input', () => syncConditionalInputs(k)));
   dynamicFields.querySelectorAll('select[data-toggle-a]').forEach(el => el.addEventListener('change', () => syncConditionalInputs(k)));
   syncConditionalInputs(k);
