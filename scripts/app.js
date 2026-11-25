@@ -126,14 +126,14 @@ const fmt = value => {
   return Number.isInteger(value) ? String(value) : String(Number(value.toPrecision(12)));
 };
 
-const field = (labelHtml, id, value, mode = 'int', extraAttrs = '') =>
-  `<div class="input-group"><label for="${id}">${labelHtml}</label><input id="${id}" name="${id}" class="num-input" type="text" inputmode="${mode === 'int' ? 'numeric' : 'decimal'}" autocomplete="off" spellcheck="false" placeholder="${escapeHtml(value)}" value="" ${extraAttrs}></div>`;
+const field = (labelHtml, id, hint, mode = 'int', extraAttrs = '') =>
+  `<div class="input-group"><label for="${id}">${labelHtml}</label><input id="${id}" name="${id}" class="num-input" type="text" inputmode="${mode === 'int' ? 'numeric' : 'decimal'}" autocomplete="off" spellcheck="false" placeholder="${escapeHtml(hint)}" value="" ${extraAttrs}></div>`;
 
 const area = (labelHtml, id, values) =>
-  `<div class="input-group"><label for="${id}">${labelHtml}</label><textarea id="${id}" name="${id}" spellcheck="false" placeholder="${escapeHtml(values.join(' '))}"></textarea></div>`;
+  `<div class="input-group wide"><label for="${id}">${labelHtml}</label><input id="${id}" name="${id}" class="set-input" type="text" autocomplete="off" spellcheck="false" placeholder="${escapeHtml(values.join(' '))}" value=""></div>`;
 
-const card = (rank, body, note = '') =>
-  `<section class="field-card"><h4>P${rank} <span>rank ${rank}${rank === 0 ? ' · main' : ''}</span></h4>${body}${note}</section>`;
+const card = (rank, body) =>
+  `<div class="rank-row"><span class="rank-tag">${typeof rank === 'number' ? `P${rank}` : escapeHtml(rank)}</span><div class="rank-fields">${body}</div></div>`;
 
 function renderTaskList() {
   const query = (document.querySelector('#taskSearch')?.value || '').trim().toLowerCase();
@@ -176,8 +176,8 @@ function selectTask(id) {
     brief.innerHTML = `<div><span class="brief-kicker">МОДУЛЬ ${currentModule} · MICROSOFT MPI</span>${bi(title[0], title[1], 'h2')}${bi('Есептер браузерде модельденеді. Код бөлімінде берілген қалтадағы нақты MPI бағдарламалары бар. Нақты сандар нүктемен (2.0), бүтін сандар нүктесіз (2) жазылады.', 'Задачи моделируются в браузере. В разделе кода — реальные программы MPI из ваших папок. Вещественные числа вводятся с точкой (2.0), целые — без точки (2).', 'p')}</div><div class="brief-links"><a href="downloads/module-${currentModule}-variant-11.zip" download data-kk="Модульді жүктеу" data-ru="Скачать модуль">${document.documentElement.lang === 'ru' ? 'Скачать модуль' : 'Модульді жүктеу'}</a><a href="resources.html" data-kk="Іске қосу шарттары" data-ru="Требования для запуска">${document.documentElement.lang === 'ru' ? 'Требования для запуска' : 'Іске қосу шарттары'}</a></div>`;
   }
   const exampleButton = document.querySelector('#resetExample');
-  exampleButton.dataset.kk = currentModule === 1 ? 'Мысалды қалпына келтіру' : 'Файлдағы мысалды жүктеу';
-  exampleButton.dataset.ru = currentModule === 1 ? 'Сбросить пример' : 'Загрузить пример из файлов';
+  exampleButton.dataset.kk = currentModule === 1 ? 'Мысалмен толтыру' : 'Файлдағы мысалды жүктеу';
+  exampleButton.dataset.ru = currentModule === 1 ? 'Заполнить примером' : 'Загрузить пример из файлов';
   exampleButton.textContent = document.documentElement.lang === 'ru' ? exampleButton.dataset.ru : exampleButton.dataset.kk;
   renderTaskList();
   if (window.MpiFileExamples?.[id]) processCount.value = window.MpiFileExamples[id].k;
@@ -213,8 +213,9 @@ function syncConditionalInputs(k) {
       }
     }
   } else if (currentTask === 94) {
-    const mRaw = document.getElementById('m_0')?.value ?? '';
-    const nRaw = document.getElementById('n_0')?.value ?? '';
+    const mEl = document.getElementById('m_0'), nEl = document.getElementById('n_0');
+    const mRaw = mEl?.value || mEl?.placeholder || '';
+    const nRaw = nEl?.value || nEl?.placeholder || '';
     const m = /^[+-]?\d+$/.test(mRaw.trim()) ? Number(mRaw.trim()) : 0;
     const n = /^[+-]?\d+$/.test(nRaw.trim()) ? Number(nRaw.trim()) : 0;
     const limit = m > 0 && n > 0 && m * n <= k ? m * n : k;
@@ -254,7 +255,7 @@ function renderInputs() {
     html = '<div class="field-grid">' + Array.from({ length: k - 1 }, (_, i) => i + 1).map(r => card(r, area(bi('1–4 бүтін сан', '1–4 целых числа'), `set_${r}`, sampleVector(r, (r % 4) + 1, 'int')))).join('') + '</div>';
   } else if (currentTask === 11) {
     html = `<p class="form-note">${bi('Негізгі процесс нақты мәндерді (нүктемен, мысалы 2.0) P1, P2, … ретімен таратады.', 'Главный процесс распределяет вещественные значения (с точкой, например 2.0) в порядке P1, P2, …')}</p><div class="field-grid">` +
-      Array.from({ length: k - 1 }, (_, i) => i + 1).map(r => card(0, field(bi(`P${r} үшін нақты мән`, `Вещественное для P${r}`), `v_${r}`, (r + 0.5).toFixed(1), 'real'))).join('') + '</div>';
+      Array.from({ length: k - 1 }, (_, i) => i + 1).map(r => card(`P0→P${r}`, field(bi('Нақты мән (нүктемен)', 'Вещественное (с точкой)'), `v_${r}`, (r + 0.5).toFixed(1), 'real'))).join('') + '</div>';
   } else if (currentTask === 16) {
     html = `<p class="form-note">${bi('P0-де қанша оң бүтін сан күтілетінін көрсетіңіз. Ол нақты оң N санына тең болуы керек.', 'Укажите в P0 ожидаемое количество положительных целых чисел. Оно должно совпадать с фактическим.')}</p><div class="field-grid">` +
       card(0, field(bi('Күтілетін оң сандар саны', 'Ожидаемое количество положительных чисел'), 'expected_0', String(Math.ceil((k - 1) / 2)), 'int')) +
@@ -302,10 +303,10 @@ function renderInputs() {
     html = `<p class="form-note">${bi(`Әр процесте дәл ${count} нақты сан (нүктемен) болуы керек.`, `В каждом процессе должно быть ровно ${count} вещественных чисел (с точкой).`)}</p><div class="field-grid">` +
       Array.from({ length: k }, (_, r) => card(r, area(bi(`${count} нақты сан`, `${count} вещественных чисел`), `set_${r}`, sampleVector(r, count, 'real')))).join('') + '</div>';
   } else if (currentTask === 59) {
-    html = '<div class="field-grid">' + Array.from({ length: k - 1 }, (_, i) => i + 1).map(r => card(0, area(bi(`P${r} үшін 3 бүтін сан`, `3 целых числа для P${r}`), `set_${r}`, [String(r), String(r + 1), String(r + 2)]))).join('') + '</div>';
+    html = '<div class="field-grid">' + Array.from({ length: k - 1 }, (_, i) => i + 1).map(r => card(`P0→P${r}`, area(bi('3 бүтін сан', '3 целых числа'), `set_${r}`, [String(r), String(r + 1), String(r + 2)]))).join('') + '</div>';
   } else if ([62, 67].includes(currentTask)) {
     html = `<p class="form-note">${bi('Әр үштікте 1-ші және 3-ші сан бүтін (2), ал 2-ші сан нүктесі бар нақты (2.0) болуы керек.', 'В каждой тройке 1-е и 3-е числа — целые (2), 2-е — вещественное с точкой (2.0).')}</p><div class="field-grid">` +
-      Array.from({ length: k - 1 }, (_, i) => i + 1).map(r => card(0, `<div class="field-row">${field(`P${r}: int`, `x_${r}`, String(r), 'int')}${field('double', `y_${r}`, (r + 0.5).toFixed(1), 'real')}${field('int', `z_${r}`, String(r + 1), 'int')}</div>`)).join('') + '</div>';
+      Array.from({ length: k - 1 }, (_, i) => i + 1).map(r => card(`P0→P${r}`, `<div class="field-row">${field('int', `x_${r}`, String(r), 'int')}${field('double', `y_${r}`, (r + 0.5).toFixed(1), 'real')}${field('int', `z_${r}`, String(r + 1), 'int')}</div>`)).join('') + '</div>';
   } else if (currentTask === 64) {
     html = `<p class="form-note">${bi('Әр процесте 1-ші және 3-ші сан бүтін (2), 2-ші сан нүктесі бар нақты (2.0) болуы керек.', 'В каждом процессе 1-е и 3-е числа — целые (2), 2-е — вещественное с точкой (2.0).')}</p><div class="field-grid">` +
       Array.from({ length: k }, (_, r) => card(r, `<div class="field-row">${field('int', `x_${r}`, String(r), 'int')}${field('double', `y_${r}`, (r + 0.5).toFixed(1), 'real')}${field('int', `z_${r}`, String(r + 1), 'int')}</div>`)).join('') + '</div>';
@@ -354,7 +355,7 @@ function renderInputs() {
   } else if (currentTask === 94) {
     const defM = Math.min(2, k), defN = Math.max(1, Math.min(2, Math.floor(k / defM)));
     html = `<p class="form-note">${bi('P0-де оң бүтін M, N (M·N ≤ K) және P0…P(M·N−1) процестерінде бүтін X, Y координаттарын енгізіңіз (2-өлшем периодты).', 'Введите в P0 положительные целые M, N (M·N ≤ K), а в процессах P0…P(M·N−1) — целые координаты X, Y (2-е измерение периодическое).')}</p><div class="field-grid">` +
-      card(0, `<div class="field-row">${field(bi('Бүтін M (жолдар)', 'Целое M (строк)'), 'm_0', String(defM), 'int', 'data-grid-dim="1"')}${field(bi('Бүтін N (бағандар)', 'Целое N (столбцов)'), 'n_0', String(defN), 'int', 'data-grid-dim="1"')}</div><div class="field-row" style="margin-top:10px">${field('X', 'x_0', '0', 'int')}${field('Y', 'y_0', '-1', 'int')}</div>`) +
+      card(0, `<div class="field-row">${field(bi('Бүтін M (жолдар)', 'Целое M (строк)'), 'm_0', String(defM), 'int', 'data-grid-dim="1"')}${field(bi('Бүтін N (бағандар)', 'Целое N (столбцов)'), 'n_0', String(defN), 'int', 'data-grid-dim="1"')}${field('X', 'x_0', '0', 'int')}${field('Y', 'y_0', '-1', 'int')}</div>`) +
       Array.from({ length: k - 1 }, (_, i) => i + 1).map(r => card(r, `<div class="field-row">${field('X', `x_${r}`, String(r % defM), 'int')}${field('Y', `y_${r}`, String(r), 'int')}</div>`)).join('') + '</div>';
   } else if (currentTask === 96) {
     const bad = k < 4 || k % 2 !== 0;
@@ -370,9 +371,9 @@ function renderInputs() {
       Array.from({ length: k }, (_, r) => card(r, field(bi('Бүтін A', 'Целое A'), `v_${r}`, String(r * 10), 'int'))).join('') + '</div>';
   }
 
-  dynamicFields.innerHTML = `<h3 class="section-label"><span>01</span>${bi('Бастапқы деректер', 'Исходные данные', 'b')}</h3>` + html;
+  dynamicFields.innerHTML = html;
   dynamicFields.querySelectorAll('select').forEach(select => {
-    select.insertAdjacentHTML('afterbegin', `<option value="" selected disabled>${document.documentElement.lang === 'ru' ? 'Выберите' : 'Таңдаңыз'}</option>`);
+    select.insertAdjacentHTML('afterbegin', `<option value="" selected disabled data-kk="Таңдаңыз" data-ru="Выберите">${document.documentElement.lang === 'ru' ? 'Выберите' : 'Таңдаңыз'}</option>`);
     select.value = '';
   });
   dynamicFields.querySelectorAll('select[data-toggle-a], input[data-grid-dim]').forEach(el => el.addEventListener('input', () => syncConditionalInputs(k)));
@@ -410,6 +411,9 @@ function loadFileExample() {
   const example = window.MpiFileExamples?.[currentTask];
   if (!example || currentModule === 1) {
     renderInputs();
+    dynamicFields.querySelectorAll('input,textarea,select').forEach(el => {
+      if (!el.disabled && !el.value && el.placeholder) el.value = el.placeholder;
+    });
     return;
   }
   processCount.value = example.k;
@@ -807,6 +811,7 @@ processCount.addEventListener('change', renderInputs);
 document.querySelector('#decreaseProcesses').addEventListener('click', () => { processCount.value = clampK() - 1; renderInputs(); });
 document.querySelector('#increaseProcesses').addEventListener('click', () => { processCount.value = clampK() + 1; renderInputs(); });
 document.querySelector('#resetExample').addEventListener('click', loadFileExample);
+document.querySelector('#clearFields')?.addEventListener('click', renderInputs);
 
 form.addEventListener('submit', event => {
   event.preventDefault();

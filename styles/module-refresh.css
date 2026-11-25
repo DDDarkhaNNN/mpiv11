@@ -51,28 +51,57 @@
 @media(max-width:760px){.module-brief{padding:19px 20px}.brief-links{width:100%}.brief-links a{flex:1;white-space:normal;text-align:center}.page-practice .task-sidebar{gap:10px}.page-practice .module-tabs{overflow-x:auto;scrollbar-width:thin}.page-practice .module-tab{font-size:.8rem;padding:8px 6px;white-space:nowrap}.page-practice .task-filter{min-width:min(100%,210px)}.page-practice .search-filter{display:none}.page-practice .calculator-header{align-items:flex-start}.page-practice .process-control{width:100%;justify-content:space-between}.page-practice .lesson-panel{padding:22px 19px}.code-actions{width:100%}.code-actions a{flex:1}}
 @media(prefers-reduced-motion:reduce){.module-brief *,.code-actions *{animation:none!important;transition:none!important}}
 /* Compact process table. Each rank occupies one row. */
-.page-practice .task-sidebar{padding-bottom:12px;gap:12px}
-.page-practice .module-brief{margin-bottom:12px;padding:14px 18px}
-.page-practice .calculator-shell{grid-template-columns:minmax(0,1.25fr) minmax(290px,.75fr);gap:12px}
-.page-practice .calculator-header{padding:16px 20px;gap:16px}
+.page-practice .app-main{padding-top:18px;padding-bottom:24px}
+.page-practice .welcome-row{margin-bottom:10px}
+.page-practice .welcome-row h1{font-size:1.55rem;margin-bottom:2px}
+.page-practice .welcome-copy{font-size:.92rem}
+.page-practice .task-sidebar{padding-bottom:10px;gap:12px}
+.page-practice .module-tabs{height:40px}
+.page-practice .module-tab{min-height:38px;padding:7px 11px}
+.page-practice .task-filter{gap:4px}
+.page-practice .task-filter select,.page-practice .task-filter input{min-height:38px;height:38px;padding:6px 10px;font-size:.94rem}
+.page-practice .module-brief{margin-bottom:10px;padding:10px 16px;gap:16px}
+.brief-kicker{margin-bottom:2px;font-size:.74rem}
+.module-brief h2{font-size:1rem;margin:0 0 2px}
+.module-brief p{font-size:.85rem;line-height:1.45}
+.brief-links a{min-height:34px;padding:5px 11px;font-size:.85rem}
+.page-practice .learning-progress{margin-bottom:10px}
+.page-practice .completion-button{padding:6px 12px}
+.page-practice .calculator-shell{grid-template-columns:minmax(0,1.25fr) minmax(290px,.75fr);gap:10px 14px}
+.page-practice .calculator-header{padding:12px 18px;gap:16px}
+.page-practice .breadcrumb{margin-bottom:3px}
+.page-practice .task-heading h2{font-size:1.28rem;margin-bottom:3px}
+.page-practice .task-heading>p{font-size:.9rem;line-height:1.5;margin:0}
+.page-practice .stepper{height:38px}
+.page-practice .lesson-tabs{padding-bottom:4px}
+.page-practice .lesson-tabs button{padding:7px 14px;font-size:.92rem}
 .page-practice .process-overview{display:none}
-.page-practice .calculator-form{grid-column:1;grid-row:2;padding:12px 16px}
-.page-practice .result-panel{grid-column:2;grid-row:2}
-.page-practice .section-label{margin-bottom:10px;font-size:1rem}
-.page-practice .form-note{margin-bottom:10px;padding:8px 10px}
-.page-practice .field-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:0;border-top:1px solid var(--line)}
-.page-practice .field-card{display:grid;grid-template-columns:58px minmax(0,1fr);align-items:center;gap:10px;padding:8px 2px;border:0;border-bottom:1px solid var(--line);border-radius:0;background:transparent}
-.page-practice .field-card h4{margin:0;font-size:.9rem;color:var(--navy)}
-.page-practice .field-card h4 span{display:none}
-.page-practice .field-card>.input-group{display:grid;grid-template-columns:minmax(100px,1fr) minmax(130px,1.6fr);align-items:center;gap:10px}
-.page-practice .field-card .input-group label{margin:0;font-size:.8rem}
-.page-practice .field-card .field-row{display:flex;gap:8px;min-width:0}
-.page-practice .field-card .field-row>.input-group{flex:1;min-width:0}
-.page-practice .field-card input,.page-practice .field-card textarea,.page-practice .field-card select{min-height:38px;padding:7px 9px;font-size:.92rem}
-.page-practice .field-card textarea{min-height:42px;resize:vertical}
-.page-practice .form-actions{margin-top:12px}
-.page-practice .result-heading{padding:14px 18px}
-.page-practice .result-content{min-height:160px;padding:16px 18px}
-.page-practice .result-placeholder{margin:8px auto}
-@media(max-width:1050px){.page-practice .calculator-shell{grid-template-columns:minmax(0,1fr)}.page-practice .calculator-form{grid-column:1;grid-row:2}.page-practice .result-panel{grid-column:1;grid-row:3}}
-@media(max-width:600px){.page-practice .field-card{grid-template-columns:42px minmax(0,1fr);gap:6px}.page-practice .field-card>.input-group{grid-template-columns:minmax(0,1fr)}.page-practice .field-card .field-row{flex-wrap:wrap}.page-practice .field-card .field-row>.input-group{min-width:120px}}
+.page-practice .calculator-form{grid-column:1;grid-row:3;padding:12px 14px}
+.page-practice .result-panel{grid-column:2;grid-row:3}
+.page-practice .form-note{margin:0 0 8px;padding:7px 10px;font-size:.85rem;line-height:1.45}
+.page-practice .field-grid{display:block;gap:0;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff}
+.rank-row{display:flex;align-items:flex-end;gap:10px;padding:6px 10px;border-bottom:1px solid #edf0f5}
+.rank-row:last-child{border-bottom:0}
+.rank-row:nth-child(even){background:#fafbfd}
+.rank-tag{flex:0 0 auto;min-width:34px;align-self:center;font:600 .86rem/1 Consolas,monospace;color:var(--blue);white-space:nowrap}
+.rank-fields{display:flex;flex-wrap:wrap;gap:6px 8px;flex:1;min-width:0}
+.rank-fields .field-row{display:contents}
+.rank-fields .input-group{flex:1 1 92px;min-width:0}
+.rank-fields .input-group.wide{flex:3 1 220px}
+.page-practice .rank-fields .input-group label{display:block;margin:0 0 2px;font-size:.74rem;line-height:1.2;color:#7a8597;font-weight:500}
+.page-practice .rank-fields .input-group input,.page-practice .rank-fields .input-group select{min-height:34px;height:34px;padding:4px 9px;font-size:.94rem;border-radius:6px}
+.page-practice .rank-fields input.set-input{text-align:left;font-family:Consolas,'Segoe UI',monospace}
+.page-practice .rank-fields input::placeholder{color:#b6bfcd;opacity:1}
+.page-practice .form-actions{margin-top:10px;padding-top:0;border-top:0;gap:8px}
+.page-practice .button{min-height:38px;padding:7px 14px}
+.page-practice .result-heading{padding:10px 16px}
+.page-practice .result-content{min-height:0;padding:12px 16px}
+.page-practice .result-placeholder{margin:6px auto;font-size:.9rem}
+.page-practice .result-placeholder:before{display:none}
+.page-practice .result-table td,.page-practice .result-table th{padding:7px 10px}
+.page-practice .lesson-panel{padding:16px 20px}
+.page-practice .lesson-panel .lesson-lead{margin-bottom:12px}
+.page-practice .lesson-example{margin-top:12px;padding:12px 16px}
+.page-practice .lesson-source{margin-top:12px}
+@media(max-width:1050px){.page-practice .calculator-shell{grid-template-columns:minmax(0,1fr)}.page-practice .calculator-form{grid-column:1;grid-row:3}.page-practice .result-panel{grid-column:1;grid-row:4}}
+@media(max-width:600px){.rank-row{flex-wrap:wrap;gap:4px 8px}.rank-fields{flex-basis:100%}}
