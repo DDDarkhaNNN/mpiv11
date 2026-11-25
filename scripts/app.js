@@ -142,7 +142,7 @@ const area = (labelHtml, id, values) =>
   `<div class="input-group wide"><label for="${id}">${labelHtml}</label><input id="${id}" name="${id}" class="set-input" type="text" autocomplete="off" spellcheck="false" placeholder="${escapeHtml(values.join(' '))}" value=""></div>`;
 
 const card = (rank, body) =>
-  `<div class="rank-row"><span class="rank-tag">${typeof rank === 'number' ? `P${rank}` : escapeHtml(rank)}</span><div class="rank-fields">${body}</div></div>`;
+  `<div class="rank-row" data-rank="${escapeHtml(rank)}"><span class="rank-tag">${typeof rank === 'number' ? `P${rank}` : escapeHtml(rank)}</span><div class="rank-fields">${body}</div></div>`;
 
 function isTaskDone(id) {
   try {
@@ -319,6 +319,9 @@ function selectTask(id) {
     url.searchParams.set('task', String(currentTask));
     window.history.replaceState(null, '', url.pathname + '?' + url.searchParams.toString());
   } catch {}
+  const shell = document.querySelector('.calculator-shell');
+  shell?.classList.remove('task-enter');
+  if (shell) { void shell.offsetWidth; shell.classList.add('task-enter'); }
 }
 
 function renderProcessStrip(k) {
@@ -954,8 +957,19 @@ document.querySelector('#increaseProcesses').addEventListener('click', () => { p
 document.querySelector('#resetExample').addEventListener('click', loadFileExample);
 document.querySelector('#clearFields')?.addEventListener('click', renderInputs);
 
-form.addEventListener('submit', event => {
+form.addEventListener('input', () => {
+  dynamicFields.querySelectorAll('.rank-row.input-error').forEach(row => row.classList.remove('input-error'));
+});
+
+form.addEventListener('submit', async event => {
   event.preventDefault();
+  const button = form.querySelector('button[type="submit"]');
+  if (button.disabled) return;
+  const original = button.innerHTML;
+  button.disabled = true;
+  button.innerHTML = bi('Есептелуде…', 'Вычисляем…');
+  resultContent.setAttribute('aria-busy', 'true');
+  await new Promise(resolve => setTimeout(resolve, 180));
   try {
     resultContent.innerHTML = calculate();
     window.MpiLessonUI?.success();
@@ -964,7 +978,15 @@ form.addEventListener('submit', event => {
       ? bi(error.kk, error.ru)
       : escapeHtml(error.message);
     resultContent.innerHTML = `<div class="result-error">${bi('Тексеру қажет:', 'Ошибка ввода:', 'strong')} ${body}</div>`;
+    const rank = String(error.kk || error.message).match(/P(\d+)/)?.[1];
+    const row = rank == null ? null : dynamicFields.querySelector(`.rank-row[data-rank="${rank}"]`);
+    row?.classList.add('input-error');
+    (row?.querySelector('input:not(:disabled),select:not(:disabled)') || dynamicFields.querySelector('input:not(:disabled):placeholder-shown,select:invalid'))?.focus();
     window.MpiLessonUI?.failure();
+  } finally {
+    resultContent.removeAttribute('aria-busy');
+    button.innerHTML = original;
+    button.disabled = false;
   }
 });
 

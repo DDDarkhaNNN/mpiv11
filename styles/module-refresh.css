@@ -137,3 +137,19 @@
 .nav-step-bottom{flex:1;min-height:38px;padding:7px 11px;font-size:.85rem;text-align:center}
 @media(max-width:1050px){.page-practice .calculator-shell{grid-template-columns:minmax(0,1fr)}.page-practice .calculator-form{grid-column:1;grid-row:3}.page-practice .result-panel{grid-column:1;grid-row:4}.header-controls{width:100%;justify-content:space-between}}
 @media(max-width:600px){.rank-row{flex-wrap:wrap;gap:4px 8px}.rank-fields{flex-basis:100%}.task-QuickNav{width:100%}.task-QuickNav .button{flex:1}.result-footer-nav,.lesson-footer-nav{flex-direction:column;align-items:stretch}}
+/* Motion is limited to task changes, active input, and newly calculated results. */
+.page-practice .calculator-shell.task-enter .calculator-header,.page-practice .calculator-shell.task-enter .calculator-form,.page-practice .calculator-shell.task-enter .result-panel{animation:task-content-in 190ms ease-out both}
+.page-practice .rank-row{transition:background-color 150ms,border-color 150ms,box-shadow 150ms}
+.page-practice .rank-row:focus-within{background:#eef3ff;box-shadow:inset 3px 0 0 var(--blue)}
+.page-practice .rank-row.input-error{background:#fff3f0;box-shadow:inset 3px 0 0 #c8533d}
+.page-practice .rank-row.input-error input,.page-practice .rank-row.input-error select{border-color:#c8533d}
+.page-practice .calculator-form button[type=submit]:disabled{opacity:.76;cursor:progress}
+.page-practice .result-table tbody tr{animation:result-row-in 240ms ease-out both}
+.page-practice .result-table tbody tr:nth-child(2){animation-delay:35ms}
+.page-practice .result-table tbody tr:nth-child(3){animation-delay:70ms}
+.page-practice .result-table tbody tr:nth-child(n+4){animation-delay:105ms}
+.page-practice .trace-diagram .active-wire{stroke-dasharray:6 5;animation:wire-flow 900ms linear infinite}
+@keyframes task-content-in{from{opacity:.45;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+@keyframes result-row-in{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+@keyframes wire-flow{to{stroke-dashoffset:-11}}
+@media(prefers-reduced-motion:reduce){.page-practice .calculator-shell.task-enter .calculator-header,.page-practice .calculator-shell.task-enter .calculator-form,.page-practice .calculator-shell.task-enter .result-panel,.page-practice .result-table tbody tr,.page-practice .trace-diagram .active-wire{animation:none}.page-practice .rank-row{transition:none}}
