@@ -1,12 +1,17 @@
 const TASKS = window.MpiLabData.tasks;
+const MODULE_ORDER = [1, 2, 3, 4, 5];
+const FLAT_TASKS = MODULE_ORDER.flatMap(mod => TASKS[mod].map(t => ({ module: mod, id: t.id, short: t.short })));
 
 let currentModule = 1;
 let currentTask = 3;
 
 const taskList = document.querySelector('#taskList');
 const taskSelect = document.querySelector('#taskSelect');
+const moduleTaskStrip = document.querySelector('#moduleTaskStrip');
 const taskTitle = document.querySelector('#taskTitle');
 const taskCode = document.querySelector('#taskCode');
+const taskPosition = document.querySelector('#taskPosition');
+const taskApiBadge = document.querySelector('#taskApiBadge');
 const taskDescription = document.querySelector('#taskDescription');
 const taskModule = document.querySelector('#taskModule');
 const processCount = document.querySelector('#processCount');
@@ -14,6 +19,10 @@ const processStrip = document.querySelector('#processStrip');
 const dynamicFields = document.querySelector('#dynamicFields');
 const form = document.querySelector('#calculatorForm');
 const resultContent = document.querySelector('#resultContent');
+const prevTaskTop = document.querySelector('#prevTaskTop');
+const nextTaskTop = document.querySelector('#nextTaskTop');
+const prevTaskBottom = document.querySelector('#prevTaskBottom');
+const nextTaskBottom = document.querySelector('#nextTaskBottom');
 
 const escapeHtml = text => String(text).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const bi = (kk, ru, tag = 'span') => {
@@ -135,6 +144,15 @@ const area = (labelHtml, id, values) =>
 const card = (rank, body) =>
   `<div class="rank-row"><span class="rank-tag">${typeof rank === 'number' ? `P${rank}` : escapeHtml(rank)}</span><div class="rank-fields">${body}</div></div>`;
 
+function isTaskDone(id) {
+  try {
+    const saved = JSON.parse(localStorage.getItem('mpi-completed-v1') || '{}');
+    return Boolean(saved && saved[id] === true);
+  } catch {
+    return false;
+  }
+}
+
 function renderTaskList() {
   const query = (document.querySelector('#taskSearch')?.value || '').trim().toLowerCase();
   const visibleTasks = TASKS[currentModule].filter(t => `mpibegin${t.id} ${t.short} ${t.description}`.toLowerCase().includes(query));
@@ -151,7 +169,104 @@ function renderTaskList() {
     </button>`).join('');
   taskList.querySelectorAll('.task-button').forEach(button => button.addEventListener('click', () => selectTask(Number(button.dataset.task))));
   if (!visibleTasks.length) taskList.innerHTML = '<p class="no-tasks">Бұл модульден тапсырма табылмады.</p>';
+
+  if (moduleTaskStrip) {
+    moduleTaskStrip.innerHTML = TASKS[currentModule].map(t => {
+      const done = isTaskDone(t.id);
+      const match = !query || `mpibegin${t.id} ${t.short} ${t.description}`.toLowerCase().includes(query);
+      return `<button type="button" class="task-chip ${t.id === currentTask ? 'active' : ''} ${done ? 'done' : ''} ${!match ? 'dimmed' : ''}" data-task="${t.id}" title="${escapeHtml(`MPIBegin${t.id} — ${t.short}`)}">${done ? '<i class="chip-check" aria-hidden="true">✓</i>' : ''}<span>MPIBegin${t.id}</span></button>`;
+    }).join('');
+    moduleTaskStrip.querySelectorAll('.task-chip').forEach(chip =>
+      chip.addEventListener('click', () => selectTask(Number(chip.dataset.task)))
+    );
+  }
 }
+
+function updateModuleTabsUI() {
+  document.querySelectorAll('.module-tab').forEach(t => {
+    const active = Number(t.dataset.module) === currentModule;
+    t.classList.toggle('active', active);
+    t.setAttribute('aria-selected', String(active));
+  });
+}
+
+function updateTaskNavButtons() {
+  const idx = FLAT_TASKS.findIndex(item => item.id === currentTask);
+  const prev = idx > 0 ? FLAT_TASKS[idx - 1] : null;
+  const next = idx >= 0 && idx < FLAT_TASKS.length - 1 ? FLAT_TASKS[idx + 1] : null;
+  const modTasks = TASKS[currentModule] || [];
+  const modIdx = modTasks.findIndex(t => t.id === currentTask);
+
+  if (taskPosition && idx >= 0) {
+    const kkPos = `Модульде ${modIdx + 1}/${modTasks.length} · Барлығы ${idx + 1}/${FLAT_TASKS.length}`;
+    const ruPos = `В модуле ${modIdx + 1}/${modTasks.length} · Всего ${idx + 1}/${FLAT_TASKS.length}`;
+    taskPosition.dataset.kk = kkPos;
+    taskPosition.dataset.ru = ruPos;
+    taskPosition.textContent = document.documentElement.lang === 'ru' ? ruPos : kkPos;
+  }
+
+  if (prevTaskTop) {
+    prevTaskTop.disabled = !prev;
+    const kk = prev ? `← MPIBegin${prev.id}` : '← Басы';
+    const ru = prev ? `← MPIBegin${prev.id}` : '← Начало';
+    prevTaskTop.dataset.kk = kk;
+    prevTaskTop.dataset.ru = ru;
+    prevTaskTop.textContent = document.documentElement.lang === 'ru' ? ru : kk;
+    prevTaskTop.title = prev ? `Модуль ${prev.module} · MPIBegin${prev.id}` : '';
+  }
+
+  if (nextTaskTop) {
+    nextTaskTop.disabled = !next;
+    const kk = next ? `Келесі: MPIBegin${next.id} →` : 'Соңғы есеп ✓';
+    const ru = next ? `Следующая: MPIBegin${next.id} →` : 'Последняя задача ✓';
+    nextTaskTop.dataset.kk = kk;
+    nextTaskTop.dataset.ru = ru;
+    nextTaskTop.textContent = document.documentElement.lang === 'ru' ? ru : kk;
+    nextTaskTop.title = next ? `Модуль ${next.module} · MPIBegin${next.id}` : '';
+  }
+
+  if (prevTaskBottom) {
+    prevTaskBottom.disabled = !prev;
+    const kk = prev
+      ? (prev.module !== currentModule ? `← Алдыңғы (Модуль ${prev.module} · MPIBegin${prev.id})` : `← Алдыңғы есеп (MPIBegin${prev.id})`)
+      : '← Бірінші есеп';
+    const ru = prev
+      ? (prev.module !== currentModule ? `← Предыдущая (Модуль ${prev.module} · MPIBegin${prev.id})` : `← Предыдущая задача (MPIBegin${prev.id})`)
+      : '← Первая задача';
+    prevTaskBottom.dataset.kk = kk;
+    prevTaskBottom.dataset.ru = ru;
+    prevTaskBottom.textContent = document.documentElement.lang === 'ru' ? ru : kk;
+  }
+
+  if (nextTaskBottom) {
+    nextTaskBottom.disabled = !next;
+    const kk = next
+      ? (next.module !== currentModule ? `Келесі модуль (${next.module}) · MPIBegin${next.id} →` : `Келесі есеп: MPIBegin${next.id} →`)
+      : 'Барлық 36 есептің соңы ✓';
+    const ru = next
+      ? (next.module !== currentModule ? `Следующий модуль (${next.module}) · MPIBegin${next.id} →` : `Следующая задача: MPIBegin${next.id} →`)
+      : 'Конец всех 36 задач ✓';
+    nextTaskBottom.dataset.kk = kk;
+    nextTaskBottom.dataset.ru = ru;
+    nextTaskBottom.textContent = document.documentElement.lang === 'ru' ? ru : kk;
+  }
+}
+
+function goAdjacentTask(delta) {
+  const idx = FLAT_TASKS.findIndex(item => item.id === currentTask);
+  const target = FLAT_TASKS[idx + delta];
+  if (!target) return;
+  if (target.module !== currentModule) {
+    currentModule = target.module;
+    const searchEl = document.querySelector('#taskSearch');
+    if (searchEl) searchEl.value = '';
+    updateModuleTabsUI();
+  }
+  selectTask(target.id);
+}
+
+window.MpiRefreshTaskChips = renderTaskList;
+window.MpiNavigateTask = goAdjacentTask;
 
 const MODULE_TITLES = {
   2: ['Хабар алмасу және тегтер', 'Сообщения и теги'],
@@ -161,12 +276,22 @@ const MODULE_TITLES = {
 };
 
 function selectTask(id) {
+  const ownerMod = MODULE_ORDER.find(mod => TASKS[mod].some(t => t.id === id));
+  if (ownerMod && ownerMod !== currentModule) {
+    currentModule = ownerMod;
+    updateModuleTabsUI();
+  }
   currentTask = id;
   if (processCount) processCount.max = String(maxK());
   const task = TASKS[currentModule].find(t => t.id === id);
   taskModule.textContent = `Модуль ${currentModule}`;
-  taskTitle.textContent = task.short;
+  taskTitle.textContent = `MPIBegin${id} — ${task.short}`;
   if (taskCode) taskCode.textContent = `MPIBegin${id}`;
+  if (taskApiBadge) {
+    const api = window.MpiLessons?.tasks?.[id]?.api || '';
+    taskApiBadge.textContent = api;
+    taskApiBadge.hidden = !api;
+  }
   taskDescription.textContent = task.description;
   const brief = document.querySelector('#moduleBrief');
   if (currentModule === 1) {
@@ -180,13 +305,20 @@ function selectTask(id) {
   exampleButton.dataset.ru = currentModule === 1 ? 'Заполнить примером' : 'Загрузить пример из файлов';
   exampleButton.textContent = document.documentElement.lang === 'ru' ? exampleButton.dataset.ru : exampleButton.dataset.kk;
   renderTaskList();
+  updateTaskNavButtons();
   if (window.MpiFileExamples?.[id]) processCount.value = window.MpiFileExamples[id].k;
   renderInputs();
   resultContent.innerHTML = bi(
-    'Нәтиже осы жерде көрсетіледі. Мәндерді енгізіп, «Нәтижені есептеу» батырмасын басыңыз.',
-    'Результат появится здесь. Введите значения и нажмите «Рассчитать результат».',
+    'Мәндерді енгізіп, «Нәтижені есептеу» батырмасын басыңыз (немесе «Файлдағы мысалды жүктеу» арқылы тексеріңіз).',
+    'Введите данные и нажмите «Рассчитать результат» (или нажмите «Загрузить пример из файлов»).',
     'p'
   ).replace('<p ', '<p class="result-placeholder" ');
+  try {
+    const url = new URL(window.location.href);
+    url.searchParams.set('module', String(currentModule));
+    url.searchParams.set('task', String(currentTask));
+    window.history.replaceState(null, '', url.pathname + '?' + url.searchParams.toString());
+  } catch {}
 }
 
 function renderProcessStrip(k) {
@@ -800,12 +932,21 @@ function calculate() {
 document.querySelectorAll('.module-tab').forEach(tab => tab.addEventListener('click', () => {
   currentModule = Number(tab.dataset.module);
   document.querySelector('#taskSearch').value = '';
-  document.querySelectorAll('.module-tab').forEach(t => {
-    t.classList.toggle('active', t === tab);
-    t.setAttribute('aria-selected', String(t === tab));
-  });
+  updateModuleTabsUI();
   selectTask(TASKS[currentModule][0].id);
 }));
+
+prevTaskTop?.addEventListener('click', () => goAdjacentTask(-1));
+nextTaskTop?.addEventListener('click', () => goAdjacentTask(1));
+prevTaskBottom?.addEventListener('click', () => goAdjacentTask(-1));
+nextTaskBottom?.addEventListener('click', () => goAdjacentTask(1));
+
+document.addEventListener('keydown', event => {
+  if (event.altKey && !event.ctrlKey && !event.metaKey && !event.shiftKey) {
+    if (event.key === 'ArrowRight') { event.preventDefault(); goAdjacentTask(1); }
+    else if (event.key === 'ArrowLeft') { event.preventDefault(); goAdjacentTask(-1); }
+  }
+});
 
 processCount.addEventListener('change', renderInputs);
 document.querySelector('#decreaseProcesses').addEventListener('click', () => { processCount.value = clampK() - 1; renderInputs(); });
@@ -848,7 +989,19 @@ document.querySelector('#copyResult').addEventListener('click', async event => {
   }, 1600);
 });
 
-document.querySelector('#taskSearch').addEventListener('input', renderTaskList);
+document.querySelector('#taskSearch').addEventListener('input', event => {
+  const raw = event.target.value.trim();
+  const numMatch = raw.match(/^(?:mpibegin)?\s*(\d{1,3})$/i);
+  if (numMatch) {
+    const num = Number(numMatch[1]);
+    const hit = FLAT_TASKS.find(t => t.id === num);
+    if (hit && hit.id !== currentTask) {
+      selectTask(hit.id);
+      return;
+    }
+  }
+  renderTaskList();
+});
 taskSelect.addEventListener('change', () => { if (taskSelect.value) selectTask(Number(taskSelect.value)); });
 
 const route = new URLSearchParams(location.search);
@@ -856,9 +1009,7 @@ const routeModule = Number(route.get('module'));
 const routeTask = Number(route.get('task'));
 if ([1, 2, 3, 4, 5].includes(routeModule)) {
   currentModule = routeModule;
-  document.querySelectorAll('.module-tab').forEach(t => {
-    t.classList.toggle('active', Number(t.dataset.module) === routeModule);
-    t.setAttribute('aria-selected', String(Number(t.dataset.module) === routeModule));
-  });
+  updateModuleTabsUI();
 }
-selectTask(TASKS[currentModule].some(t => t.id === routeTask) ? routeTask : TASKS[currentModule][0].id);
+const globalRouteHit = FLAT_TASKS.find(t => t.id === routeTask);
+selectTask(globalRouteHit ? globalRouteHit.id : TASKS[currentModule][0].id);

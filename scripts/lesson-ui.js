@@ -13,10 +13,26 @@
   try {const data=JSON.parse(localStorage.getItem('mpi-completed-v1')||'{}');if(data&&typeof data==='object'&&!Array.isArray(data))completed=data;} catch {canSave=false;}
   const reduced=window.matchMedia('(prefers-reduced-motion: reduce)');
   const stop=()=>{if(timer)clearInterval(timer);timer=null;};
+  function lessonNavFooter() {
+    const prevLbl = document.querySelector('#prevTaskBottom')?.textContent || '←';
+    const nextLbl = document.querySelector('#nextTaskBottom')?.textContent || '→';
+    const prevDis = document.querySelector('#prevTaskBottom')?.disabled ? 'disabled' : '';
+    const nextDis = document.querySelector('#nextTaskBottom')?.disabled ? 'disabled' : '';
+    const prevKk = document.querySelector('#prevTaskBottom')?.dataset.kk || prevLbl;
+    const prevRu = document.querySelector('#prevTaskBottom')?.dataset.ru || prevLbl;
+    const nextKk = document.querySelector('#nextTaskBottom')?.dataset.kk || nextLbl;
+    const nextRu = document.querySelector('#nextTaskBottom')?.dataset.ru || nextLbl;
+    return `<div class="lesson-footer-nav"><button type="button" class="button ghost" data-lesson-nav="-1" ${prevDis} data-kk="${escape(prevKk)}" data-ru="${escape(prevRu)}">${escape(prevLbl)}</button><button type="button" class="button primary" data-lesson-nav="1" ${nextDis} data-kk="${escape(nextKk)}" data-ru="${escape(nextRu)}">${escape(nextLbl)}</button></div>`;
+  }
+  function bindLessonNav() {
+    panel.querySelectorAll('[data-lesson-nav]').forEach(btn =>
+      btn.addEventListener('click', () => window.MpiNavigateTask?.(Number(btn.dataset.lessonNav)))
+    );
+  }
   function progress() {
     const ids=Object.keys(window.MpiLessons.tasks), count=ids.filter(id=>completed[id]===true).length;
     $('#learningProgress').innerHTML=`<div class="progress-count">${bi(`Орындалды: ${count} / ${ids.length}`,`Выполнено: ${count} / ${ids.length}`)}<progress value="${count}" max="${ids.length}" aria-label="${count} / ${ids.length}"></progress></div><button type="button" class="completion-button" id="markComplete" aria-pressed="${!!completed[currentTask]}" ${!snapshot&&!completed[currentTask]?'disabled':''}>${completed[currentTask]?bi('✓ Орындалды · белгіні алу','✓ Выполнено · снять отметку'):bi('Орындалды деп белгілеу','Отметить выполненной')}</button>${!canSave?bi('Белгілер тек осы сессияда сақталады.','Отметки сохраняются только в этой сессии.'):''}`;
-    $('#markComplete').addEventListener('click',()=>{completed[currentTask]=!completed[currentTask];try{localStorage.setItem('mpi-completed-v1',JSON.stringify(completed));}catch{canSave=false;}progress();});
+    $('#markComplete').addEventListener('click',()=>{completed[currentTask]=!completed[currentTask];try{localStorage.setItem('mpi-completed-v1',JSON.stringify(completed));}catch{canSave=false;}progress();window.MpiRefreshTaskChips?.();});
   }
   function setView(next) {stop();view=next;render();}
   function render() {
@@ -28,15 +44,17 @@
     const lesson=window.MpiLessons.tasks[currentTask];
     if(view==='condition') {
       const fileExample=window.MpiFileSummaries?.[currentTask];
-      panel.innerHTML=`<p class="lesson-lead">${pair(window.MpiLessons.modules[currentModule],'span')}</p><div class="condition-grid"><section>${bi('Берілгені','Дано','h3')}${pair(lesson.given)}</section><section>${bi('Орындау керек','Требуется','h3')}${pair(lesson.find)}</section></div><div class="lesson-example">${fileExample?bi('Берілген файлдағы мысал','Пример из предоставленного файла','h3'):bi('Түсіндіру мысалы','Пример для пояснения','h3')}${fileExample?`<p>${escape(fileExample)}</p>`:pair(lesson.example)}</div><div class="lesson-source"><span class="api-label">${escape(lesson.api)}</span><a href="downloads/praktikum.pdf#page=${lesson.page}" target="_blank" rel="noopener">${bi(`Кітап · ${lesson.page}-бет ↗`,`Книга · страница ${lesson.page} ↗`)}</a></div>${bi('Шарт кітап негізінде қайта баяндалған. Браузер MPI шақыруларын орындамай, олардың нәтижесін модельдейді.','Условие пересказано по книге. Браузер моделирует результат, не выполняя вызовы MPI.','p')}`;
+      panel.innerHTML=`<p class="lesson-lead">${pair(window.MpiLessons.modules[currentModule],'span')}</p><div class="condition-grid"><section>${bi('Берілгені','Дано','h3')}${pair(lesson.given)}</section><section>${bi('Орындау керек','Требуется','h3')}${pair(lesson.find)}</section></div><div class="lesson-example">${fileExample?bi('Берілген файлдағы мысал','Пример из предоставленного файла','h3'):bi('Түсіндіру мысалы','Пример для пояснения','h3')}${fileExample?`<p>${escape(fileExample)}</p>`:pair(lesson.example)}</div><div class="lesson-source"><span class="api-label">${escape(lesson.api)}</span><a href="downloads/praktikum.pdf#page=${lesson.page}" target="_blank" rel="noopener">${bi(`Кітап · ${lesson.page}-бет ↗`,`Книга · страница ${lesson.page} ↗`)}</a></div>${bi('Шарт кітап негізінде қайта баяндалған. Браузер MPI шақыруларын орындамай, олардың нәтижесін модельдейді.','Условие пересказано по книге. Браузер моделирует результат, не выполняя вызовы MPI.','p')}${lessonNavFooter()}`;
+      bindLessonNav();
     }
     if(view==='code') {
       const mpi=currentModule>1;
       const path=mpi?`downloads/code/module-${currentModule}/MPIBegin${currentTask}.cpp`:`downloads/code/MPIBegin${currentTask}.cpp`;
-      panel.innerHTML=`<div class="code-heading"><div><p class="eyebrow">${mpi?'Microsoft MPI · C++17':'C++17'}</p><h3>MPIBegin${currentTask}.cpp</h3></div><div class="code-actions"><a class="button ghost" href="${path}" download>${bi('Кодты жүктеу','Скачать код')}</a>${mpi?`<a class="button ghost" href="downloads/module-${currentModule}-variant-11.zip" download>${bi('Толық модуль ZIP','Весь модуль ZIP')}</a>`:''}</div></div><p class="lesson-lead">${mpi?bi('Бұл — сіз берген қалтадағы нақты MPI коды. Жинақта EXE файлдары, ортақ console_mpi.hpp, build.cmd және іске қосу нұсқаулығы бар. Іске қосу үшін Microsoft MPI Runtime, ал қайта құрастыру үшін SDK мен C++17 компиляторы қажет.','Это реальный MPI код из предоставленной папки. В архиве есть EXE, общий console_mpi.hpp, build.cmd и инструкция. Для запуска нужен Microsoft MPI Runtime, для пересборки — SDK и компилятор C++17.'):bi('Windows үшін MPI-сіз C++ оқу үлгісі. VS Code — редактор; іске қосу үшін C++ компиляторы керек.','Учебный пример C++ без MPI для Windows. VS Code — редактор; для запуска нужен компилятор C++.')}</p><pre class="code-view"><code id="sourceCode"></code></pre>`;
+      panel.innerHTML=`<div class="code-heading"><div><p class="eyebrow">${mpi?'Microsoft MPI · C++17':'C++17'}</p><h3>MPIBegin${currentTask}.cpp</h3></div><div class="code-actions"><a class="button ghost" href="${path}" download>${bi('Кодты жүктеу','Скачать код')}</a>${mpi?`<a class="button ghost" href="downloads/module-${currentModule}-variant-11.zip" download>${bi('Толық модуль ZIP','Весь модуль ZIP')}</a>`:''}</div></div><p class="lesson-lead">${mpi?bi('Бұл — сіз берген қалтадағы нақты MPI коды. Жинақта EXE файлдары, ортақ console_mpi.hpp, build.cmd және іске қосу нұсқаулығы бар. Іске қосу үшін Microsoft MPI Runtime, ал қайта құрастыру үшін SDK мен C++17 компиляторы қажет.','Это реальный MPI код из предоставленной папки. В архиве есть EXE, общий console_mpi.hpp, build.cmd и инструкция. Для запуска нужен Microsoft MPI Runtime, для пересборки — SDK и компилятор C++17.'):bi('Windows үшін MPI-сіз C++ оқу үлгісі. VS Code — редактор; іске қосу үшін C++ компиляторы керек.','Учебный пример C++ без MPI для Windows. VS Code — редактор; для запуска нужен компилятор C++.')}</p><pre class="code-view"><code id="sourceCode"></code></pre>${lessonNavFooter()}`;
       $('#sourceCode').textContent=window.MpiSourceCode[currentTask];
+      bindLessonNav();
     }
-    if(view==='steps') renderSteps();
+    if(view==='steps') { renderSteps(); panel.insertAdjacentHTML('beforeend', lessonNavFooter()); bindLessonNav(); }
   }
   function renderSteps() {
     if(!snapshot) {
