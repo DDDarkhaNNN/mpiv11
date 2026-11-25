@@ -42,6 +42,18 @@ inline bool numeric(const std::string& token, T& value) {
     return parsed.ec == std::errc{} && parsed.ptr == last && std::isfinite(static_cast<double>(value));
 }
 
+inline bool strictReal(const std::string& token, double& value) {
+    size_t i = 0;
+    if (i < token.size() && (token[i] == '+' || token[i] == '-')) ++i;
+    const size_t whole = i;
+    while (i < token.size() && token[i] >= '0' && token[i] <= '9') ++i;
+    if (i == whole || i == token.size() || token[i] != '.') return false;
+    ++i;
+    const size_t fraction = i;
+    while (i < token.size() && token[i] >= '0' && token[i] <= '9') ++i;
+    return i > fraction && i == token.size() && numeric(token, value);
+}
+
 inline std::string decimal(double x) {
     char buf[64];
     auto end = std::to_chars(buf, buf + sizeof(buf), x, std::chars_format::general);
@@ -56,17 +68,15 @@ inline double unpackReal(const std::string& token) {
     return value;
 }
 
-inline bool normalize(Row& row, size_t first, bool integers) {
-    for (size_t i = first; i < row.size(); ++i) {
-        if (integers) {
-            int value;
-            if (!numeric(row[i], value)) return false;
-            row[i] = std::to_string(value);
-        } else {
-            double value;
-            if (!numeric(row[i], value)) return false;
-            row[i] = decimal(value);
-        }
+inline bool normalizeToken(std::string& token, bool integers) {
+    if (integers) {
+        int value;
+        if (!numeric(token, value)) return false;
+        token = std::to_string(value);
+    } else {
+        double value;
+        if (!strictReal(token, value)) return false;
+        token = decimal(value);
     }
     return true;
 }
@@ -78,8 +88,23 @@ inline std::string label(int rank) {
 inline Row numbers(const std::string& prompt, size_t low, size_t high, bool integers) {
     for (;;) {
         Row row = readLine(prompt);
-        if (row.size() >= low && row.size() <= high && normalize(row, 0, integers)) return row;
-        std::cout << "Проверьте количество и тип чисел. Повторите эту строку.\n";
+        if (row.size() < low || row.size() > high) {
+            std::cout << "Ошибка: ожидалось " << low;
+            if (low != high) std::cout << ".." << high;
+            std::cout << " чисел, получено " << row.size() << ". Повторите строку.\n";
+            continue;
+        }
+        bool valid = true;
+        for (size_t i = 0; i < row.size(); ++i) {
+            if (!normalizeToken(row[i], integers)) {
+                std::cout << "Ошибка: число №" << i + 1 << " должно быть "
+                          << (integers ? "целым (например, 2)" : "вещественным с точкой (например, 2.0)")
+                          << ". Введено: \"" << row[i] << "\". Повторите строку.\n";
+                valid = false;
+                break;
+            }
+        }
+        if (valid) return row;
     }
 }
 
@@ -90,8 +115,20 @@ inline Row numbered(int rank, const Rows& rows, int low, int high, const std::st
         Row row = readLine(prompt);
         int n;
         double value;
-        if (row.size() != 2 || !numeric(row[0], value) || !numeric(row[1], n) || n < low || n > high) {
-            std::cout << "Введите два числа в указанном порядке. Второе должно быть целым из указанного диапазона.\n";
+        if (row.size() != 2) {
+            std::cout << "Ошибка: введите два числа — вещественное A и целый номер. Повторите строку.\n";
+            continue;
+        }
+        if (!strictReal(row[0], value)) {
+            std::cout << "Ошибка: число №1 должно быть вещественным с точкой (например, 2.0). Повторите строку.\n";
+            continue;
+        }
+        if (!numeric(row[1], n)) {
+            std::cout << "Ошибка: число №2 должно быть целым (например, 2). Повторите строку.\n";
+            continue;
+        }
+        if (n < low || n > high) {
+            std::cout << "Ошибка: номер должен быть от " << low << " до " << high << ". Повторите строку.\n";
             continue;
         }
         const auto number = std::to_string(n);

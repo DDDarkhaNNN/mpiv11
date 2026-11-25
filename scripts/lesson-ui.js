@@ -1,7 +1,10 @@
 (() => {
   const $ = selector => document.querySelector(selector);
   const escape = text => String(text).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  const bi = (kk,ru,tag='span') => `<${tag} data-kk="${escape(kk)}" data-ru="${escape(ru)}">${escape(kk)}</${tag}>`;
+  const bi = (kk,ru,tag='span') => {
+    const active = document.documentElement.lang === 'ru' ? ru : kk;
+    return `<${tag} data-kk="${escape(kk)}" data-ru="${escape(ru)}">${escape(active)}</${tag}>`;
+  };
   const pair = (texts,tag='p') => bi(texts[0],texts[1],tag);
   const shell=$('.calculator-shell'), panel=$('#lessonPanel'), tabs=$('#lessonTabs');
   const labels={condition:['Шарты','Условие'],calculate:['Есептеу','Расчёт'],steps:['Қадамдар','Шаги'],code:['C++ коды','Код C++']};
@@ -38,7 +41,7 @@
   function renderSteps() {
     if(!snapshot) {
       panel.innerHTML=`<div class="lesson-empty">${bi('Өз сандарыңызбен қадамдап қараңыз','Разберите шаги на своих данных','h3')}${bi(error?'Алдымен «Есептеу» бөліміндегі деректер қатесін түзетіңіз.':'Енгізілген деректер бойынша есептеп, процестердің әрекетін көрсетеміз.',error?'Сначала исправьте ошибку данных в разделе «Расчёт».':'Рассчитаем результат и покажем действия процессов для введённых данных.','p')}<button class="button primary" id="traceCalculate" type="button">${bi(error?'Деректерге оралу':'Есептеу және көрсету',error?'Вернуться к данным':'Рассчитать и показать')}</button></div>`;
-      $('#traceCalculate').addEventListener('click',()=>{if(error)setView('calculate');else if(form.reportValidity())form.requestSubmit();else setView('calculate');});return;
+      $('#traceCalculate').addEventListener('click',()=>{if(error)setView('calculate');else form.requestSubmit();});return;
     }
     panel.innerHTML=`<h3>${bi('Деректер қалай өңделеді?','Как обрабатываются данные?')}</h3><div id="traceStage"></div><div class="trace-controls"><button type="button" id="tracePrev">${bi('← Артқа','← Назад')}</button><button type="button" class="primary" id="tracePlay">${bi('▶ Ойнату','▶ Воспроизвести')}</button><button type="button" id="traceNext">${bi('Келесі →','Далее →')}</button><output id="traceCounter" aria-live="polite"></output></div>${bi('Сызба операцияның логикасын көрсетеді. Бұл MPI кітапханасының нақты жіберу реті немесе жылдамдығы емес.','Схема показывает логику операции, а не фактический порядок сообщений или скорость библиотеки MPI.','p')}`;
     panel.lastElementChild.className='trace-footnote';
@@ -51,9 +54,10 @@
   function draw(animate) {
     const {k,steps}=snapshot, step=steps[cursor];
     const points=Array.from({length:k},(_,r)=>{const angle=-Math.PI/2+2*Math.PI*r/k;return {x:220+145*Math.cos(angle),y:165+115*Math.sin(angle)};});
-    const matches=(group,r)=>group==='all'||group===r;
-    const from=step.from==='all'?Array.from({length:k},(_,r)=>r):[step.from];
-    const to=step.to==='all'?Array.from({length:k},(_,r)=>r):[step.to];
+    const matches=(group,r)=>Array.isArray(group)?group.includes(r):group==='all'||group===r;
+    const expand=group=>Array.isArray(group)?group:group==='all'?Array.from({length:k},(_,r)=>r):[group];
+    const from=expand(step.from);
+    const to=expand(step.to);
     const paths=[];for(const a of from)for(const b of to)if(a!==b){const p=points[a],q=points[b];paths.push(`M ${p.x} ${p.y} L ${q.x} ${q.y}`);}
     const packet=animate&&!reduced.matches?paths.map(d=>`<circle class="packet" r="4"><animateMotion dur="0.7s" path="${d}" fill="freeze"/></circle>`).join(''):'';
     const svg=`<svg class="trace-diagram" viewBox="0 0 440 330" role="img" aria-label="MPIBegin${currentTask}: ${cursor+1}/${steps.length}"><defs><marker id="arrow" viewBox="0 0 10 10" refX="18" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#3657f5"/></marker></defs>${paths.map(d=>`<path class="active-wire" d="${d}" marker-end="url(#arrow)"/>`).join('')}${packet}${points.map((p,r)=>`<g class="${matches(step.to,r)?'receiver':matches(step.from,r)?'sender':''}"><circle class="node" cx="${p.x}" cy="${p.y}" r="24"/><text x="${p.x}" y="${p.y}">P${r}</text></g>`).join('')}</svg>`;

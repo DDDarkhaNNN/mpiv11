@@ -1,4 +1,4 @@
-/* Windows smoke test for the supplied binaries against their documented examples. */
+/* Windows smoke test for all 28 supplied MPI binaries against their documented examples. */
 import { readFileSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { runInNewContext } from 'node:vm';
@@ -24,6 +24,17 @@ const tasks = {
   64: { module: 3, expected: { 0: '6 2 -3 -5 -2.5 -2 7 0 6', 1: '6 2 -3 -5 -2.5 -2 7 0 6', 2: '6 2 -3 -5 -2.5 -2 7 0 6' } },
   67: { module: 3, expected: { 1: '-6 1.5 1', 2: '-2 3.5 3' } },
   69: { module: 3, expected: { 0: '6 -1 -0.5 5 5 2.5' } },
+  30: { module: 4, expected: { 1: '7', 2: '7' } },
+  34: { module: 4, expected: { 0: '1 2 3 4 5 6 7 8 9' } },
+  37: { module: 4, expected: { 0: '30', 1: '20', 2: '10' } },
+  40: { module: 4, expected: { 0: '1 2 3', 1: '1 2 3', 2: '1 2 3' } },
+  43: { module: 4, expected: { 0: '1 4 7', 1: '2 5 8', 2: '3 6 9' } },
+  45: { module: 4, expected: { 0: '1 10 100', 1: '2 3 20 30 200 300', 2: '4 5 6 40 50 60 400 500 600' } },
+  71: { module: 4, expected: { 0: '7', 2: '8', 4: '9' } },
+  75: { module: 4, expected: { 0: '5', 1: '2' } },
+  77: { module: 4, expected: { 1: '1.5 3.5' } },
+  79: { module: 4, expected: { 1: '1.5 3.5', 3: '1.5 3.5' } },
+  80: { module: 4, expected: { 0: '10 30', 1: '20 40', 2: '10 30', 3: '20 40' } },
 };
 
 function inputRows(id, example) {
@@ -32,14 +43,17 @@ function inputRows(id, example) {
   const joinTriple = r => `${v[`x_${r}`]} ${v[`y_${r}`]} ${v[`z_${r}`]}`;
   if (id === 11) rows.push(Array.from({ length: k - 1 }, (_, i) => v[`v_${i + 1}`]).join(' '));
   else if (id === 16) rows.push(v.expected_0, ...Array.from({ length: k - 1 }, (_, i) => v[`v_${i + 1}`]));
+  else if (id === 30) rows.push(v.v_0);
+  else if ([37, 71].includes(id)) rows.push(v.set_0);
   else if ([59, 62, 67].includes(id)) rows.push(Array.from({ length: k - 1 }, (_, i) => id === 59 ? v[`set_${i + 1}`] : joinTriple(i + 1)).join(' '));
   else for (let r = [10, 26, 29, 69].includes(id) ? 1 : 0; r < k; r++) {
-    if ([10, 24, 48, 51, 54, 57].includes(id)) rows.push(v[`set_${r}`]);
+    if ([10, 24, 34, 43, 45, 48, 51, 54, 57].includes(id)) rows.push(v[`set_${r}`]);
     else if (id === 29) rows.push(`${v[`t_${r}`]} ${v[`set_${r}`]}`);
-    else if (id === 26) rows.push(`${v[`a_${r}`]} ${v[`n_${r}`]}`);
-    else if (id === 21) rows.push(`${v[`a_${r}`]} ${v[`n_${r}`]}`);
+    else if ([21, 26].includes(id)) rows.push(`${v[`a_${r}`]} ${v[`n_${r}`]}`);
+    else if ([77, 79].includes(id)) rows.push(v[`n_${r}`] === '1' ? `1 ${v[`a_${r}`]}` : '0');
+    else if (id === 80) rows.push(`${v[`n_${r}`]} ${v[`a_${r}`]}`);
     else if ([64, 69].includes(id)) rows.push(joinTriple(r));
-    else if (id === 18) rows.push(v[`v_${r}`]);
+    else if ([18, 40, 75].includes(id)) rows.push(v[`v_${r}`]);
   }
   return [String(k), ...rows, '-1', ''].join('\n');
 }
@@ -48,7 +62,7 @@ let failed = 0;
 for (const [idString, test] of Object.entries(tasks)) {
   const id = Number(idString);
   const program = `downloads/code/module-${test.module}/MPIBegin${id}.exe`;
-  const run = spawnSync(program, { input: inputRows(id, examples[id]), encoding: 'utf8', timeout: 10000, windowsHide: true });
+  const run = spawnSync(program, { input: inputRows(id, examples[id]), encoding: 'utf8', timeout: 15000, windowsHide: true });
   const output = (run.stdout || '').replace(/-0(?=\s|$)/g, '0');
   const actual = Object.fromEntries([...output.matchAll(/Ответ ранга (\d+): ([^\r\n]*)/g)].map(m => [m[1], m[2].trim()]));
   const okay = !run.error && run.status === 0 && JSON.stringify(actual) === JSON.stringify(test.expected);

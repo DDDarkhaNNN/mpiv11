@@ -1,10 +1,10 @@
-/* Module 2 and 3 refresh: clearer hierarchy, comfortable type, restrained colour. */
+/* Module 2, 3 and 4 refresh: clearer hierarchy, comfortable type, restrained colour. */
 .page-practice .app-main,.page-resources .app-main{max-width:1700px}
 .module-brief{display:flex;justify-content:space-between;align-items:center;gap:28px;margin:0 0 24px;padding:22px 26px;background:#fff;border:1px solid #dce2ec;border-left:4px solid #3657c9;border-radius:12px}
 .module-brief>div:first-child{min-width:0}
 .brief-kicker{display:block;margin-bottom:7px;color:#4660a5;font-size:.82rem;font-weight:700;letter-spacing:.065em}
 .module-brief h2{margin:0 0 5px;font-size:1.17rem;line-height:1.35;letter-spacing:-.015em}
-.module-brief p{margin:0;max-width:760px;color:#596476;font-size:.94rem;line-height:1.55}
+.module-brief p{margin:0;max-width:780px;color:#596476;font-size:.94rem;line-height:1.55}
 .brief-links{display:flex;align-items:center;gap:10px;flex-wrap:wrap;flex-shrink:0}
 .brief-links a{display:inline-flex;align-items:center;justify-content:center;min-height:43px;padding:9px 14px;border:1px solid #cbd5e4;border-radius:8px;color:#2949a6;font-size:.91rem;font-weight:600;text-decoration:none;white-space:nowrap}
 .brief-links a:first-child{background:#edf2ff;border-color:#d5dffa}
@@ -14,7 +14,7 @@
 .page-practice .task-heading h2{font-size:clamp(1.5rem,2vw,1.9rem);line-height:1.25}
 .page-practice .task-heading>p{font-size:1rem;color:#566273;max-width:72ch}
 .page-practice .breadcrumb{font-size:.85rem}
-.page-practice .module-tab{font-size:.94rem}
+.page-practice .module-tab{font-size:.92rem;padding:10px 12px}
 .page-practice .field-card{padding:17px 18px;border-radius:10px}
 .page-practice .field-card h4{font-size:1.02rem;margin-bottom:12px}
 .page-practice .field-card h4 span{font-size:.84rem}
@@ -22,6 +22,8 @@
 .page-practice .section-label>span{display:none}
 .page-practice .section-label{font-size:1.18rem}
 .page-practice .input-group input,.page-practice .input-group textarea,.page-practice .input-group select{font-size:1rem}
+.page-practice .input-group input.num-input{text-align:right;font-family:Consolas,'Segoe UI',monospace;font-variant-numeric:tabular-nums}
+.page-practice .input-group input:disabled{background:#f1f4f9;color:#8a95a7;border-color:#dce2ec;cursor:not-allowed;text-align:left;font-family:'Segoe UI',Arial,sans-serif;font-size:.9rem}
 .page-practice .form-actions{flex-wrap:wrap}
 .page-practice .calculator-form .button.ghost{font-size:.9rem}
 .page-practice .result-table{font-size:.96rem}
@@ -46,5 +48,5 @@
 .page-resources .panel-symbol{display:none}
 .module-brief a:focus-visible,.code-actions a:focus-visible{outline:3px solid #8aa0df;outline-offset:2px}
 @media(max-width:1100px){.module-brief{align-items:flex-start;flex-direction:column}.brief-links{flex-shrink:1}}
-@media(max-width:760px){.module-brief{padding:19px 20px}.brief-links{width:100%}.brief-links a{flex:1;white-space:normal;text-align:center}.page-practice .task-sidebar{gap:10px}.page-practice .task-filter{min-width:min(100%,210px)}.page-practice .search-filter{display:none}.page-practice .calculator-header{align-items:flex-start}.page-practice .process-control{width:100%;justify-content:space-between}.page-practice .lesson-panel{padding:22px 19px}.code-actions{width:100%}.code-actions a{flex:1}}
+@media(max-width:760px){.module-brief{padding:19px 20px}.brief-links{width:100%}.brief-links a{flex:1;white-space:normal;text-align:center}.page-practice .task-sidebar{gap:10px}.page-practice .module-tab{font-size:.82rem;padding:8px 6px}.page-practice .task-filter{min-width:min(100%,210px)}.page-practice .search-filter{display:none}.page-practice .calculator-header{align-items:flex-start}.page-practice .process-control{width:100%;justify-content:space-between}.page-practice .lesson-panel{padding:22px 19px}.code-actions{width:100%}.code-actions a{flex:1}}
 @media(prefers-reduced-motion:reduce){.module-brief *,.code-actions *{animation:none!important;transition:none!important}}

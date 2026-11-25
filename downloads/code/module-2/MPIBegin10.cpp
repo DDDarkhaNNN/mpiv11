@@ -4,6 +4,7 @@
 #include <process.h>
 #include <mpi.h>
 #include <array>
+#include <charconv>
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
@@ -84,16 +85,25 @@ std::string readLine(const std::string& prompt) {
     return line;
 }
 
+bool strictInt(const std::string& token, int& value) {
+    const char* first = token.data();
+    const char* last = first + token.size();
+    if (first != last && *first == '+') ++first;
+    if (first == last || *first == '+') return false;
+    auto parsed = std::from_chars(first, last, value);
+    return parsed.ec == std::errc{} && parsed.ptr == last;
+}
+
 int processCount() {
     for (;;) {
         std::istringstream input(readLine("\nСколько всего процессов (1..12, -1 для выхода)? "));
         int count;
-        std::string extra;
-        if ((input >> count) && !(input >> extra)) {
+        std::string token, extra;
+        if ((input >> token) && !(input >> extra) && strictInt(token, count)) {
             if (count == -1) throw EndOfInput{};
             if (count >= 1 && count <= maxRanks) return count;
         }
-        std::cout << "Введите одно число от 1 до 12 или -1 для выхода.\n";
+        std::cout << "Ошибка: введите одно целое число от 1 до 12 или -1 для выхода.\n";
     }
 }
 
@@ -104,16 +114,23 @@ int readBatch(int rank, Batch& values) {
         std::string token;
         bool valid = true;
         while (input >> token) {
-            std::istringstream field(token);
             int x;
-            if (n >= maxLength || !(field >> x) || !field.eof()) {
+            if (n >= maxLength) {
+                std::cout << "Ошибка: можно ввести от 1 до 4 чисел. Повторите строку.\n";
+                valid = false;
+                break;
+            }
+            if (!strictInt(token, x)) {
+                std::cout << "Ошибка: число №" << n + 1
+                          << " должно быть целым (например, 2). Введено: \""
+                          << token << "\". Повторите строку.\n";
                 valid = false;
                 break;
             }
             values[n++] = x;
         }
         if (valid && n > 0) return n;
-        std::cout << "Введите заново всю строку этого ранга: от 1 до 4 целых чисел через пробел.\n";
+        if (valid) std::cout << "Ошибка: введите от 1 до 4 целых чисел через пробел.\n";
     }
 }
 

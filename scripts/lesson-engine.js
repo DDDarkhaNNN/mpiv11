@@ -3,7 +3,7 @@
 window.MpiTrace = function(id, k, inputs) {
   const n = key => Number(inputs[key]);
   const list = r => inputs['set_'+r].trim().split(/[\s,;]+/).filter(Boolean).map(Number);
-  const f = x => Number.isInteger(x) ? String(x) : String(Number(x.toPrecision(8)));
+  const f = x => { const v = Object.is(x, -0) ? 0 : x; return Number.isInteger(v) ? String(v) : String(Number(v.toPrecision(8))); };
   const show = xs => xs.map(f).join(', ');
   const steps = [];
   const add = (from,to,payload,kk,ru) => steps.push({from,to,payload:String(payload),text:[kk,ru]});
@@ -31,6 +31,40 @@ window.MpiTrace = function(id, k, inputs) {
     const r=Array.from({length:k-1},(_,i)=>i+1).find(r=>n('n_'+r)===order);
     add(r,0,f(n('a_'+r)),`P${r} → P0: A=${f(n('a_'+r))}, тег N=${order}. Нәтижедегі орны: ${order}.`,`P${r} → P0: A=${f(n('a_'+r))}, тег N=${order}. Позиция в результате: ${order}.`);
   }
+  if(id===30) {
+    const workers=Array.from({length:k-1},(_,i)=>i+1), v=f(n('v_0'));
+    add(0,workers,v,`MPI_Bcast: P0 → ${workers.map(r=>'P'+r).join(', ')} мәні ${v} таратылады.`,`MPI_Bcast: P0 → ${workers.map(r=>'P'+r).join(', ')} рассылается число ${v}.`);
+  }
+  if(id===34) for(let r=0;r<k;r++) {
+    const xs=list(r);
+    add(r,0,show(xs),`MPI_Gatherv: P${r} (${xs.length} сан) → P0: [${show(xs)}].`,`MPI_Gatherv: P${r} (${xs.length} чис.) → P0: [${show(xs)}].`);
+  }
+  if(id===37) {
+    const xs=list(0);
+    for(let i=0;i<k;i++) {
+      const dest=k-1-i;
+      add(0,dest,f(xs[i]),`MPI_Scatterv: P0 жиынының ${i+1}-саны (${f(xs[i])}) → P${dest}.`,`MPI_Scatterv: ${i+1}-е число набора P0 (${f(xs[i])}) → P${dest}.`);
+    }
+  }
+  if(id===40) for(let r=0;r<k;r++) {
+    const v=f(n('v_'+r));
+    add(r,'all',v,`MPI_Allgather: P${r} саны (${v}) барлық процестерге таратылады.`,`MPI_Allgather: число P${r} (${v}) передаётся всем процессам.`);
+  }
+  if(id===43) {
+    const sets=Array.from({length:k},(_,r)=>list(r));
+    for(let dest=0;dest<k;dest++) {
+      const col=sets.map(s=>s[dest]);
+      add('all',dest,show(col),`MPI_Alltoall: әр жиынның ${dest+1}-саны → P${dest}: [${show(col)}].`,`MPI_Alltoall: ${dest+1}-е числа всех наборов → P${dest}: [${show(col)}].`);
+    }
+  }
+  if(id===45) {
+    const sets=Array.from({length:k},(_,r)=>list(r));
+    for(let dest=0;dest<k;dest++) {
+      const start=dest*(dest+1)/2, len=dest+1;
+      const chunks=sets.flatMap(s=>s.slice(start,start+len));
+      add('all',dest,show(chunks),`MPI_Alltoallv: әр процестен ${len} саннан → P${dest}: [${show(chunks)}].`,`MPI_Alltoallv: по ${len} чис. от каждого процесса → P${dest}: [${show(chunks)}].`);
+    }
+  }
   if([48,51,54,57].includes(id)) {
     const sets=Array.from({length:k},(_,r)=>list(r));
     if(id===57) {
@@ -50,5 +84,34 @@ window.MpiTrace = function(id, k, inputs) {
   }
   if(id===64) for(let r=0;r<k;r++) add(r,'all',show(triple(r)),`P${r}: [${show(triple(r))}] барлық процеске беріледі. Үштіктер P0…P${k-1} ретімен орналасады.`,`P${r}: [${show(triple(r))}] передаётся всем процессам. Тройки располагаются в порядке P0…P${k-1}.`);
   if(id===69) for(let r=1;r<k;r++) add(r,0,show(triple(r)),`P${r} → P0: [${show(triple(r))}]. Оралған үштік ашылып, ранг ретімен сақталады.`,`P${r} → P0: [${show(triple(r))}]. Упакованная тройка распаковывается и сохраняется по порядку рангов.`);
+  if(id===71) {
+    const evens=Array.from({length:Math.floor((k+1)/2)},(_,i)=>2*i), xs=list(0);
+    add(evens,evens,evens.map(r=>'P'+r).join(', '),`MPI_Group_incl + MPI_Comm_create: жұп рангтар тобы құрылды (${evens.map(r=>'P'+r).join(', ')}).`,`MPI_Group_incl + MPI_Comm_create: создан коммуникатор чётных рангов (${evens.map(r=>'P'+r).join(', ')}).`);
+    evens.forEach((dest,i)=>add(0,dest,f(xs[i]),`MPI_Scatter (evenComm): P0 → P${dest}: ${f(xs[i])}.`,`MPI_Scatter (evenComm): P0 → P${dest}: ${f(xs[i])}.`));
+  }
+  if(id===75) {
+    const evens=[], odds=[];
+    for(let r=0;r<k;r++) (r%2===0?evens:odds).push(r);
+    const maxEven=Math.max(...evens.map(r=>n('v_'+r))), minOdd=Math.min(...odds.map(r=>n('v_'+r)));
+    add(evens,0,f(maxEven),`Жұп рангтар (${evens.map(r=>'P'+r).join(', ')}): MPI_MAX = ${f(maxEven)} → P0.`,`Чётные ранги (${evens.map(r=>'P'+r).join(', ')}): MPI_MAX = ${f(maxEven)} → P0.`);
+    add(odds,1,f(minOdd),`Тақ рангтар (${odds.map(r=>'P'+r).join(', ')}): MPI_MIN = ${f(minOdd)} → P1.`,`Нечётные ранги (${odds.map(r=>'P'+r).join(', ')}): MPI_MIN = ${f(minOdd)} → P1.`);
+  }
+  if(id===77||id===79) {
+    const active=Array.from({length:k},(_,r)=>r).filter(r=>n('n_'+r)===1);
+    const vals=active.map(r=>n('a_'+r));
+    if(id===77) {
+      const root=active[0];
+      active.forEach(r=>add(r,root,f(n('a_'+r)),`N=1 тобы (MPI_Gather): P${r} → P${root}: ${f(n('a_'+r))}.`,`Группа N=1 (MPI_Gather): P${r} → P${root}: ${f(n('a_'+r))}.`));
+    } else {
+      add(active,active,show(vals),`N=1 тобы (${active.map(r=>'P'+r).join(', ')}): MPI_Allgather → [${show(vals)}].`,`Группа N=1 (${active.map(r=>'P'+r).join(', ')}): MPI_Allgather → [${show(vals)}].`);
+    }
+  }
+  if(id===80) {
+    for(const g of [1,2]) {
+      const grp=Array.from({length:k},(_,r)=>r).filter(r=>n('n_'+r)===g);
+      const vals=grp.map(r=>n('a_'+r));
+      add(grp,grp,show(vals),`N=${g} тобы (${grp.map(r=>'P'+r).join(', ')}): MPI_Allgather → [${show(vals)}].`,`Группа N=${g} (${grp.map(r=>'P'+r).join(', ')}): MPI_Allgather → [${show(vals)}].`);
+    }
+  }
   return steps;
 };

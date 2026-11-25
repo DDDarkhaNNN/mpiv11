@@ -5,9 +5,26 @@ using namespace console_mpi;
 Row readInput(int rank, int, const Rows&) {
     for (;;) {
         Row row = readLine(label(rank) + "тип (0 — целые, 1 — вещественные), затем до 10 чисел: ");
-        if (!row.empty() && row.size() <= 11 && (row[0] == "0" || row[0] == "1")
-            && normalize(row, 1, row[0] == "0")) return row;
-        std::cout << "Примеры: 0 8 -3 для целых или 1 2.5 для вещественных. Повторите строку.\n";
+        if (row.empty() || (row[0] != "0" && row[0] != "1")) {
+            std::cout << "Ошибка: первое число — тип набора: 0 для целых, 1 для вещественных. Повторите строку.\n";
+            continue;
+        }
+        if (row.size() > 11) {
+            std::cout << "Ошибка: после типа можно ввести не более 10 чисел. Повторите строку.\n";
+            continue;
+        }
+        const bool integers = row[0] == "0";
+        bool valid = true;
+        for (size_t i = 1; i < row.size(); ++i) {
+            if (!normalizeToken(row[i], integers)) {
+                std::cout << "Ошибка: число №" << i << " в наборе должно быть "
+                          << (integers ? "целым (например, 2)" : "вещественным с точкой (например, 2.0)")
+                          << ". Введено: \"" << row[i] << "\". Повторите строку.\n";
+                valid = false;
+                break;
+            }
+        }
+        if (valid) return row;
     }
 }
 
