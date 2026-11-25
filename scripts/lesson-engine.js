@@ -113,5 +113,57 @@ window.MpiTrace = function(id, k, inputs) {
       add(grp,grp,show(vals),`N=${g} тобы (${grp.map(r=>'P'+r).join(', ')}): MPI_Allgather → [${show(vals)}].`,`Группа N=${g} (${grp.map(r=>'P'+r).join(', ')}): MPI_Allgather → [${show(vals)}].`);
     }
   }
+  if(id===83) {
+    const rows=n('n_0'), cols=k/rows;
+    add(0,'all',`N=${rows} → ${rows}×${cols}`,`MPI_Bcast + MPI_Cart_create: P0 N=${rows} жібереді, ${rows}×${cols} матрицасы құрылады.`,`MPI_Bcast + MPI_Cart_create: P0 рассылает N=${rows}, создаётся решётка ${rows}×${cols}.`);
+    for(let r=0;r<k;r++) {
+      const c0=Math.floor(r/cols), c1=r%cols;
+      add(r,r,`${c0} ${c1}`,`MPI_Cart_coords: P${r} координаттары = (${c0}, ${c1}).`,`MPI_Cart_coords: координаты P${r} = (${c0}, ${c1}).`);
+    }
+  }
+  if(id===85) {
+    const half=k/2;
+    const row0=Array.from({length:half},(_,i)=>i), row1=Array.from({length:half},(_,i)=>half+i);
+    const a0=f(n('v_0')), a1=f(n('v_'+half));
+    add(0,row0,a0,`MPI_Cart_sub (0-жол: ${row0.map(r=>'P'+r).join(', ')}): P0 → A=${a0}.`,`MPI_Cart_sub (строка 0: ${row0.map(r=>'P'+r).join(', ')}): P0 рассылает A=${a0}.`);
+    add(half,row1,a1,`MPI_Cart_sub (1-жол: ${row1.map(r=>'P'+r).join(', ')}): P${half} → A=${a1}.`,`MPI_Cart_sub (строка 1: ${row1.map(r=>'P'+r).join(', ')}): P${half} рассылает A=${a1}.`);
+  }
+  if(id===92) {
+    const zDim=k/4;
+    for(let z=0;z<zDim;z++) {
+      const grp=Array.from({length:k},(_,r)=>r).filter(r=>r%zDim===z);
+      const sum=grp.reduce((acc,r)=>acc+n('v_'+r),0);
+      add(grp,grp,f(sum),`z=${z} қимасы (2×2 матрица: ${grp.map(r=>'P'+r).join(', ')}): MPI_Allreduce қосындысы = ${f(sum)}.`,`Сечение z=${z} (матрица 2×2: ${grp.map(r=>'P'+r).join(', ')}): сумма MPI_Allreduce = ${f(sum)}.`);
+    }
+  }
+  if(id===94) {
+    const m=n('m_0'), cols=n('n_0'), total=m*cols;
+    add(0,'all',`${m}×${cols} (periods: 0, 1)`,`MPI_Bcast + MPI_Cart_create: P0…P${total-1} үшін 2-өлшемі периодты ${m}×${cols} торы құрылды.`,`MPI_Bcast + MPI_Cart_create: для P0…P${total-1} создана решётка ${m}×${cols}, периодическая по 2-му измерению.`);
+    for(let r=0;r<total;r++) {
+      const x=n('x_'+r), y=n('y_'+r);
+      const yWrap=((y%cols)+cols)%cols;
+      const target=(x>=0&&x<m)?x*cols+yWrap:-1;
+      if(target>=0) add(r,target,String(target),`P${r}: (X=${x}, Y=${y}) → (X=${x}, Y mod ${cols}=${yWrap}) → ранг P${target}.`,`P${r}: (X=${x}, Y=${y}) → (X=${x}, Y mod ${cols}=${yWrap}) → ранг P${target}.`);
+      else add(r,r,'-1',`P${r}: X=${x} [0…${m-1}] диапазонынан тыс → −1.`,`P${r}: X=${x} вне диапазона [0…${m-1}] → −1.`);
+    }
+  }
+  if(id===96) {
+    const cols=k/2;
+    for(let r=0;r<k;r++) {
+      const row=Math.floor(r/cols), col=r%cols;
+      const dest=row*cols+((col+1)%cols), v=f(n('v_'+r));
+      add(r,dest,v,`${row}-жол (MPI_Cart_shift +1): P${r} → P${dest}: ${v}.`,`Строка ${row} (MPI_Cart_shift +1): P${r} → P${dest}: ${v}.`);
+    }
+  }
+  if(id===100) {
+    const adj=Array.from({length:k},()=>[]);
+    const edge=(a,b)=>{adj[a].push(b);adj[b].push(a);};
+    for(let first=1;first<k;first+=3){edge(first,first+1);edge(first,first+2);edge(first+1,first+2);edge(0,first+2);}
+    adj.forEach(a=>a.sort((x,y)=>x-y));
+    for(let r=0;r<k;r++) {
+      const nbs=adj[r], vals=nbs.map(nb=>f(n('v_'+nb))).join(' ');
+      add(nbs,r,vals,`P${r} көршілері (${nbs.map(nb=>'P'+nb).join(', ')}) → [${vals}].`,`Соседи P${r} (${nbs.map(nb=>'P'+nb).join(', ')}) → [${vals}].`);
+    }
+  }
   return steps;
 };

@@ -22,6 +22,7 @@ for (const [module, tasks] of [
   [2, [10, 11, 16, 18, 21, 24, 26, 29]],
   [3, [48, 51, 54, 57, 59, 62, 64, 67, 69]],
   [4, [30, 34, 37, 40, 43, 45, 71, 75, 77, 79, 80]],
+  [5, [83, 85, 92, 94, 96, 100]],
 ]) {
   for (const task of tasks) {
     const file = `downloads/code/module-${module}/MPIBegin${task}.cpp`;

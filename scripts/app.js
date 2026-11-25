@@ -37,9 +37,19 @@ function check(condition, kk, ru) {
   if (!condition) fail(kk, ru);
 }
 
-const clampK = () => Math.max(2, Math.min(12, Math.trunc(Number(processCount.value)) || 2));
+const maxK = () => currentTask === 100 ? 13 : 12;
+const clampK = () => {
+  const max = maxK();
+  if (processCount) processCount.max = String(max);
+  return Math.max(2, Math.min(max, Math.trunc(Number(processCount.value)) || 2));
+};
 const tokensOf = raw => String(raw).trim().split(/[\s,;]+/).filter(Boolean);
 const isInt32 = value => Number.isInteger(value) && value >= -2147483648 && value <= 2147483647;
+
+function smallestDivisorAboveOne(k) {
+  for (let d = 2; d <= k; d++) if (k % d === 0) return d;
+  return k;
+}
 
 function parseStrictInt(token, whoKk, whoRu) {
   const s = String(token).trim();
@@ -116,8 +126,8 @@ const fmt = value => {
   return Number.isInteger(value) ? String(value) : String(Number(value.toPrecision(12)));
 };
 
-const field = (labelHtml, id, value, mode = 'int') =>
-  `<div class="input-group"><label for="${id}">${labelHtml}</label><input id="${id}" name="${id}" class="num-input" type="text" inputmode="${mode === 'int' ? 'numeric' : 'decimal'}" autocomplete="off" spellcheck="false" value="${escapeHtml(value)}"></div>`;
+const field = (labelHtml, id, value, mode = 'int', extraAttrs = '') =>
+  `<div class="input-group"><label for="${id}">${labelHtml}</label><input id="${id}" name="${id}" class="num-input" type="text" inputmode="${mode === 'int' ? 'numeric' : 'decimal'}" autocomplete="off" spellcheck="false" value="${escapeHtml(value)}" ${extraAttrs}></div>`;
 
 const area = (labelHtml, id, values) =>
   `<div class="input-group"><label for="${id}">${labelHtml}</label><textarea id="${id}" name="${id}" spellcheck="false">${escapeHtml(values.join(' '))}</textarea></div>`;
@@ -146,11 +156,13 @@ function renderTaskList() {
 const MODULE_TITLES = {
   2: ['Хабар алмасу және тегтер', 'Сообщения и теги'],
   3: ['Редукция операциялары және құрама типтер', 'Операции редукции и составные типы'],
-  4: ['Ұжымдық жіберу және жаңа коммуникаторлар', 'Коллективная пересылка и коммуникаторы']
+  4: ['Ұжымдық жіберу және жаңа коммуникаторлар', 'Коллективная пересылка и коммуникаторы'],
+  5: ['Виртуалды топологиялар: декарттық торлар және графтар', 'Виртуальные топологии: декартовы решётки и графы']
 };
 
 function selectTask(id) {
   currentTask = id;
+  if (processCount) processCount.max = String(maxK());
   const task = TASKS[currentModule].find(t => t.id === id);
   taskModule.textContent = `Модуль ${currentModule}`;
   taskTitle.textContent = task.short;
@@ -187,19 +199,45 @@ function sampleVector(rank, count, mode = 'int') {
 }
 
 function syncConditionalInputs(k) {
-  if (currentTask !== 77 && currentTask !== 79) return;
-  for (let r = 0; r < k; r++) {
-    const sel = document.getElementById(`n_${r}`);
-    const inp = document.getElementById(`a_${r}`);
-    if (!sel || !inp) continue;
-    const active = sel.value === '1';
-    inp.disabled = !active;
-    if (!active) {
-      inp.value = '';
-      inp.placeholder = document.documentElement.lang === 'ru' ? 'При N=0 не вводится' : 'N=0 кезінде енгізілмейді';
-    } else {
-      inp.placeholder = '1.5';
-      if (!inp.value.trim()) inp.value = (r + 0.5).toFixed(1);
+  if (currentTask === 77 || currentTask === 79) {
+    for (let r = 0; r < k; r++) {
+      const sel = document.getElementById(`n_${r}`);
+      const inp = document.getElementById(`a_${r}`);
+      if (!sel || !inp) continue;
+      const active = sel.value === '1';
+      inp.disabled = !active;
+      if (!active) {
+        inp.value = '';
+        inp.placeholder = document.documentElement.lang === 'ru' ? 'При N=0 не вводится' : 'N=0 кезінде енгізілмейді';
+      } else {
+        inp.placeholder = '1.5';
+        if (!inp.value.trim()) inp.value = (r + 0.5).toFixed(1);
+      }
+    }
+  } else if (currentTask === 94) {
+    const mRaw = document.getElementById('m_0')?.value ?? '';
+    const nRaw = document.getElementById('n_0')?.value ?? '';
+    const m = /^[+-]?\d+$/.test(mRaw.trim()) ? Number(mRaw.trim()) : 0;
+    const n = /^[+-]?\d+$/.test(nRaw.trim()) ? Number(nRaw.trim()) : 0;
+    const limit = m > 0 && n > 0 && m * n <= k ? m * n : k;
+    for (let r = 1; r < k; r++) {
+      const xi = document.getElementById(`x_${r}`);
+      const yi = document.getElementById(`y_${r}`);
+      if (!xi || !yi) continue;
+      const active = r < limit;
+      xi.disabled = !active;
+      yi.disabled = !active;
+      if (!active) {
+        xi.value = '';
+        yi.value = '';
+        xi.placeholder = 'MPI_COMM_NULL';
+        yi.placeholder = 'MPI_COMM_NULL';
+      } else {
+        xi.placeholder = '0';
+        yi.placeholder = '0';
+        if (!xi.value.trim()) xi.value = String(r % Math.max(1, m));
+        if (!yi.value.trim()) yi.value = String(r);
+      }
     }
   }
 }
@@ -298,10 +336,47 @@ function renderInputs() {
         const grp = (r % 2) + 1;
         return card(r, `<div class="field-row"><div class="input-group"><label for="n_${r}">N (1 / 2)</label><select id="n_${r}" name="n_${r}"><option value="1" ${grp === 1 ? 'selected' : ''} data-kk="1 — 1-топ" data-ru="1 — группа 1">${document.documentElement.lang === 'ru' ? '1 — группа 1' : '1 — 1-топ'}</option><option value="2" ${grp === 2 ? 'selected' : ''} data-kk="2 — 2-топ" data-ru="2 — группа 2">${document.documentElement.lang === 'ru' ? '2 — группа 2' : '2 — 2-топ'}</option></select></div>${field(bi('Бүтін A', 'Целое A'), `a_${r}`, String((r + 1) * 10), 'int')}</div>`);
       }).join('') + '</div>';
+  } else if (currentTask === 83) {
+    const defN = smallestDivisorAboveOne(k);
+    html = `<p class="form-note">${bi(`P0-де N > 1 бүтін санын енгізіңіз, мұндағы K=${k} саны N-ге қалдықсыз бөлінуі керек.`, `Введите в P0 целое N > 1, делящее K=${k} без остатка.`)}</p><div class="field-grid">` +
+      card(0, field(bi(`Бүтін N (K=${k} бөлгіші)`, `Целое N (делитель K=${k})`), 'n_0', String(defN), 'int')) + '</div>';
+  } else if (currentTask === 85) {
+    const half = Math.floor(k / 2);
+    const bad = k < 4 || k % 2 !== 0;
+    html = (bad
+      ? `<p class="form-note">${bi('MPIBegin85 үшін K жұп және K ≥ 4 болуы керек (4, 6, 8, 10, 12).', 'Для MPIBegin85 число процессов K должно быть чётным и не меньше 4 (4, 6, 8, 10, 12).')}</p>`
+      : `<p class="form-note">${bi(`2 × ${half} торы екі жолға бөлінеді: P0 (0-жол) және P${half} (1-жол) нақты A (нүктемен) енгізеді.`, `Решётка 2 × ${half} делится на две строки: P0 (строка 0) и P${half} (строка 1) вводят вещественное A с точкой.`)}</p>`) +
+      '<div class="field-grid">' +
+      card(0, field(bi('0-жол үшін нақты A', 'Вещественное A для строки 0'), 'v_0', '1.5', 'real')) +
+      card(half, field(bi('1-жол үшін нақты A', 'Вещественное A для строки 1'), `v_${half}`, '-2.0', 'real')) + '</div>';
+  } else if (currentTask === 92) {
+    const bad = k !== 8 && k !== 12;
+    html = `<p class="form-note">${bad
+      ? bi('MPIBegin92 үшін процестер саны K = 8 немесе 12 болуы керек. K мәнін өзгертіңіз.', 'Для MPIBegin92 количество процессов K должно быть равно 8 или 12. Измените K.')
+      : bi(`2 × 2 × ${k / 4} үшөлшемді торы ${k / 4} матрицаға (2×2) бөлінеді. Әр процесте бір нақты сан (нүктемен) енгізіңіз.`, `Трёхмерная решётка 2 × 2 × ${k / 4} делится на ${k / 4} матриц 2×2. Введите по одному вещественному числу с точкой.`)}</p><div class="field-grid">` +
+      Array.from({ length: k }, (_, r) => card(r, field(bi('Нақты сан', 'Вещественное число'), `v_${r}`, (r + 1).toFixed(1), 'real'))).join('') + '</div>';
+  } else if (currentTask === 94) {
+    const defM = Math.min(2, k), defN = Math.max(1, Math.min(2, Math.floor(k / defM)));
+    html = `<p class="form-note">${bi('P0-де оң бүтін M, N (M·N ≤ K) және P0…P(M·N−1) процестерінде бүтін X, Y координаттарын енгізіңіз (2-өлшем периодты).', 'Введите в P0 положительные целые M, N (M·N ≤ K), а в процессах P0…P(M·N−1) — целые координаты X, Y (2-е измерение периодическое).')}</p><div class="field-grid">` +
+      card(0, `<div class="field-row">${field(bi('Бүтін M (жолдар)', 'Целое M (строк)'), 'm_0', String(defM), 'int', 'data-grid-dim="1"')}${field(bi('Бүтін N (бағандар)', 'Целое N (столбцов)'), 'n_0', String(defN), 'int', 'data-grid-dim="1"')}</div><div class="field-row" style="margin-top:10px">${field('X', 'x_0', '0', 'int')}${field('Y', 'y_0', '-1', 'int')}</div>`) +
+      Array.from({ length: k - 1 }, (_, i) => i + 1).map(r => card(r, `<div class="field-row">${field('X', `x_${r}`, String(r % defM), 'int')}${field('Y', `y_${r}`, String(r), 'int')}</div>`)).join('') + '</div>';
+  } else if (currentTask === 96) {
+    const bad = k < 4 || k % 2 !== 0;
+    html = `<p class="form-note">${bad
+      ? bi('MPIBegin96 үшін K жұп және K ≥ 4 болуы керек (4, 6, 8, 10, 12).', 'Для MPIBegin96 число процессов K должно быть чётным и не меньше 4 (4, 6, 8, 10, 12).')
+      : bi(`2 × ${k / 2} матрицасының әр жолында нақты A мәндері (нүктемен) +1 қадамға циклдік жылжиды.`, `В каждой строке матрицы 2 × ${k / 2} вещественные числа A (с точкой) циклически сдвигаются на +1.`)}</p><div class="field-grid">` +
+      Array.from({ length: k }, (_, r) => card(r, field(bi('Нақты A', 'Вещественное A'), `v_${r}`, (r + 1).toFixed(1), 'real'))).join('') + '</div>';
+  } else if (currentTask === 100) {
+    const bad = ![7, 10, 13].includes(k);
+    html = `<p class="form-note">${bad
+      ? bi('MPIBegin100 үшін K = 7, 10 немесе 13 болуы керек (K = 3N + 1, 1 < N < 5). K мәнін өзгертіңіз.', 'Для MPIBegin100 число процессов K должно быть равно 7, 10 или 13 (K = 3N + 1, 1 < N < 5). Измените K.')
+      : bi(`Центрі P0 болатын ${(k - 1) / 3} үшбұрышты сәулелі граф. Әр процесте бүтін A санын енгізіңіз.`, `Граф из ${(k - 1) / 3} треугольных лучей с центром P0. В каждом процессе введите целое A.`)}</p><div class="field-grid">` +
+      Array.from({ length: k }, (_, r) => card(r, field(bi('Бүтін A', 'Целое A'), `v_${r}`, String(r * 10), 'int'))).join('') + '</div>';
   }
 
   dynamicFields.innerHTML = `<h3 class="section-label"><span>01</span>${bi('Бастапқы деректер', 'Исходные данные', 'b')}</h3>` + html;
-  dynamicFields.querySelectorAll('select[data-toggle-a]').forEach(sel => sel.addEventListener('change', () => syncConditionalInputs(k)));
+  dynamicFields.querySelectorAll('select[data-toggle-a], input[data-grid-dim]').forEach(el => el.addEventListener('input', () => syncConditionalInputs(k)));
+  dynamicFields.querySelectorAll('select[data-toggle-a]').forEach(el => el.addEventListener('change', () => syncConditionalInputs(k)));
   syncConditionalInputs(k);
   resultContent.innerHTML = bi('Мәндерді енгізіп, есептеуді бастаңыз.', 'Введите значения и запустите вычисление.', 'p').replace('<p ', '<p class="result-placeholder" ');
   window.MpiLessonUI?.reset();
@@ -615,6 +690,106 @@ function calculate() {
     const rows = entries.map(e => [`P${e.rank}`, `N = ${e.n}`, e.n === 1 ? s1 : s2]);
     return table([bi('Процесс', 'Процесс'), bi('Тобы', 'Группа'), bi('Топ ішіндегі A мәндері', 'Числа A внутри группы')], rows);
   }
+  if (currentTask === 83) {
+    const nVal = readSingle('n_0', 'int', 'P0, №1 сан (N)', 'P0: число №1 (N)');
+    check(
+      nVal > 1 && k % nVal === 0,
+      `N саны 1-ден үлкен болуы және K=${k} санын қалдықсыз бөлуі керек.`,
+      `N должно быть больше 1 и делить K=${k} без остатка.`
+    );
+    const cols = k / nVal;
+    const rows = Array.from({ length: k }, (_, r) => {
+      const c0 = Math.floor(r / cols), c1 = r % cols;
+      return [`P${r}`, `${nVal} × ${cols}`, escapeHtml(`${c0} ${c1}`)];
+    });
+    return table([bi('Процесс', 'Процесс'), bi('Тор өлшемі', 'Размер решётки'), bi('Координаттары (MPI_Cart_coords)', 'Координаты (MPI_Cart_coords)')], rows);
+  }
+  if (currentTask === 85) {
+    check(
+      k >= 4 && k % 2 === 0,
+      'MPIBegin85 үшін процестер саны жұп және K ≥ 4 болуы керек.',
+      'Для MPIBegin85 число процессов не соответствует условию (нужно чётное K ≥ 4).'
+    );
+    const half = k / 2;
+    const a0 = readSingle('v_0', 'real', 'P0, №1 сан (A)', 'P0: число №1 (A)');
+    const a1 = readSingle(`v_${half}`, 'real', `P${half}, №1 сан (A)`, `P${half}: число №1 (A)`);
+    const rows = Array.from({ length: k }, (_, r) => {
+      const rowIdx = r < half ? 0 : 1;
+      return [`P${r}`, bi(`${rowIdx}-жол`, `Строка ${rowIdx}`), escapeHtml(fmt(rowIdx === 0 ? a0 : a1))];
+    });
+    return table([bi('Процесс', 'Процесс'), bi('Ішкі тор', 'Подрешётка'), bi('Алынған A мәні', 'Полученное число A')], rows);
+  }
+  if (currentTask === 92) {
+    check(
+      k === 8 || k === 12,
+      'MPIBegin92 үшін процестер саны K = 8 немесе 12 болуы керек.',
+      'Для MPIBegin92 число процессов не соответствует условию (K = 8 или 12).'
+    );
+    const vals = Array.from({ length: k }, (_, r) => readSingle(`v_${r}`, 'real', `P${r}, №1 сан`, `P${r}: число №1`));
+    const zDim = k / 4;
+    const sums = Array.from({ length: zDim }, (_, z) =>
+      vals.reduce((acc, v, r) => (r % zDim === z ? acc + v : acc), 0)
+    );
+    const rows = Array.from({ length: k }, (_, r) => {
+      const z = r % zDim;
+      return [`P${r}`, `z = ${z} (2×2)`, escapeHtml(fmt(sums[z]))];
+    });
+    return table([bi('Процесс', 'Процесс'), bi('Матрица қимасы', 'Матрица сечения'), bi('Матрица қосындысы', 'Сумма матрицы')], rows);
+  }
+  if (currentTask === 94) {
+    const m = readSingle('m_0', 'int', 'P0, №1 сан (M)', 'P0: число №1 (M)');
+    const n = readSingle('n_0', 'int', 'P0, №2 сан (N)', 'P0: число №2 (N)');
+    check(
+      m > 0 && n > 0 && m * n <= k,
+      'M > 0, N > 0 және M·N ≤ K болуы керек.',
+      'M и N должны быть положительными, а M·N не больше K.'
+    );
+    const total = m * n;
+    const rows = Array.from({ length: total }, (_, r) => {
+      const x = readSingle(`x_${r}`, 'int', `P${r}, №1 сан (X)`, `P${r}: число №1 (X)`);
+      const y = readSingle(`y_${r}`, 'int', `P${r}, №2 сан (Y)`, `P${r}: число №2 (Y)`);
+      const target = (x >= 0 && x < m) ? x * n + ((y % n + n) % n) : -1;
+      return [`P${r}`, `(${x}, ${y})`, escapeHtml(String(target))];
+    });
+    return table([bi('Процесс', 'Процесс'), bi('Енгізілген (X, Y)', 'Введённые (X, Y)'), bi('Табылған ранг (MPI_Cart_rank)', 'Найденный ранг (MPI_Cart_rank)')], rows);
+  }
+  if (currentTask === 96) {
+    check(
+      k >= 4 && k % 2 === 0,
+      'MPIBegin96 үшін процестер саны жұп және K ≥ 4 болуы керек.',
+      'Для MPIBegin96 число процессов не соответствует условию (нужно чётное K ≥ 4).'
+    );
+    const vals = Array.from({ length: k }, (_, r) => readSingle(`v_${r}`, 'real', `P${r}, №1 сан (A)`, `P${r}: число №1 (A)`));
+    const cols = k / 2;
+    const rows = Array.from({ length: k }, (_, r) => {
+      const row = Math.floor(r / cols), col = r % cols;
+      const src = row * cols + ((col - 1 + cols) % cols);
+      return [`P${r}`, `P${src} (${row}-${document.documentElement.lang === 'ru' ? 'строка' : 'жол'})`, escapeHtml(fmt(vals[src]))];
+    });
+    return table([bi('Қабылдаушы', 'Получатель'), bi('Дереккөз (MPI_Cart_shift)', 'Источник (MPI_Cart_shift)'), bi('Алынған A мәні', 'Полученное число A')], rows);
+  }
+  if (currentTask === 100) {
+    check(
+      [7, 10, 13].includes(k),
+      'MPIBegin100 үшін процестер саны K = 7, 10 немесе 13 болуы керек.',
+      'Для MPIBegin100 число процессов не соответствует условию (K = 7, 10 или 13).'
+    );
+    const vals = Array.from({ length: k }, (_, r) => readSingle(`v_${r}`, 'int', `P${r}, №1 сан (A)`, `P${r}: число №1 (A)`));
+    const adj = Array.from({ length: k }, () => []);
+    const edge = (a, b) => { adj[a].push(b); adj[b].push(a); };
+    for (let first = 1; first < k; first += 3) {
+      edge(first, first + 1);
+      edge(first, first + 2);
+      edge(first + 1, first + 2);
+      edge(0, first + 2);
+    }
+    adj.forEach(a => a.sort((x, y) => x - y));
+    const rows = Array.from({ length: k }, (_, r) => {
+      const nbs = adj[r];
+      return [`P${r}`, nbs.map(nb => `P${nb}`).join(', '), escapeHtml(nbs.map(nb => String(vals[nb])).join(' '))];
+    });
+    return table([bi('Процесс', 'Процесс'), bi('Көршілері (граф)', 'Соседи (граф)'), bi('Көршілердің A мәндері', 'Числа A от соседей')], rows);
+  }
   return '';
 }
 
@@ -674,7 +849,7 @@ taskSelect.addEventListener('change', () => { if (taskSelect.value) selectTask(N
 const route = new URLSearchParams(location.search);
 const routeModule = Number(route.get('module'));
 const routeTask = Number(route.get('task'));
-if ([1, 2, 3, 4].includes(routeModule)) {
+if ([1, 2, 3, 4, 5].includes(routeModule)) {
   currentModule = routeModule;
   document.querySelectorAll('.module-tab').forEach(t => {
     t.classList.toggle('active', Number(t.dataset.module) === routeModule);

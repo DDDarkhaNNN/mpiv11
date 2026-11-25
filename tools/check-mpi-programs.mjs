@@ -1,4 +1,4 @@
-/* Windows smoke test for all 28 supplied MPI binaries against their documented examples. */
+/* Windows smoke test for all 34 supplied MPI binaries against their documented examples. */
 import { readFileSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { runInNewContext } from 'node:vm';
@@ -35,6 +35,12 @@ const tasks = {
   77: { module: 4, expected: { 1: '1.5 3.5' } },
   79: { module: 4, expected: { 1: '1.5 3.5', 3: '1.5 3.5' } },
   80: { module: 4, expected: { 0: '10 30', 1: '20 40', 2: '10 30', 3: '20 40' } },
+  83: { module: 5, expected: { 0: '0 0', 1: '0 1', 2: '0 2', 3: '1 0', 4: '1 1', 5: '1 2' } },
+  85: { module: 5, expected: { 0: '1.5', 1: '1.5', 2: '1.5', 3: '-2', 4: '-2', 5: '-2' } },
+  92: { module: 5, expected: { 0: '16', 1: '20', 2: '16', 3: '20', 4: '16', 5: '20', 6: '16', 7: '20' } },
+  94: { module: 5, expected: { 0: '1', 1: '3', 2: '-1', 3: '2' } },
+  96: { module: 5, expected: { 0: '3', 1: '1', 2: '2', 3: '6', 4: '4', 5: '5' } },
+  100: { module: 5, expected: { 0: '30 60', 1: '20 30', 2: '10 30', 3: '0 10 20', 4: '50 60', 5: '40 60', 6: '0 40 50' } },
 };
 
 function inputRows(id, example) {
@@ -44,6 +50,13 @@ function inputRows(id, example) {
   if (id === 11) rows.push(Array.from({ length: k - 1 }, (_, i) => v[`v_${i + 1}`]).join(' '));
   else if (id === 16) rows.push(v.expected_0, ...Array.from({ length: k - 1 }, (_, i) => v[`v_${i + 1}`]));
   else if (id === 30) rows.push(v.v_0);
+  else if (id === 83) rows.push(v.n_0);
+  else if (id === 85) rows.push(v.v_0, v[`v_${k / 2}`]);
+  else if (id === 94) {
+    rows.push(`${v.m_0} ${v.n_0}`);
+    const total = Number(v.m_0) * Number(v.n_0);
+    for (let r = 0; r < total; r++) rows.push(`${v[`x_${r}`]} ${v[`y_${r}`]}`);
+  }
   else if ([37, 71].includes(id)) rows.push(v.set_0);
   else if ([59, 62, 67].includes(id)) rows.push(Array.from({ length: k - 1 }, (_, i) => id === 59 ? v[`set_${i + 1}`] : joinTriple(i + 1)).join(' '));
   else for (let r = [10, 26, 29, 69].includes(id) ? 1 : 0; r < k; r++) {
@@ -53,7 +66,7 @@ function inputRows(id, example) {
     else if ([77, 79].includes(id)) rows.push(v[`n_${r}`] === '1' ? `1 ${v[`a_${r}`]}` : '0');
     else if (id === 80) rows.push(`${v[`n_${r}`]} ${v[`a_${r}`]}`);
     else if ([64, 69].includes(id)) rows.push(joinTriple(r));
-    else if ([18, 40, 75].includes(id)) rows.push(v[`v_${r}`]);
+    else if ([18, 40, 75, 92, 96, 100].includes(id)) rows.push(v[`v_${r}`]);
   }
   return [String(k), ...rows, '-1', ''].join('\n');
 }
