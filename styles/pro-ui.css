@@ -698,6 +698,58 @@ html[data-theme="dark"] .process-control label {
   color: var(--muted);
 }
 
+/* Live real-time input validation states & inline hints */
+.rank-row {
+  align-items: flex-start !important;
+}
+.rank-row .rank-tag {
+  margin-top: 16px;
+}
+.page-practice .rank-fields .input-group input.is-valid,
+.page-practice .rank-fields .input-group select.is-valid {
+  border-color: #22c55e;
+  background-color: #f7fef9;
+}
+.page-practice .rank-fields .input-group input.is-valid:focus,
+.page-practice .rank-fields .input-group select.is-valid:focus {
+  border-color: #16a34a;
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.16);
+}
+.page-practice .rank-fields .input-group input.is-invalid,
+.page-practice .rank-fields .input-group select.is-invalid {
+  border-color: #ef4444;
+  background-color: #fff8f8;
+}
+.page-practice .rank-fields .input-group input.is-invalid:focus,
+.page-practice .rank-fields .input-group select.is-invalid:focus {
+  border-color: #dc2626;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.16);
+}
+.live-hint {
+  display: block;
+  margin-top: 3px;
+  font-size: 0.72rem;
+  line-height: 1.25;
+  font-weight: 600;
+  color: #dc2626;
+}
+.live-hint[hidden] {
+  display: none !important;
+}
+html[data-theme="dark"] .page-practice .rank-fields .input-group input.is-valid,
+html[data-theme="dark"] .page-practice .rank-fields .input-group select.is-valid {
+  border-color: rgba(34, 197, 94, 0.65);
+  background-color: rgba(34, 197, 94, 0.08);
+}
+html[data-theme="dark"] .page-practice .rank-fields .input-group input.is-invalid,
+html[data-theme="dark"] .page-practice .rank-fields .input-group select.is-invalid {
+  border-color: rgba(248, 113, 113, 0.75);
+  background-color: rgba(239, 68, 68, 0.1);
+}
+html[data-theme="dark"] .live-hint {
+  color: #fca5a5;
+}
+
 @media (max-width: 960px) {
   .hero-split {
     grid-template-columns: 1fr;

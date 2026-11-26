@@ -136,10 +136,10 @@ const fmt = value => {
 };
 
 const field = (labelHtml, id, hint, mode = 'int', extraAttrs = '') =>
-  `<div class="input-group"><label for="${id}">${labelHtml}</label><input id="${id}" name="${id}" class="num-input" type="text" inputmode="${mode === 'int' ? 'numeric' : 'decimal'}" autocomplete="off" spellcheck="false" placeholder="${escapeHtml(hint)}" value="" ${extraAttrs}></div>`;
+  `<div class="input-group"><label for="${id}">${labelHtml}</label><input id="${id}" name="${id}" class="num-input" data-vmode="${mode}" data-vmin="1" data-vmax="1" type="text" inputmode="${mode === 'int' ? 'numeric' : 'decimal'}" autocomplete="off" spellcheck="false" placeholder="${escapeHtml(hint)}" value="" ${extraAttrs}><small class="live-hint" aria-live="polite" hidden></small></div>`;
 
-const area = (labelHtml, id, values) =>
-  `<div class="input-group wide"><label for="${id}">${labelHtml}</label><input id="${id}" name="${id}" class="set-input" type="text" autocomplete="off" spellcheck="false" placeholder="${escapeHtml(values.join(' '))}" value=""></div>`;
+const area = (labelHtml, id, values, mode = 'int', minLen = 1, maxLen = 10) =>
+  `<div class="input-group wide"><label for="${id}">${labelHtml}</label><input id="${id}" name="${id}" class="set-input" data-vmode="${mode}" data-vmin="${minLen}" data-vmax="${maxLen}" type="text" autocomplete="off" spellcheck="false" placeholder="${escapeHtml(values.join(' '))}" value=""><small class="live-hint" aria-live="polite" hidden></small></div>`;
 
 const card = (rank, body) =>
   `<div class="rank-row" data-rank="${escapeHtml(rank)}"><span class="rank-tag">${typeof rank === 'number' ? `P${rank}` : escapeHtml(rank)}</span><div class="rank-fields">${body}</div></div>`;
@@ -455,9 +455,9 @@ function renderInputs() {
       Array.from({ length: k }, (_, r) => card(r, field(r % 2 === 0 ? bi('Бүтін n', 'Целое n') : bi('Нақты x (нүктемен)', 'Вещественное x (с точкой)'), `v_${r}`, r % 2 === 0 ? String(10 + r) : (r + 0.5).toFixed(1), r % 2 ? 'real' : 'int'))).join('') + '</div>';
   } else if (currentTask === 5) {
     html = `<p class="form-note">${bi('Әр процесте 1–10 нақты сан (нүктемен, мысалы: 2.0 3.5) енгізіңіз.', 'В каждом процессе введите от 1 до 10 вещественных чисел с точкой (например: 2.0 3.5).')}</p><div class="field-grid">` +
-      Array.from({ length: k }, (_, r) => card(r, area(bi('Нақты сандар жиыны', 'Набор вещественных чисел'), `set_${r}`, sampleVector(r, Math.min(10, r + 3), 'real')))).join('') + '</div>';
+      Array.from({ length: k }, (_, r) => card(r, area(bi('Нақты сандар жиыны', 'Набор вещественных чисел'), `set_${r}`, sampleVector(r, Math.min(10, r + 3), 'real'), 'real', 1, 10))).join('') + '</div>';
   } else if (currentTask === 10) {
-    html = '<div class="field-grid">' + Array.from({ length: k - 1 }, (_, i) => i + 1).map(r => card(r, area(bi('1–4 бүтін сан', '1–4 целых числа'), `set_${r}`, sampleVector(r, (r % 4) + 1, 'int')))).join('') + '</div>';
+    html = '<div class="field-grid">' + Array.from({ length: k - 1 }, (_, i) => i + 1).map(r => card(r, area(bi('1–4 бүтін сан', '1–4 целых числа'), `set_${r}`, sampleVector(r, (r % 4) + 1, 'int'), 'int', 1, 4))).join('') + '</div>';
   } else if (currentTask === 11) {
     html = `<p class="form-note">${bi('Негізгі процесс нақты мәндерді (нүктемен, мысалы 2.0) P1, P2, … ретімен таратады.', 'Главный процесс распределяет вещественные значения (с точкой, например 2.0) в порядке P1, P2, …')}</p><div class="field-grid">` +
       Array.from({ length: k - 1 }, (_, i) => i + 1).map(r => card(`P0→P${r}`, field(bi('Нақты мән (нүктемен)', 'Вещественное (с точкой)'), `v_${r}`, (r + 0.5).toFixed(1), 'real'))).join('') + '</div>';
@@ -472,43 +472,43 @@ function renderInputs() {
       Array.from({ length: k }, (_, r) => card(r, `<div class="field-row">${field(bi('Нақты A', 'Вещественное A'), `a_${r}`, (r + 0.5).toFixed(1), 'real')}${field(bi('Бүтін N (ранг)', 'Целое N (ранг)'), `n_${r}`, String((r + 1) % k), 'int')}</div>`)).join('') + '</div>';
   } else if (currentTask === 24) {
     html = (k % 2 ? `<p class="form-note">${bi('Бұл есепке жұп процесс саны қажет. Процестер санын өзгертіңіз.', 'Для этой задачи требуется чётное количество процессов. Измените K.')}</p>` : '') +
-      '<div class="field-grid">' + Array.from({ length: k }, (_, r) => card(r, area(bi('1–4 нақты сан (нүктемен)', '1–4 вещественных числа (с точкой)'), `set_${r}`, sampleVector(r, (r % 4) + 1, 'real')))).join('') + '</div>';
+      '<div class="field-grid">' + Array.from({ length: k }, (_, r) => card(r, area(bi('1–4 нақты сан (нүктемен)', '1–4 вещественных числа (с точкой)'), `set_${r}`, sampleVector(r, (r % 4) + 1, 'real'), 'real', 1, 4))).join('') + '</div>';
   } else if (currentTask === 26) {
     html = `<p class="form-note">${bi('A — нүктесі бар нақты сан, N — 1…K−1 сандарының қайталанбайтын алмастыруы.', 'A — вещественное число с точкой, N — перестановка чисел 1…K−1.')}</p><div class="field-grid">` +
       Array.from({ length: k - 1 }, (_, i) => i + 1).map(r => card(r, `<div class="field-row">${field(bi('Нақты A', 'Вещественное A'), `a_${r}`, (r * 1.25).toFixed(2).replace(/0$/, ''), 'real')}${field(bi('Бүтін N (нөмір)', 'Целое N (номер)'), `n_${r}`, String(k - r), 'int')}</div>`)).join('') + '</div>';
   } else if (currentTask === 29) {
     html = `<p class="form-note">${bi('T=0 кезінде бүтін сандар (2), T=1 кезінде нүктесі бар нақты сандар (2.0) енгізіледі (0–10 сан).', 'При T=0 вводятся целые числа (2), при T=1 — вещественные с точкой (2.0), от 0 до 10 чисел.')}</p><div class="field-grid">` +
-      Array.from({ length: k - 1 }, (_, i) => i + 1).map(r => card(r, `<div class="field-row"><div class="input-group"><label for="t_${r}">${bi('T — дерек типі', 'T — тип данных')}</label><select id="t_${r}" name="t_${r}"><option value="0" ${r % 2 === 0 ? 'selected' : ''} data-kk="0 — бүтін" data-ru="0 — целые">${document.documentElement.lang === 'ru' ? '0 — целые' : '0 — бүтін'}</option><option value="1" ${r % 2 ? 'selected' : ''} data-kk="1 — нақты" data-ru="1 — вещественные">${document.documentElement.lang === 'ru' ? '1 — вещественные' : '1 — нақты'}</option></select></div></div>${area(bi('Сандар (0–10)', 'Числа (0–10)'), `set_${r}`, sampleVector(r, 2 + r % 2, r % 2 ? 'real' : 'int'))}`)).join('') + '</div>';
+      Array.from({ length: k - 1 }, (_, i) => i + 1).map(r => card(r, `<div class="field-row"><div class="input-group"><label for="t_${r}">${bi('T — дерек типі', 'T — тип данных')}</label><select id="t_${r}" name="t_${r}" data-toggle-t="${r}"><option value="0" ${r % 2 === 0 ? 'selected' : ''} data-kk="0 — бүтін" data-ru="0 — целые">${document.documentElement.lang === 'ru' ? '0 — целые' : '0 — бүтін'}</option><option value="1" ${r % 2 ? 'selected' : ''} data-kk="1 — нақты" data-ru="1 — вещественные">${document.documentElement.lang === 'ru' ? '1 — вещественные' : '1 — нақты'}</option></select></div></div>${area(bi('Сандар (0–10)', 'Числа (0–10)'), `set_${r}`, sampleVector(r, 2 + r % 2, r % 2 ? 'real' : 'int'), 'tdep', 0, 10)}`)).join('') + '</div>';
   } else if (currentTask === 30) {
     html = `<p class="form-note">${bi('P0-де бір бүтін сан енгізіңіз — MPI_Bcast оны P1…P(K−1) процестеріне таратады.', 'Введите одно целое число в P0 — MPI_Bcast разошлёт его процессам P1…P(K−1).')}</p><div class="field-grid">` +
       card(0, field(bi('Бүтін сан', 'Целое число'), 'v_0', '7', 'int')) + '</div>';
   } else if (currentTask === 34) {
     html = `<p class="form-note">${bi('Әр R процесінде дәл R+2 бүтін сан енгізіңіз.', 'В каждом процессе ранга R введите ровно R+2 целых числа.')}</p><div class="field-grid">` +
-      Array.from({ length: k }, (_, r) => card(r, area(bi(`${r + 2} бүтін сан`, `${r + 2} целых чисел`), `set_${r}`, sampleVector(r, r + 2, 'int')))).join('') + '</div>';
+      Array.from({ length: k }, (_, r) => card(r, area(bi(`${r + 2} бүтін сан`, `${r + 2} целых чисел`), `set_${r}`, sampleVector(r, r + 2, 'int'), 'int', r + 2, r + 2))).join('') + '</div>';
   } else if (currentTask === 37) {
     html = `<p class="form-note">${bi(`P0-де дәл ${k} нақты сан (нүктемен) енгізіңіз: 1-шісі P${k - 1}-ге, …, соңғысы P0-ге барады.`, `Введите в P0 ровно ${k} вещественных чисел с точкой: 1-е пойдёт в P${k - 1}, …, последнее — в P0.`)}</p><div class="field-grid">` +
-      card(0, area(bi(`${k} нақты сан`, `${k} вещественных чисел`), 'set_0', Array.from({ length: k }, (_, i) => ((i + 1) * 10).toFixed(1)))) + '</div>';
+      card(0, area(bi(`${k} нақты сан`, `${k} вещественных чисел`), 'set_0', Array.from({ length: k }, (_, i) => ((i + 1) * 10).toFixed(1)), 'real', k, k)) + '</div>';
   } else if (currentTask === 40) {
     html = `<p class="form-note">${bi('Әр процесте бір нақты сан (нүктемен, мысалы 1.0) енгізіңіз.', 'В каждом процессе введите одно вещественное число с точкой (например, 1.0).')}</p><div class="field-grid">` +
       Array.from({ length: k }, (_, r) => card(r, field(bi('Нақты сан', 'Вещественное число'), `v_${r}`, (r + 1).toFixed(1), 'real'))).join('') + '</div>';
   } else if (currentTask === 43) {
     html = `<p class="form-note">${bi(`Әр процесте дәл ${k} нақты сан (нүктемен) енгізіңіз — әр рангқа бір-бірден.`, `В каждом процессе введите ровно ${k} вещественных чисел с точкой — по одному для каждого ранга.`)}</p><div class="field-grid">` +
-      Array.from({ length: k }, (_, r) => card(r, area(bi(`${k} нақты сан`, `${k} вещественных чисел`), `set_${r}`, Array.from({ length: k }, (_, i) => (r * k + i + 1).toFixed(1))))).join('') + '</div>';
+      Array.from({ length: k }, (_, r) => card(r, area(bi(`${k} нақты сан`, `${k} вещественных чисел`), `set_${r}`, Array.from({ length: k }, (_, i) => (r * k + i + 1).toFixed(1)), 'real', k, k))).join('') + '</div>';
   } else if (currentTask === 45) {
     const count = (k * (k + 1)) / 2;
     html = `<p class="form-note">${bi(`Әр процесте дәл ${count} бүтін сан енгізіңіз (блок ұзындықтары: 1, 2, …, ${k}).`, `В каждом процессе введите ровно ${count} целых чисел (блоки длиной 1, 2, …, ${k}).`)}</p><div class="field-grid">` +
-      Array.from({ length: k }, (_, r) => card(r, area(bi(`${count} бүтін сан`, `${count} целых чисел`), `set_${r}`, Array.from({ length: count }, (_, i) => String((i + 1) * (r === 0 ? 1 : r === 1 ? 10 : (r + 1) * 10)))))).join('') + '</div>';
+      Array.from({ length: k }, (_, r) => card(r, area(bi(`${count} бүтін сан`, `${count} целых чисел`), `set_${r}`, Array.from({ length: count }, (_, i) => String((i + 1) * (r === 0 ? 1 : r === 1 ? 10 : (r + 1) * 10))), 'int', count, count))).join('') + '</div>';
   } else if ([48, 51, 57].includes(currentTask)) {
     const count = k + 5;
     const isReal = currentTask === 51;
     html = `<p class="form-note">${bi(`Әр процесте дәл ${count} ${isReal ? 'нақты (нүктемен)' : 'бүтін'} сан болуы керек.`, `В каждом процессе должно быть ровно ${count} ${isReal ? 'вещественных (с точкой)' : 'целых'} чисел.`)}</p><div class="field-grid">` +
-      Array.from({ length: k }, (_, r) => card(r, area(bi(`${count} ${isReal ? 'нақты сан' : 'бүтін сан'}`, `${count} ${isReal ? 'вещественных чисел' : 'целых чисел'}`), `set_${r}`, sampleVector(r, count, isReal ? 'real' : 'int')))).join('') + '</div>';
+      Array.from({ length: k }, (_, r) => card(r, area(bi(`${count} ${isReal ? 'нақты сан' : 'бүтін сан'}`, `${count} ${isReal ? 'вещественных чисел' : 'целых чисел'}`), `set_${r}`, sampleVector(r, count, isReal ? 'real' : 'int'), isReal ? 'real' : 'int', count, count))).join('') + '</div>';
   } else if (currentTask === 54) {
     const count = 2 * k;
     html = `<p class="form-note">${bi(`Әр процесте дәл ${count} нақты сан (нүктемен) болуы керек.`, `В каждом процессе должно быть ровно ${count} вещественных чисел (с точкой).`)}</p><div class="field-grid">` +
-      Array.from({ length: k }, (_, r) => card(r, area(bi(`${count} нақты сан`, `${count} вещественных чисел`), `set_${r}`, sampleVector(r, count, 'real')))).join('') + '</div>';
+      Array.from({ length: k }, (_, r) => card(r, area(bi(`${count} нақты сан`, `${count} вещественных чисел`), `set_${r}`, sampleVector(r, count, 'real'), 'real', count, count))).join('') + '</div>';
   } else if (currentTask === 59) {
-    html = '<div class="field-grid">' + Array.from({ length: k - 1 }, (_, i) => i + 1).map(r => card(`P0→P${r}`, area(bi('3 бүтін сан', '3 целых числа'), `set_${r}`, [String(r), String(r + 1), String(r + 2)]))).join('') + '</div>';
+    html = '<div class="field-grid">' + Array.from({ length: k - 1 }, (_, i) => i + 1).map(r => card(`P0→P${r}`, area(bi('3 бүтін сан', '3 целых числа'), `set_${r}`, [String(r), String(r + 1), String(r + 2)], 'int', 3, 3))).join('') + '</div>';
   } else if ([62, 67].includes(currentTask)) {
     html = `<p class="form-note">${bi('Әр үштікте 1-ші және 3-ші сан бүтін (2), ал 2-ші сан нүктесі бар нақты (2.0) болуы керек.', 'В каждой тройке 1-е и 3-е числа — целые (2), 2-е — вещественное с точкой (2.0).')}</p><div class="field-grid">` +
       Array.from({ length: k - 1 }, (_, i) => i + 1).map(r => card(`P0→P${r}`, `<div class="field-row">${field('int', `x_${r}`, String(r), 'int')}${field('double', `y_${r}`, (r + 0.5).toFixed(1), 'real')}${field('int', `z_${r}`, String(r + 1), 'int')}</div>`)).join('') + '</div>';
@@ -522,7 +522,7 @@ function renderInputs() {
     const evenCount = Math.floor((k + 1) / 2);
     const evenLabels = Array.from({ length: evenCount }, (_, i) => `P${2 * i}`).join(', ');
     html = `<p class="form-note">${bi(`P0-де жұп рангтарға (${evenLabels}) арналған дәл ${evenCount} бүтін сан енгізіңіз.`, `Введите в P0 ровно ${evenCount} целых чисел для чётных рангов (${evenLabels}).`)}</p><div class="field-grid">` +
-      card(0, area(bi(`${evenCount} бүтін сан`, `${evenCount} целых чисел`), 'set_0', Array.from({ length: evenCount }, (_, i) => String(7 + i)))) + '</div>';
+      card(0, area(bi(`${evenCount} бүтін сан`, `${evenCount} целых чисел`), 'set_0', Array.from({ length: evenCount }, (_, i) => String(7 + i)), 'int', evenCount, evenCount)) + '</div>';
   } else if (currentTask === 75) {
     html = `<p class="form-note">${bi('Әр процесте бір нақты сан (нүктемен) енгізіңіз: P0 жұп рангтар максимумын, P1 тақ рангтар минимумын шығарады.', 'В каждом процессе введите вещественное число с точкой: P0 выведет максимум чётных рангов, P1 — минимум нечётных.')}</p><div class="field-grid">` +
       Array.from({ length: k }, (_, r) => card(r, field(bi('Нақты сан', 'Вещественное число'), `v_${r}`, (r + 1.5).toFixed(1), 'real'))).join('') + '</div>';
@@ -581,13 +581,178 @@ function renderInputs() {
     select.insertAdjacentHTML('afterbegin', `<option value="" selected disabled data-kk="Таңдаңыз" data-ru="Выберите">${document.documentElement.lang === 'ru' ? 'Выберите' : 'Таңдаңыз'}</option>`);
     select.value = '';
   });
-  dynamicFields.querySelectorAll('select[data-toggle-a], input[data-grid-dim]').forEach(el => el.addEventListener('input', () => syncConditionalInputs(k)));
-  dynamicFields.querySelectorAll('select[data-toggle-a]').forEach(el => el.addEventListener('change', () => syncConditionalInputs(k)));
+  dynamicFields.querySelectorAll('select[data-toggle-a], input[data-grid-dim]').forEach(el => el.addEventListener('input', () => { syncConditionalInputs(k); validateAllLive(); }));
+  dynamicFields.querySelectorAll('select[data-toggle-a], select[data-toggle-t]').forEach(el => el.addEventListener('change', () => { syncConditionalInputs(k); validateAllLive(); }));
+  dynamicFields.querySelectorAll('input,select').forEach(el => {
+    el.addEventListener('input', () => {
+      validateControlLive(el);
+      if (currentTask === 21 || currentTask === 26 || currentTask === 94) validateAllLive();
+    });
+    el.addEventListener('change', () => validateAllLive());
+  });
   syncConditionalInputs(k);
   lastCalcCache = null;
   resultContent.innerHTML = bi('Мәндерді енгізіп, есептеуді бастаңыз.', 'Введите значения и запустите вычисление.', 'p').replace('<p ', '<p class="result-placeholder" ');
   syncCopyButton();
   window.MpiLessonUI?.reset();
+}
+
+function setFieldLiveState(el, state, kkMsg = '', ruMsg = '') {
+  const grp = el.closest?.('.input-group');
+  el.classList.toggle('is-valid', state === 'valid');
+  el.classList.toggle('is-invalid', state === 'invalid');
+  el.setAttribute('aria-invalid', state === 'invalid' ? 'true' : 'false');
+  const hint = grp?.querySelector?.('.live-hint');
+  if (!hint) return;
+  if (state === 'invalid' && (kkMsg || ruMsg)) {
+    hint.hidden = false;
+    hint.dataset.kk = kkMsg;
+    hint.dataset.ru = ruMsg;
+    hint.textContent = document.documentElement.lang === 'ru' ? ruMsg : kkMsg;
+  } else {
+    hint.hidden = true;
+    hint.textContent = '';
+  }
+}
+
+function checkTokenFormat(tok, mode) {
+  if (mode === 'int') {
+    if (/^[+-]?\d+\.\d*$/.test(tok) || tok.includes(',')) {
+      return ['Бүтін сан нүктесіз жазылады (мысалы: 2)', 'Целое пишется без точки (например: 2)'];
+    }
+    if (!/^[+-]?\d+$/.test(tok)) {
+      return [`Бүтін сан күтілді ("${tok}")`, `Ожидается целое число ("${tok}")`];
+    }
+    if (!isInt32(Number(tok))) {
+      return ['32-бит диапазонынан асты', 'Вне 32-битного диапазона'];
+    }
+    return null;
+  }
+  if (/^[+-]?\d+$/.test(tok)) {
+    return [`Нүктемен жазыңыз: ${tok}.0`, `Добавьте точку: ${tok}.0`];
+  }
+  if (tok.includes(',')) {
+    return ['Үтір орнына нүкте қойыңыз (2.0)', 'Используйте точку вместо запятой (2.0)'];
+  }
+  if (!/^[+-]?\d+\.\d+$/.test(tok)) {
+    return [`Нақты сан күтілді, мысалы 2.0 ("${tok}")`, `Нужно число с точкой, напр. 2.0 ("${tok}")`];
+  }
+  if (!Number.isFinite(Number(tok))) {
+    return ['Сандық диапазоннан асты', 'Вне числового диапазона'];
+  }
+  return null;
+}
+
+function validateControlLive(el) {
+  if (!el || el.disabled) {
+    if (el) setFieldLiveState(el, 'neutral');
+    return;
+  }
+  if (el.tagName === 'SELECT') {
+    setFieldLiveState(el, el.value !== '' ? 'valid' : 'neutral');
+    return;
+  }
+  const raw = String(el.value || '').trim();
+  if (raw === '') {
+    setFieldLiveState(el, 'neutral');
+    return;
+  }
+  const k = clampK();
+  let mode = el.dataset.vmode || 'int';
+  if (mode === 'tdep') {
+    const r = el.id.split('_')[1];
+    const tSel = document.getElementById(`t_${r}`);
+    if (!tSel || tSel.value === '') {
+      setFieldLiveState(el, 'invalid', 'Алдымен T типін таңдаңыз', 'Сначала выберите тип T');
+      return;
+    }
+    mode = tSel.value === '0' ? 'int' : 'real';
+  }
+  const minLen = Number(el.dataset.vmin ?? 1);
+  const maxLen = Number(el.dataset.vmax ?? 1);
+  const parts = tokensOf(raw);
+
+  for (let i = 0; i < parts.length; i++) {
+    const err = checkTokenFormat(parts[i], mode);
+    if (err) {
+      const prefix = maxLen > 1 ? `№${i + 1}: ` : '';
+      setFieldLiveState(el, 'invalid', prefix + err[0], prefix + err[1]);
+      return;
+    }
+  }
+
+  if (parts.length < minLen || parts.length > maxLen) {
+    const expKk = minLen === maxLen ? `Дәл ${minLen} сан керек (қазір: ${parts.length})` : `${minLen}–${maxLen} сан керек (қазір: ${parts.length})`;
+    const expRu = minLen === maxLen ? `Нужно ровно ${minLen} чис. (сейчас: ${parts.length})` : `Нужно ${minLen}–${maxLen} чис. (сейчас: ${parts.length})`;
+    setFieldLiveState(el, 'invalid', expKk, expRu);
+    return;
+  }
+
+  const val = parts.length === 1 ? Number(parts[0]) : null;
+  if (currentTask === 16 && el.id === 'expected_0' && (val < 1 || val >= k)) {
+    setFieldLiveState(el, 'invalid', `1…${k - 1} аралығында болуы керек`, `Должно быть от 1 до ${k - 1}`);
+    return;
+  }
+  if (currentTask === 21 && el.id.startsWith('n_') && (val < 0 || val >= k)) {
+    setFieldLiveState(el, 'invalid', `Ранг 0…${k - 1} аралығында болады`, `Ранг должен быть 0…${k - 1}`);
+    return;
+  }
+  if (currentTask === 26 && el.id.startsWith('n_') && (val < 1 || val >= k)) {
+    setFieldLiveState(el, 'invalid', `Нөмір 1…${k - 1} аралығында болады`, `Номер должен быть 1…${k - 1}`);
+    return;
+  }
+  if (currentTask === 83 && el.id === 'n_0' && (val <= 1 || k % val !== 0)) {
+    setFieldLiveState(el, 'invalid', `N > 1 және K=${k} бөлгіші болуы керек`, `N > 1 и делит K=${k} без остатка`);
+    return;
+  }
+  if (currentTask === 94 && (el.id === 'm_0' || el.id === 'n_0')) {
+    if (val <= 0) {
+      setFieldLiveState(el, 'invalid', 'Оң бүтін сан керек (> 0)', 'Нужно положительное число (> 0)');
+      return;
+    }
+    const mRaw = document.getElementById('m_0')?.value.trim() || '';
+    const nRaw = document.getElementById('n_0')?.value.trim() || '';
+    if (/^[+-]?\d+$/.test(mRaw) && /^[+-]?\d+$/.test(nRaw) && Number(mRaw) * Number(nRaw) > k) {
+      setFieldLiveState(el, 'invalid', `M·N ≤ ${k} болуы керек`, `Должно быть M·N ≤ ${k}`);
+      return;
+    }
+  }
+
+  setFieldLiveState(el, 'valid');
+}
+
+function validateCrossFieldDuplicates() {
+  const k = clampK();
+  if (currentTask === 21 || currentTask === 26) {
+    const start = currentTask === 21 ? 0 : 1;
+    const minV = currentTask === 21 ? 0 : 1;
+    const seen = new Map();
+    for (let r = start; r < k; r++) {
+      const inp = document.getElementById(`n_${r}`);
+      if (!inp) continue;
+      validateControlLive(inp);
+      const raw = inp.value.trim();
+      if (/^[+-]?\d+$/.test(raw)) {
+        const num = Number(raw);
+        if (num >= minV && num < k) {
+          seen.set(num, (seen.get(num) || 0) + 1);
+        }
+      }
+    }
+    for (let r = start; r < k; r++) {
+      const inp = document.getElementById(`n_${r}`);
+      if (!inp) continue;
+      const raw = inp.value.trim();
+      if (/^[+-]?\d+$/.test(raw) && (seen.get(Number(raw)) || 0) > 1) {
+        setFieldLiveState(inp, 'invalid', 'N мәні қайталанбауы керек', 'Значения N не должны повторяться');
+      }
+    }
+  }
+}
+
+function validateAllLive() {
+  dynamicFields.querySelectorAll('input,select').forEach(el => validateControlLive(el));
+  validateCrossFieldDuplicates();
 }
 
 function table(headers, rows) {
@@ -621,11 +786,13 @@ function loadFileExample() {
     dynamicFields.querySelectorAll('input,textarea,select').forEach(el => {
       if (!el.disabled && !el.value && el.placeholder) el.value = el.placeholder;
     });
+    validateAllLive();
     return;
   }
   processCount.value = example.k;
   renderInputs();
   fillFileExample();
+  validateAllLive();
 }
 
 function randInt(min, max) {
@@ -786,6 +953,7 @@ function generateRandomInputs() {
   }
 
   syncConditionalInputs(k);
+  validateAllLive();
   runCalculationNow();
 }
 
