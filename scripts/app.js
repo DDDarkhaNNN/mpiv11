@@ -275,6 +275,25 @@ const MODULE_TITLES = {
   5: ['Виртуалды топологиялар: декарттық торлар және графтар', 'Виртуальные топологии: декартовы решётки и графы']
 };
 
+const TASK_INT_ONLY = new Set([10, 16, 18, 30, 34, 45, 48, 57, 59, 71, 80, 83, 94, 100]);
+const TASK_REAL_ONLY = new Set([5, 11, 24, 37, 40, 43, 51, 54, 75, 85, 92, 96]);
+
+function syncTypeBadges(id) {
+  const bInt = document.getElementById('badgeInt');
+  const bReal = document.getElementById('badgeReal');
+  if (!bInt || !bReal) return;
+  bInt.hidden = TASK_REAL_ONLY.has(id);
+  bReal.hidden = TASK_INT_ONLY.has(id);
+}
+
+function syncCopyButton() {
+  const btn = document.getElementById('copyResult');
+  if (!btn) return;
+  const hasResult = Boolean(resultContent?.querySelector('.result-table'));
+  btn.disabled = !hasResult;
+  btn.classList.toggle('ready', hasResult);
+}
+
 function selectTask(id) {
   const ownerMod = MODULE_ORDER.find(mod => TASKS[mod].some(t => t.id === id));
   if (ownerMod && ownerMod !== currentModule) {
@@ -292,13 +311,14 @@ function selectTask(id) {
     taskApiBadge.textContent = api;
     taskApiBadge.hidden = !api;
   }
+  syncTypeBadges(id);
   taskDescription.textContent = task.description;
   const brief = document.querySelector('#moduleBrief');
   if (currentModule === 1) {
     brief.innerHTML = `<div><span class="brief-kicker" data-kk="МОДУЛЬ 1 · ЖЕРГІЛІКТІ ЕСЕПТЕУ" data-ru="МОДУЛЬ 1 · ЛОКАЛЬНЫЕ ВЫЧИСЛЕНИЯ">${document.documentElement.lang === 'ru' ? 'МОДУЛЬ 1 · ЛОКАЛЬНЫЕ ВЫЧИСЛЕНИЯ' : 'МОДУЛЬ 1 · ЖЕРГІЛІКТІ ЕСЕПТЕУ'}</span>${bi('Ранг пен дерек типін таңдауды үйреніңіз. C++ оқу нұсқалары MPI-сіз жұмыс істейді.', 'Изучите ранги и типы данных. Учебные версии C++ работают без MPI.', 'p')}</div>`;
   } else {
     const title = MODULE_TITLES[currentModule];
-    brief.innerHTML = `<div><span class="brief-kicker">МОДУЛЬ ${currentModule} · MPI</span>${bi(title[0], title[1], 'h2')}${bi('Есептер браузерде модельденеді. Код бөлімінде берілген қалтадағы нақты MPI бағдарламалары бар. Нақты сандар нүктемен (2.0), бүтін сандар нүктесіз (2) жазылады.', 'Задачи моделируются в браузере. В разделе кода — реальные программы MPI из ваших папок. Вещественные числа вводятся с точкой (2.0), целые — без точки (2).', 'p')}</div><div class="brief-links"><a href="downloads/module-${currentModule}-variant-11.zip" download data-kk="Модульді жүктеу" data-ru="Скачать модуль">${document.documentElement.lang === 'ru' ? 'Скачать модуль' : 'Модульді жүктеу'}</a><a href="resources.html" data-kk="Іске қосу шарттары" data-ru="Требования для запуска">${document.documentElement.lang === 'ru' ? 'Требования для запуска' : 'Іске қосу шарттары'}</a></div>`;
+    brief.innerHTML = `<div><span class="brief-kicker">МОДУЛЬ ${currentModule} · MPI</span>${bi(title[0], title[1], 'h2')}${bi('Есептер браузерде модельденеді. «C++ коды» бөлімінде дайын MPI бағдарламалары берілген. Нақты сандар нүктемен (2.0), бүтін сандар нүктесіз (2) жазылады.', 'Задачи моделируются в браузере. В разделе «Код C++» приведены готовые программы MPI. Вещественные числа вводятся с точкой (2.0), целые — без точки (2).', 'p')}</div><div class="brief-links"><a href="downloads/module-${currentModule}-variant-11.zip" download data-kk="Модульді жүктеу" data-ru="Скачать модуль">${document.documentElement.lang === 'ru' ? 'Скачать модуль' : 'Модульді жүктеу'}</a><a href="resources.html" data-kk="Іске қосу шарттары" data-ru="Требования для запуска">${document.documentElement.lang === 'ru' ? 'Требования для запуска' : 'Іске қосу шарттары'}</a></div>`;
   }
   const exampleButton = document.querySelector('#resetExample');
   exampleButton.dataset.kk = currentModule === 1 ? 'Мысалмен толтыру' : 'Файлдағы мысалды жүктеу';
@@ -306,13 +326,17 @@ function selectTask(id) {
   exampleButton.textContent = document.documentElement.lang === 'ru' ? exampleButton.dataset.ru : exampleButton.dataset.kk;
   renderTaskList();
   updateTaskNavButtons();
+  window.MpiLessonUI?.setCalculateView?.();
   if (window.MpiFileExamples?.[id]) processCount.value = window.MpiFileExamples[id].k;
   renderInputs();
+  const exLabelKk = currentModule === 1 ? 'Мысалмен толтыру' : 'Файлдағы мысалды жүктеу';
+  const exLabelRu = currentModule === 1 ? 'Заполнить примером' : 'Загрузить пример из файлов';
   resultContent.innerHTML = bi(
-    'Мәндерді енгізіп, «Нәтижені есептеу» батырмасын басыңыз (немесе «Файлдағы мысалды жүктеу» арқылы тексеріңіз).',
-    'Введите данные и нажмите «Рассчитать результат» (или нажмите «Загрузить пример из файлов»).',
+    `Мәндерді енгізіп, «Нәтижені есептеу» батырмасын басыңыз (немесе «${exLabelKk}» арқылы тексеріңіз).`,
+    `Введите данные и нажмите «Рассчитать результат» (или нажмите «${exLabelRu}»).`,
     'p'
   ).replace('<p ', '<p class="result-placeholder" ');
+  syncCopyButton();
   try {
     const url = new URL(window.location.href);
     url.searchParams.set('module', String(currentModule));
@@ -398,13 +422,13 @@ function renderInputs() {
   } else if (currentTask === 18) {
     html = '<div class="field-grid">' + Array.from({ length: k }, (_, r) => card(r, field(bi('Бастапқы бүтін сан', 'Исходное целое число'), `v_${r}`, String((r + 1) * 10), 'int'))).join('') + '</div>';
   } else if (currentTask === 21) {
-    html = `<p class="form-note">${bi('A — нүктесі бар нақты сан (2.0), N — 0…K−1 сандарының қайталанбайтын перестановкасы.', 'A — вещественное число с точкой (2.0), N — перестановка чисел 0…K−1.')}</p><div class="field-grid">` +
+    html = `<p class="form-note">${bi('A — нүктесі бар нақты сан (2.0), N — 0…K−1 сандарының қайталанбайтын алмастыруы.', 'A — вещественное число с точкой (2.0), N — перестановка чисел 0…K−1.')}</p><div class="field-grid">` +
       Array.from({ length: k }, (_, r) => card(r, `<div class="field-row">${field(bi('Нақты A', 'Вещественное A'), `a_${r}`, (r + 0.5).toFixed(1), 'real')}${field(bi('Бүтін N (ранг)', 'Целое N (ранг)'), `n_${r}`, String((r + 1) % k), 'int')}</div>`)).join('') + '</div>';
   } else if (currentTask === 24) {
     html = (k % 2 ? `<p class="form-note">${bi('Бұл есепке жұп процесс саны қажет. Процестер санын өзгертіңіз.', 'Для этой задачи требуется чётное количество процессов. Измените K.')}</p>` : '') +
       '<div class="field-grid">' + Array.from({ length: k }, (_, r) => card(r, area(bi('1–4 нақты сан (нүктемен)', '1–4 вещественных числа (с точкой)'), `set_${r}`, sampleVector(r, (r % 4) + 1, 'real')))).join('') + '</div>';
   } else if (currentTask === 26) {
-    html = `<p class="form-note">${bi('A — нүктесі бар нақты сан, N — 1…K−1 сандарының қайталанбайтын перестановкасы.', 'A — вещественное число с точкой, N — перестановка чисел 1…K−1.')}</p><div class="field-grid">` +
+    html = `<p class="form-note">${bi('A — нүктесі бар нақты сан, N — 1…K−1 сандарының қайталанбайтын алмастыруы.', 'A — вещественное число с точкой, N — перестановка чисел 1…K−1.')}</p><div class="field-grid">` +
       Array.from({ length: k - 1 }, (_, i) => i + 1).map(r => card(r, `<div class="field-row">${field(bi('Нақты A', 'Вещественное A'), `a_${r}`, (r * 1.25).toFixed(2).replace(/0$/, ''), 'real')}${field(bi('Бүтін N (нөмір)', 'Целое N (номер)'), `n_${r}`, String(k - r), 'int')}</div>`)).join('') + '</div>';
   } else if (currentTask === 29) {
     html = `<p class="form-note">${bi('T=0 кезінде бүтін сандар (2), T=1 кезінде нүктесі бар нақты сандар (2.0) енгізіледі (0–10 сан).', 'При T=0 вводятся целые числа (2), при T=1 — вещественные с точкой (2.0), от 0 до 10 чисел.')}</p><div class="field-grid">` +
@@ -515,6 +539,7 @@ function renderInputs() {
   dynamicFields.querySelectorAll('select[data-toggle-a]').forEach(el => el.addEventListener('change', () => syncConditionalInputs(k)));
   syncConditionalInputs(k);
   resultContent.innerHTML = bi('Мәндерді енгізіп, есептеуді бастаңыз.', 'Введите значения и запустите вычисление.', 'p').replace('<p ', '<p class="result-placeholder" ');
+  syncCopyButton();
   window.MpiLessonUI?.reset();
 }
 
@@ -721,6 +746,7 @@ function runCalculationNow() {
   dynamicFields.querySelectorAll('.rank-row.input-error').forEach(row => row.classList.remove('input-error'));
   try {
     resultContent.innerHTML = calculate();
+    syncCopyButton();
     window.MpiLessonUI?.success();
     return true;
   } catch (error) {
@@ -728,6 +754,7 @@ function runCalculationNow() {
       ? bi(error.kk, error.ru)
       : escapeHtml(error.message);
     resultContent.innerHTML = `<div class="result-error">${bi('Тексеру қажет:', 'Ошибка ввода:', 'strong')} ${body}</div>`;
+    syncCopyButton();
     const rank = String(error.kk || error.message).match(/P(\d+)/)?.[1];
     const row = rank == null ? null : dynamicFields.querySelector(`.rank-row[data-rank="${rank}"]`);
     row?.classList.add('input-error');
@@ -871,7 +898,7 @@ function calculate() {
     const n = Array.from({ length: k }, (_, r) => readSingle(`n_${r}`, 'int', `P${r}, №2 сан (N)`, `P${r}: число №2 (N)`));
     check(
       [...n].sort((x, y) => x - y).every((v, i) => v === i),
-      'N мәндері 0…K−1 сандарының қайталанбайтын перестановкасы болуы керек.',
+      'N мәндері 0…K−1 сандарының қайталанбайтын алмастыруы болуы керек.',
       'Значения N должны образовывать перестановку чисел 0…K−1.'
     );
     const rec = Array(k), src = Array(k);
@@ -902,7 +929,7 @@ function calculate() {
     }
     check(
       [...nList].sort((x, y) => x - y).every((v, i) => v === i + 1),
-      'N мәндері 1…K−1 сандарының қайталанбайтын перестановкасы болуы керек.',
+      'N мәндері 1…K−1 сандарының қайталанбайтын алмастыруы болуы керек.',
       'Значения N должны образовывать перестановку чисел 1…K−1.'
     );
     const ordered = Array(k);

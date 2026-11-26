@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="kk">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>MPI Lab | MPI негіздері</title><link rel="stylesheet" href="styles/reference.css?v=4"></head>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title data-kk="MPI Lab | MPI негіздері" data-ru="MPI Lab | Основы MPI">MPI Lab | MPI негіздері</title><link rel="stylesheet" href="styles/reference.css?v=5"><link rel="stylesheet" href="styles/module-refresh.css?v=5"></head>
 <body class="page-theory">
   <header class="app-header">
 <a class="brand" href="index.html" aria-label="MPI Lab"><span class="brand-mark">M<span>:</span></span><span><strong>mpi<span>lab</span></strong><small data-kk="Параллель есептеу практикумы" data-ru="Практикум параллельных вычислений">Параллель есептеу практикумы</small></span></a>
@@ -8,7 +8,103 @@
 <nav class="main-nav" aria-label="Navigation"><a class="nav-link" href="index.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1Z"/><path d="M9 21v-8h6v8"/></svg><span data-kk="Басты бет" data-ru="Главная">Басты бет</span></a><a class="nav-link" href="practice.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m16 3 5 5-12 12-6 1 1-6Z"/><path d="m14 5 5 5"/></svg><span data-kk="Практикум" data-ru="Практикум">Практикум</span></a><a class="nav-link active" aria-current="page" href="theory.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v16M3 3h5a4 4 0 0 1 4 2 4 4 0 0 1 4-2h5v16h-5a4 4 0 0 0-4 2 4 4 0 0 0-4-2H3Z"/></svg><span data-kk="MPI негіздері" data-ru="Основы MPI">MPI негіздері</span></a><a class="nav-link" href="resources.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m-5-5 5 5 5-5M4 16v5h16v-5"/></svg><span data-kk="Материалдар" data-ru="Материалы">Материалдар</span></a></nav>
 <div class="sidebar-bottom"><div class="learning-note"><span class="local-dot"></span><span data-kk="Жеке оқу кеңістігі" data-ru="Личное учебное пространство">Жеке оқу кеңістігі</span></div><div class="utility-controls"><button id="languageToggle" class="utility-button" type="button">ҚАЗ · RU</button></div></div></header>
 
-<main class="app-main"><section class="welcome-row"><div><h1 data-kk="MPI негіздері" data-ru="Основы MPI">MPI негіздері</h1><p class="welcome-copy" data-kk="1–5 модульдегі практикумды орындауға қажет негізгі ұғымдар." data-ru="Основные понятия для выполнения практикума модулей 1–5.">1–5 модульдегі практикумды орындауға қажет негізгі ұғымдар.</p></div></section><div class="reading-page"><section class="info-panel" id="theory"><div class="panel-title"><div><p class="eyebrow" data-kk="Қысқаша анықтама" data-ru="Краткая справка">Қысқаша анықтама</p><h2 data-kk="MPI негіздері" data-ru="Основы MPI">MPI негіздері</h2></div><span class="panel-symbol">01</span></div><p class="theory-lead" data-kk="Message Passing Interface — бірнеше процесс арасында хабар алмасуды ұйымдастыратын стандарт. Әр процесс жеке жадпен жұмыс істейді." data-ru="Message Passing Interface — стандарт обмена сообщениями между процессами. Каждый процесс работает со своей памятью.">Message Passing Interface — бірнеше процесс арасында хабар алмасуды ұйымдастыратын стандарт. Әр процесс жеке жадпен жұмыс істейді.</p><div class="concept-list"><article><b>Rank</b><span data-kk="Коммуникатор ішіндегі процестің нөмірі (0…K−1). Негізгі процесс — rank 0." data-ru="Номер процесса внутри коммуникатора (0…K−1). Главный процесс — rank 0.">Коммуникатор ішіндегі процестің нөмірі (0…K−1). Негізгі процесс — rank 0.</span></article><article><b>Point-to-point</b><span data-kk="MPI_Send, MPI_Bsend, MPI_Recv, MPI_Sendrecv және MPI_Probe арқылы екі процесс хабар алмасады." data-ru="Обмен сообщениями между двумя процессами через MPI_Send, MPI_Bsend, MPI_Recv, MPI_Sendrecv и MPI_Probe.">MPI_Send, MPI_Bsend, MPI_Recv, MPI_Sendrecv және MPI_Probe арқылы екі процесс хабар алмасады.</span></article><article><b>Collective &amp; Types</b><span data-kk="Bcast, Gatherv, Scatterv, Allgather, Alltoallv, Reduce, Scan, туынды типтер мен MPI_Pack/MPI_Unpack." data-ru="Bcast, Gatherv, Scatterv, Allgather, Alltoallv, Reduce, Scan, производные типы и MPI_Pack/MPI_Unpack.">Bcast, Gatherv, Scatterv, Allgather, Alltoallv, Reduce, Scan, туынды типтер мен MPI_Pack/MPI_Unpack.</span></article><article><b>Communicators</b><span data-kk="MPI_Group_incl, MPI_Comm_create және MPI_Comm_split арқылы ішкі процестер топтарын бөліп алу." data-ru="Выделение подгрупп процессов и новых коммуникаторов через MPI_Group_incl, MPI_Comm_create и MPI_Comm_split.">MPI_Group_incl, MPI_Comm_create және MPI_Comm_split арқылы ішкі процестер топтарын бөліп алу.</span></article><article><b>Topologies</b><span data-kk="MPI_Cart_create, MPI_Cart_sub, MPI_Cart_coords, MPI_Cart_rank, MPI_Cart_shift және MPI_Graph_create арқылы декарттық торлар мен графтар құру." data-ru="Построение декартовых решёток и графов процессов через MPI_Cart_create, MPI_Cart_sub, MPI_Cart_coords, MPI_Cart_rank, MPI_Cart_shift и MPI_Graph_create.">MPI_Cart_create, MPI_Cart_sub, MPI_Cart_coords, MPI_Cart_rank, MPI_Cart_shift және MPI_Graph_create арқылы декарттық торлар мен графтар құру.</span></article></div></section><a class="button primary reading-action" href="practice.html" data-kk="Есептермен жаттығу" data-ru="Перейти к упражнениям">Есептермен жаттығу</a></div></main>
+<main class="app-main">
+  <section class="welcome-row">
+    <div>
+      <h1 data-kk="MPI негіздері" data-ru="Основы MPI">MPI негіздері</h1>
+      <p class="welcome-copy" data-kk="1–5 модульдегі 36 есепті шығаруға қажет негізгі ұғымдар, функция синтаксисі және C++ мысалдары." data-ru="Ключевые понятия, сигнатуры функций и примеры на C++ для решения всех 36 задач модулей 1–5.">1–5 модульдегі 36 есепті шығаруға қажет негізгі ұғымдар, функция синтаксисі және C++ мысалдары.</p>
+    </div>
+  </section>
+
+  <div class="reading-page theory-stack">
+    <section class="info-panel" id="theory">
+      <div class="panel-title">
+        <div>
+          <p class="eyebrow" data-kk="Кіріспе · SPMD моделі" data-ru="Введение · модель SPMD">Кіріспе · SPMD моделі</p>
+          <h2 data-kk="MPI бағдарламасы қалай жұмыс істейді?" data-ru="Как устроена программа MPI?">MPI бағдарламасы қалай жұмыс істейді?</h2>
+        </div>
+      </div>
+      <p class="theory-lead" data-kk="Message Passing Interface (MPI) — үлестірілген жады бар жүйелерге арналған хабар алмасу стандарты. Бір ғана бағдарлама K тәуелсіз процесс ретінде қатар іске қосылады (mpiexec -n K prog.exe): әр процестің өз жады және 0…K−1 аралығындағы бірегей рангы болады." data-ru="Message Passing Interface (MPI) — стандарт передачи сообщений в системах с распределённой памятью. Одна программа запускается сразу в K независимых процессах (mpiexec -n K prog.exe): у каждого процесса своя память и уникальный ранг от 0 до K−1.">Message Passing Interface (MPI) — үлестірілген жады бар жүйелерге арналған хабар алмасу стандарты. Бір ғана бағдарлама K тәуелсіз процесс ретінде қатар іске қосылады (mpiexec -n K prog.exe): әр процестің өз жады және 0…K−1 аралығындағы бірегей рангы болады.</p>
+
+      <div class="theory-grid">
+        <article class="theory-card">
+          <div class="tc-head">
+            <span class="hm-badge">M1</span>
+            <h3 data-kk="1. Ранг және инициализация" data-ru="1. Ранг и инициализация">1. Ранг және инициализация</h3>
+          </div>
+          <p data-kk="Кез келген MPI шақырулары MPI_Init пен MPI_Finalize арасында орындалады. MPI_COMM_WORLD коммуникаторы барлық іске қосылған K процесті біріктіреді; P0 әдетте негізгі (бас) процесс рөлін атқарады." data-ru="Все вызовы MPI располагаются между MPI_Init и MPI_Finalize. Коммуникатор MPI_COMM_WORLD объединяет все K запущенных процессов; процесс P0 обычно выступает главным.">Кез келген MPI шақырулары MPI_Init пен MPI_Finalize арасында орындалады. MPI_COMM_WORLD коммуникаторы барлық іске қосылған K процесті біріктіреді; P0 әдетте негізгі (бас) процесс рөлін атқарады.</p>
+          <div class="sig-box"><code>MPI_Comm_size(MPI_Comm comm, int *size)</code><code>MPI_Comm_rank(MPI_Comm comm, int *rank)</code></div>
+          <pre class="theory-code"><code>MPI_Init(&amp;argc, &amp;argv);
+int rank, size;
+MPI_Comm_rank(MPI_COMM_WORLD, &amp;rank); // 0 .. K-1
+MPI_Comm_size(MPI_COMM_WORLD, &amp;size); // K
+MPI_Finalize();</code></pre>
+          <a class="theory-link" href="practice.html?module=1" data-kk="1-модуль есептері (3, 5) →" data-ru="Задачи модуля 1 (3, 5) →">1-модуль есептері (3, 5) →</a>
+        </article>
+
+        <article class="theory-card">
+          <div class="tc-head">
+            <span class="hm-badge">M2</span>
+            <h3 data-kk="2. Екі процесс арасында хабар алмасу" data-ru="2. Обмен «точка–точка» (Point-to-Point)">2. Екі процесс арасында хабар алмасу</h3>
+          </div>
+          <p data-kk="Жіберуші буферді, элементтер санын, типті (MPI_INT, MPI_DOUBLE), қабылдаушы рангын және msgtag тегін көрсетеді. MPI_ANY_SOURCE пен MPI_ANY_TAG кез келген жіберушіден немесе тегпен қабылдауға, ал MPI_Probe хабар өлшемін алдын ала білуге мүмкіндік береді." data-ru="Отправитель указывает буфер, число элементов, тип (MPI_INT, MPI_DOUBLE), ранг получателя и тег msgtag. Константы MPI_ANY_SOURCE и MPI_ANY_TAG позволяют принимать от любого ранга/тега, а MPI_Probe — узнать длину сообщения до приёма.">Жіберуші буферді, элементтер санын, типті (MPI_INT, MPI_DOUBLE), қабылдаушы рангын және msgtag тегін көрсетеді. MPI_ANY_SOURCE пен MPI_ANY_TAG кез келген жіберушіден немесе тегпен қабылдауға, ал MPI_Probe хабар өлшемін алдын ала білуге мүмкіндік береді.</p>
+          <div class="sig-box"><code>MPI_Send(buf, count, type, dest, tag, comm)</code><code>MPI_Recv(buf, count, type, source, tag, comm, &amp;status)</code><code>MPI_Sendrecv(sbuf, scnt, stype, dest, stag, rbuf, rcnt, rtype, src, rtag, comm, &amp;st)</code></div>
+          <pre class="theory-code"><code>MPI_Status st;
+MPI_Probe(src, MPI_ANY_TAG, MPI_COMM_WORLD, &amp;st);
+int count;
+MPI_Get_count(&amp;st, MPI_INT, &amp;count);
+MPI_Recv(buf, count, MPI_INT, st.MPI_SOURCE, st.MPI_TAG, MPI_COMM_WORLD, &amp;st);</code></pre>
+          <a class="theory-link" href="practice.html?module=2" data-kk="2-модуль есептері (10–29) →" data-ru="Задачи модуля 2 (10–29) →">2-модуль есептері (10–29) →</a>
+        </article>
+
+        <article class="theory-card">
+          <div class="tc-head">
+            <span class="hm-badge">M3</span>
+            <h3 data-kk="3. Редукция, туынды типтер және орау" data-ru="3. Редукция, производные типы и упаковка">3. Редукция, туынды типтер және орау</h3>
+          </div>
+          <p data-kk="Редукция операциялары (MPI_SUM, MPI_PROD, MPI_MAX, MPI_MIN) барлық процестегі массив элементтерін позиция бойынша біріктіреді. Әртекті деректерді (мысалы, int–double–int) бір хабармен жіберу үшін құрылымдық тип (MPI_Type_create_struct) немесе буферге орау (MPI_Pack / MPI_Unpack) қолданылады." data-ru="Операции редукции (MPI_SUM, MPI_PROD, MPI_MAX, MPI_MIN) поэлементно агрегируют массивы всех процессов. Для передачи разнотипных записей (например, int–double–int) создают производный тип (MPI_Type_create_struct) либо используют упаковку MPI_Pack / MPI_Unpack.">Редукция операциялары (MPI_SUM, MPI_PROD, MPI_MAX, MPI_MIN) барлық процестегі массив элементтерін позиция бойынша біріктіреді. Әртекті деректерді (мысалы, int–double–int) бір хабармен жіберу үшін құрылымдық тип (MPI_Type_create_struct) немесе буферге орау (MPI_Pack / MPI_Unpack) қолданылады.</p>
+          <div class="sig-box"><code>MPI_Reduce(sbuf, rbuf, count, type, op, root, comm)</code><code>MPI_Allreduce(sbuf, rbuf, count, type, op, comm) · MPI_Scan(...)</code><code>MPI_Type_create_struct(...) · MPI_Pack(...) / MPI_Unpack(...)</code></div>
+          <pre class="theory-code"><code>MPI_Reduce(local.data(), sum.data(), k + 5, MPI_INT, MPI_SUM, 0, comm);
+MPI_Scan(local.data(), prefMax.data(), k + 5, MPI_INT, MPI_MAX, comm);</code></pre>
+          <a class="theory-link" href="practice.html?module=3" data-kk="3-модуль есептері (48–69) →" data-ru="Задачи модуля 3 (48–69) →">3-модуль есептері (48–69) →</a>
+        </article>
+
+        <article class="theory-card">
+          <div class="tc-head">
+            <span class="hm-badge">M4</span>
+            <h3 data-kk="4. Ұжымдық жіберу және жаңа коммуникаторлар" data-ru="4. Коллективная пересылка и коммуникаторы">4. Ұжымдық жіберу және коммуникаторлар</h3>
+          </div>
+          <p data-kk="Ұжымдық функциялар коммуникатордағы барлық процестен бір уақытта шақырылады: Bcast (тарату), Gather/Gatherv (жинау), Scatter/Scatterv (үлестіру), Allgather, Alltoall/Alltoallv. Ал MPI_Comm_create және MPI_Comm_split ішкі процестер топтарына жеке коммуникатор құрады (color = MPI_UNDEFINED болса процесс топқа кірмейді)." data-ru="Коллективные функции вызываются всеми процессами коммуникатора: Bcast, Gather/Gatherv, Scatter/Scatterv, Allgather, Alltoall/Alltoallv. Функции MPI_Comm_create и MPI_Comm_split выделяют подгруппы в отдельные коммуникаторы (при color = MPI_UNDEFINED процесс получает MPI_COMM_NULL).">Ұжымдық функциялар коммуникатордағы барлық процестен бір уақытта шақырылады: Bcast (тарату), Gather/Gatherv (жинау), Scatter/Scatterv (үлестіру), Allgather, Alltoall/Alltoallv. Ал MPI_Comm_create және MPI_Comm_split ішкі процестер топтарына жеке коммуникатор құрады (color = MPI_UNDEFINED болса процесс топқа кірмейді).</p>
+          <div class="sig-box"><code>MPI_Bcast(buf, count, type, root, comm)</code><code>MPI_Gatherv / MPI_Scatterv / MPI_Allgather / MPI_Alltoallv</code><code>MPI_Comm_split(comm, color, key, &amp;subcomm)</code></div>
+          <pre class="theory-code"><code>int color = (n == 1) ? 0 : MPI_UNDEFINED;
+MPI_Comm sub;
+MPI_Comm_split(MPI_COMM_WORLD, color, rank, &amp;sub);
+if (sub != MPI_COMM_NULL) {
+    MPI_Allgather(&amp;a, 1, MPI_DOUBLE, res.data(), 1, MPI_DOUBLE, sub);
+    MPI_Comm_free(&amp;sub);
+}</code></pre>
+          <a class="theory-link" href="practice.html?module=4" data-kk="4-модуль есептері (30–45, 71–80) →" data-ru="Задачи модуля 4 (30–45, 71–80) →">4-модуль есептері (30–45, 71–80) →</a>
+        </article>
+
+        <article class="theory-card">
+          <div class="tc-head">
+            <span class="hm-badge">M5</span>
+            <h3 data-kk="5. Виртуалды топологиялар: торлар мен графтар" data-ru="5. Виртуальные топологии: решётки и графы">5. Виртуалды топологиялар: торлар мен графтар</h3>
+          </div>
+          <p data-kk="MPI_Cart_create процестерді 2D/3D декарттық торға (периодты немесе периодсыз) орналастырады; MPI_Cart_sub торды ішкі жолдарға не матрица қималарына бөледі; MPI_Cart_shift көрші рангтарды табады. Еркін байланыстар үшін MPI_Graph_create граф топологиясы қолданылады." data-ru="MPI_Cart_create организует процессы в 2D/3D декартову решётку (с периодичностью или без); MPI_Cart_sub расщепляет решётку на строки или срезы; MPI_Cart_shift находит соседей для сдвига. Для произвольной структуры связей используется MPI_Graph_create.">MPI_Cart_create процестерді 2D/3D декарттық торға (периодты немесе периодсыз) орналастырады; MPI_Cart_sub торды ішкі жолдарға не матрица қималарына бөледі; MPI_Cart_shift көрші рангтарды табады. Еркін байланыстар үшін MPI_Graph_create граф топологиясы қолданылады.</p>
+          <div class="sig-box"><code>MPI_Cart_create(comm, ndims, dims, periods, reorder, &amp;cart)</code><code>MPI_Cart_coords · MPI_Cart_rank · MPI_Cart_sub · MPI_Cart_shift</code><code>MPI_Graph_create(comm, nnodes, index, edges, reorder, &amp;graph)</code></div>
+          <pre class="theory-code"><code>int dims[2] = {2, size / 2}, periods[2] = {0, 1};
+MPI_Comm cart;
+MPI_Cart_create(MPI_COMM_WORLD, 2, dims, periods, 0, &amp;cart);
+int src, dst;
+MPI_Cart_shift(cart, 1, 1, &amp;src, &amp;dst); // жол бойынша +1 жылжу</code></pre>
+          <a class="theory-link" href="practice.html?module=5" data-kk="5-модуль есептері (83–100) →" data-ru="Задачи модуля 5 (83–100) →">5-модуль есептері (83–100) →</a>
+        </article>
+      </div>
+    </section>
+    <a class="button primary reading-action" href="practice.html" data-kk="Практикумға өту →" data-ru="Перейти к практикуму →">Практикумға өту →</a>
+  </div>
+</main>
   <footer class="app-footer"><span><b>MPI Lab</b> · Оқу практикумы</span><span>Нәтижелер браузерде модельденеді; нақты параллель орындалу іске қосылмайды.</span></footer>
-<script src="scripts/localization.js?v=4"></script>
+<script src="scripts/localization.js?v=5"></script>
 </body></html>

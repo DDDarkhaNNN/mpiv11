@@ -59,7 +59,8 @@
 .page-practice .module-tabs{height:40px}
 .page-practice .module-tab{min-height:38px;padding:7px 11px}
 .page-practice .task-filter{gap:4px}
-.page-practice .task-filter select,.page-practice .task-filter input{min-height:38px;height:38px;padding:6px 10px;font-size:.94rem}
+.page-practice .task-filter select,.page-practice .task-filter input{min-height:40px;height:40px;padding:6px 10px;font-size:.92rem;line-height:1.25}
+.page-practice .task-filter select{padding-right:28px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .page-practice .module-brief{margin-bottom:10px;padding:10px 16px;gap:16px}
 .brief-kicker{margin-bottom:2px;font-size:.74rem}
 .module-brief h2{font-size:1rem;margin:0 0 2px}
@@ -67,7 +68,7 @@
 .brief-links a{min-height:34px;padding:5px 11px;font-size:.85rem}
 .page-practice .learning-progress{margin-bottom:10px}
 .page-practice .completion-button{padding:6px 12px}
-.page-practice .calculator-shell{grid-template-columns:minmax(0,1.25fr) minmax(290px,.75fr);gap:10px 14px}
+.page-practice .calculator-shell{grid-template-columns:minmax(0,1.08fr) minmax(340px,.92fr);gap:10px 14px}
 .page-practice .calculator-header{padding:12px 18px;gap:16px}
 .page-practice .breadcrumb{margin-bottom:3px}
 .page-practice .task-heading h2{font-size:1.28rem;margin-bottom:3px}
@@ -92,9 +93,12 @@
 .page-practice .rank-fields .input-group input,.page-practice .rank-fields .input-group select{min-height:34px;height:34px;padding:4px 9px;font-size:.94rem;border-radius:6px}
 .page-practice .rank-fields input.set-input{text-align:left;font-family:Consolas,'Segoe UI',monospace}
 .page-practice .rank-fields input::placeholder{color:#b6bfcd;opacity:1}
-.page-practice .form-actions{margin-top:10px;padding-top:0;border-top:0;gap:8px}
+.page-practice .form-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));margin-top:10px;padding-top:0;border-top:0;gap:8px}
+.page-practice .form-actions .button{width:100%;min-height:40px;padding:7px 10px;font-size:.88rem;line-height:1.2;text-align:center}
 .page-practice .button{min-height:38px;padding:7px 14px}
-.page-practice .result-heading{padding:10px 16px}
+.page-practice .result-heading{padding:10px 14px;gap:8px;flex-wrap:wrap}
+.page-practice .result-heading>div:first-child{min-width:0}
+.page-practice .result-heading strong{font-size:.96rem;white-space:nowrap}
 .page-practice .result-content{min-height:0;padding:12px 16px}
 .page-practice .result-placeholder{margin:6px auto;font-size:.9rem}
 .page-practice .result-placeholder:before{display:none}
@@ -119,10 +123,11 @@
 .header-controls{display:flex;align-items:flex-end;gap:14px;flex-shrink:0;flex-wrap:wrap}
 .task-QuickNav{display:flex;align-items:center;gap:7px}
 .button.nav-step{min-height:38px;padding:7px 13px;font-size:.86rem;white-space:nowrap}
-.button.nav-step:disabled,.nav-step-bottom:disabled,.lesson-footer-nav button:disabled{opacity:.42;cursor:not-allowed;filter:none}
+.button.nav-step:disabled,.nav-step-bottom:disabled,.lesson-footer-nav button:disabled{background:#f1f4f9!important;border-color:#d8e0ec!important;color:#8a95a8!important;box-shadow:none!important;opacity:1;cursor:not-allowed;filter:none}
 .panel-mini-head{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px;padding-bottom:7px;border-bottom:1px solid #ebeef5}
 .panel-mini-head strong{font-size:.94rem;font-weight:650;color:var(--ink)}
 .type-legend{display:inline-flex;gap:6px;flex-wrap:wrap}
+.type-legend [hidden]{display:none!important}
 .type-legend i{font-style:normal;font-size:.75rem;font-weight:600;padding:2px 7px;border-radius:5px;font-family:Consolas,'Segoe UI',monospace}
 .type-legend .tag-int{background:#eef3ff;color:#2f4eb8}
 .type-legend .tag-real{background:#fef5e7;color:#9a5b13}
@@ -132,13 +137,18 @@
 .page-practice .rank-fields .input-group label{color:#4e5b70;font-weight:600;font-size:.76rem}
 .page-practice .rank-fields .input-group input:focus,.page-practice .rank-fields .input-group select:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(54,87,245,.13);outline:0}
 .page-practice .result-panel{display:flex;flex-direction:column}
-.result-footer-nav,.lesson-footer-nav{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 14px;border-top:1px solid var(--line);background:#fafbfd}
+.result-footer-nav,.lesson-footer-nav{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch;gap:8px;padding:10px 14px;border-top:1px solid var(--line);background:#fafbfd}
 .lesson-footer-nav{margin-top:16px;padding:12px 0 0;background:transparent}
-.nav-step-bottom{flex:1;min-height:38px;padding:7px 11px;font-size:.85rem;text-align:center}
+.nav-step-bottom,.lesson-footer-nav button{width:100%;min-height:40px;padding:7px 10px;font-size:.84rem;line-height:1.25;text-align:center}
 /* Result tools, Module 5 topology SVG visuals, and printable PDF report */
-.result-tools{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.result-tools{display:flex;align-items:center;gap:6px;flex-wrap:nowrap;margin-left:auto}
+.result-tools button{min-height:32px;padding:5px 10px;font-size:.79rem;border-radius:6px;white-space:nowrap}
 #exportReport{border-color:#c6d4fb;background:#eef3ff;color:#2848b8;font-weight:600}
 #exportReport:hover{background:#e0e9ff}
+#copyResult{border-color:#cbd5e4;background:#fff;color:#334155;font-weight:600}
+#copyResult.ready{border-color:#9fb6f9;background:#f5f8ff;color:#1f3fa8}
+#copyResult.ready:hover{background:#e8effe}
+#copyResult:disabled{background:#f4f6fa;border-color:#e1e6f0;color:#9aa5b6;cursor:not-allowed;filter:none}
 .trace-diagram .wire{stroke:#cfd8ea;stroke-width:1.8;fill:none}
 .trace-diagram .wire-periodic{stroke:#99aee8;stroke-dasharray:5 4;stroke-width:1.5}
 .trace-diagram .topo-caption{fill:#4c5d7e;font:600 12.5px 'Segoe UI',sans-serif;text-anchor:middle}
@@ -172,7 +182,7 @@
   .rep-code{margin:0;padding:9px 11px;border:1px solid #d3dae6;border-radius:6px;background:#f8fafd!important;font:8.5pt/1.4 Consolas,monospace;white-space:pre-wrap;overflow-wrap:anywhere;-webkit-print-color-adjust:exact;print-color-adjust:exact}
 }
 @media(max-width:1050px){.page-practice .calculator-shell{grid-template-columns:minmax(0,1fr)}.page-practice .calculator-form{grid-column:1;grid-row:3}.page-practice .result-panel{grid-column:1;grid-row:4}.header-controls{width:100%;justify-content:space-between}}
-@media(max-width:600px){.rank-row{flex-wrap:wrap;gap:4px 8px}.rank-fields{flex-basis:100%}.task-QuickNav{width:100%}.task-QuickNav .button{flex:1}.result-footer-nav,.lesson-footer-nav{flex-direction:column;align-items:stretch}}
+@media(max-width:600px){.rank-row{flex-wrap:wrap;gap:4px 8px}.rank-fields{flex-basis:100%}.page-practice .process-control{width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px}.page-practice .process-control label{margin:0;white-space:nowrap;font-size:.85rem}.task-QuickNav{width:100%}.task-QuickNav .button{flex:1}.page-practice .form-actions,.result-footer-nav,.lesson-footer-nav{grid-template-columns:1fr}}
 /* Motion is limited to task changes, active input, and newly calculated results. */
 .page-practice .calculator-shell.task-enter .calculator-header,.page-practice .calculator-shell.task-enter .calculator-form,.page-practice .calculator-shell.task-enter .result-panel{animation:task-content-in 190ms ease-out both}
 .page-practice .rank-row{transition:background-color 150ms,border-color 150ms,box-shadow 150ms}
