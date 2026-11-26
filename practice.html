@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="kk">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="icon" type="image/svg+xml" href="favicon.svg"><title data-kk="MPI Lab | Практикум" data-ru="MPI Lab | Практикум">MPI Lab | Практикум</title><script>try{if(localStorage.getItem('mpi-theme')==='dark')document.documentElement.dataset.theme='dark';}catch{}</script><link rel="stylesheet" href="styles/reference.css?v=9"><link rel="stylesheet" href="styles/lesson.css?v=9"><link rel="stylesheet" href="styles/module-refresh.css?v=9"><link rel="stylesheet" href="styles/pro-ui.css?v=9"></head>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="icon" type="image/svg+xml" href="favicon.svg"><title data-kk="MPI Lab | Практикум" data-ru="MPI Lab | Практикум">MPI Lab | Практикум</title><script>try{if(localStorage.getItem('mpi-theme')==='dark')document.documentElement.dataset.theme='dark';}catch{}</script><link rel="stylesheet" href="styles/reference.css?v=11"><link rel="stylesheet" href="styles/lesson.css?v=11"><link rel="stylesheet" href="styles/module-refresh.css?v=11"><link rel="stylesheet" href="styles/pro-ui.css?v=11"></head>
 <body class="page-practice">
   <header class="app-header">
 <a class="brand" href="index.html" aria-label="MPI Lab"><span class="brand-mark">M<span>:</span></span><span><strong>mpi<span>lab</span></strong><small data-kk="Параллель есептеу практикумы" data-ru="Практикум параллельных вычислений">Параллель есептеу практикумы</small></span></a>
@@ -29,7 +29,42 @@
         <section class="result-panel" aria-live="polite"><div class="result-heading"><div><span class="status-dot"></span><strong data-kk="2. Есептеу нәтижесі" data-ru="2. Результат вычисления">2. Есептеу нәтижесі</strong></div><div class="result-tools"><div class="view-seg" role="group" aria-label="Нәтиже түрі"><button type="button" id="viewTableBtn" aria-pressed="true" data-kk="Кесте" data-ru="Таблица">Кесте</button><button type="button" id="viewCmdBtn" aria-pressed="false" data-kk="Терминал" data-ru="Терминал">Терминал</button></div><button id="exportReport" type="button" data-kk="PDF есеп" data-ru="Отчёт PDF">PDF есеп</button><button id="copyResult" type="button" disabled data-kk="Көшіру" data-ru="Копировать">Көшіру</button></div></div><div id="resultContent" class="result-content"><p class="result-placeholder">Мәндерді енгізіп, есептеуді бастаңыз.</p></div><div class="result-footer-nav" id="resultFooterNav"><button id="prevTaskBottom" class="button ghost nav-step-bottom" type="button"></button><button id="nextTaskBottom" class="button secondary-accent nav-step-bottom" type="button"></button></div></section>
       </section>
     </section></main>
+  <dialog id="pdfModal" class="pdf-modal">
+    <form id="pdfModalForm" class="pdf-modal-box" method="dialog">
+      <div class="pdf-modal-head">
+        <div>
+          <span class="brief-kicker" data-kk="ЗЕРТХАНАЛЫҚ ЕСЕП БЕРУ · PDF" data-ru="ЛАБОРАТОРНЫЙ ОТЧЁТ · PDF">ЗЕРТХАНАЛЫҚ ЕСЕП БЕРУ · PDF</span>
+          <h3 data-kk="PDF есепті баптау" data-ru="Настройка отчёта PDF">PDF есепті баптау</h3>
+        </div>
+        <button type="button" class="pdf-close-btn" id="closePdfModal" aria-label="Жабу">✕</button>
+      </div>
+      <div class="pdf-modal-grid">
+        <div class="input-group">
+          <label for="repStudent" data-kk="Орындаған студент (Аты-жөні)" data-ru="Выполнил студент (ФИО)">Орындаған студент (Аты-жөні)</label>
+          <input id="repStudent" type="text" placeholder="Алуақас Дархан">
+        </div>
+        <div class="input-group">
+          <label for="repGroup" data-kk="Тобы / Курсы" data-ru="Группа / Курс">Тобы / Курсы</label>
+          <input id="repGroup" type="text" placeholder="ИС-31">
+        </div>
+        <div class="input-group wide-span">
+          <label for="repTeacher" data-kk="Тексерген оқытушы (міндетті емес)" data-ru="Проверил преподаватель (необязательно)">Тексерген оқытушы (міндетті емес)</label>
+          <input id="repTeacher" type="text" placeholder="">
+        </div>
+      </div>
+      <fieldset class="pdf-scope-box">
+        <legend data-kk="Есеп көлемі" data-ru="Объём отчёта">Есеп көлемі</legend>
+        <label class="pdf-radio"><input type="radio" name="repScope" value="single" checked><span id="repScopeSingleLbl">Ағымдағы есеп</span></label>
+        <label class="pdf-radio"><input type="radio" name="repScope" value="module"><span id="repScopeModuleLbl">Толық модуль</span></label>
+      </fieldset>
+      <label class="pdf-check"><input type="checkbox" id="repIncludeCode" checked><span data-kk="Бастапқы C++ кодын қосу" data-ru="Включить исходный код C++">Бастапқы C++ кодын қосу</span></label>
+      <div class="pdf-modal-actions">
+        <button type="button" class="button ghost" id="cancelPdfModal" data-kk="Болдырмау" data-ru="Отмена">Болдырмау</button>
+        <button type="submit" class="button primary" id="confirmPdfPrint" data-kk="PDF шығару / Басып шығару" data-ru="Сформировать PDF / Печать">PDF шығару / Басып шығару</button>
+      </div>
+    </form>
+  </dialog>
   <section id="printReportContainer" class="print-report-container" aria-hidden="true"></section>
   <footer class="app-footer"><span><b>MPI Lab</b> · <span data-kk="Оқу практикумы" data-ru="Учебный практикум">Оқу практикумы</span></span><span data-kk="Сайт авторы Алуақас Дархан" data-ru="Автор сайта Алуакас Дархан">Сайт авторы Алуақас Дархан</span></footer>
-<script src="scripts/task-data.js?v=10"></script><script src="scripts/lesson-data.js?v=10"></script><script src="scripts/file-examples.js?v=10"></script><script src="scripts/source-code.js?v=10"></script><script src="scripts/lesson-engine.js?v=10"></script><script src="scripts/app.js?v=10"></script><script src="scripts/lesson-ui.js?v=10"></script><script src="scripts/localization.js?v=10"></script>
+<script src="scripts/task-data.js?v=11"></script><script src="scripts/lesson-data.js?v=11"></script><script src="scripts/file-examples.js?v=11"></script><script src="scripts/source-code.js?v=11"></script><script src="scripts/lesson-engine.js?v=11"></script><script src="scripts/app.js?v=11"></script><script src="scripts/lesson-ui.js?v=11"></script><script src="scripts/localization.js?v=11"></script>
 </body></html>

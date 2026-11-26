@@ -868,6 +868,280 @@ html[data-theme="dark"] .live-hint {
   color: #fca5a5;
 }
 
+/* Interactive MPI Quiz (theory.html) */
+.theory-welcome {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.quiz-panel {
+  margin-top: 20px;
+}
+.quiz-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+.quiz-score-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--ink-secondary);
+}
+.quiz-reset-btn {
+  min-height: 34px;
+  padding: 5px 12px;
+  font-size: 0.82rem;
+}
+.quiz-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+.quiz-filter-btn {
+  min-height: 34px;
+  padding: 5px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: var(--bg-subtle);
+  color: var(--ink-secondary);
+  font-size: 0.84rem;
+  font-weight: 600;
+}
+.quiz-filter-btn.active {
+  background: var(--blue);
+  border-color: var(--blue);
+  color: #fff;
+}
+.quiz-list {
+  display: grid;
+  gap: 14px;
+}
+.quiz-card {
+  padding: 16px 18px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: var(--bg-subtle);
+  display: grid;
+  gap: 10px;
+}
+.qc-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.qc-top .hm-badge {
+  margin: 0;
+}
+.qc-num {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+.quiz-card h4 {
+  margin: 0;
+  font-size: 0.98rem;
+  line-height: 1.45;
+  color: var(--ink);
+}
+.quiz-opts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+.quiz-opt {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  text-align: left;
+  padding: 9px 12px;
+  border-radius: 9px;
+  border: 1px solid var(--line-strong);
+  background: var(--bg-surface);
+  color: var(--ink);
+  font-size: 0.88rem;
+  line-height: 1.4;
+  transition: border-color 140ms, background 140ms;
+}
+.quiz-opt:hover:not(:disabled) {
+  border-color: var(--blue);
+  background: var(--soft);
+}
+.q-letter {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  display: inline-grid;
+  place-items: center;
+  background: var(--bg-subtle);
+  border: 1px solid var(--line);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--muted);
+}
+.quiz-opt.correct {
+  border-color: #22c55e !important;
+  background: #f0fdf4 !important;
+  color: #14532d !important;
+}
+.quiz-opt.correct .q-letter {
+  background: #22c55e;
+  border-color: #22c55e;
+  color: #fff;
+}
+.quiz-opt.wrong {
+  border-color: #ef4444 !important;
+  background: #fef2f2 !important;
+  color: #7f1d1d !important;
+}
+.quiz-opt.wrong .q-letter {
+  background: #ef4444;
+  border-color: #ef4444;
+  color: #fff;
+}
+html[data-theme="dark"] .quiz-opt.correct {
+  background: rgba(34, 197, 94, 0.14) !important;
+  color: #bbf7d0 !important;
+}
+html[data-theme="dark"] .quiz-opt.wrong {
+  background: rgba(239, 68, 68, 0.14) !important;
+  color: #fecaca !important;
+}
+.quiz-exp {
+  padding: 9px 12px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+.quiz-exp.ok {
+  background: rgba(34, 197, 94, 0.12);
+  border: 1px solid rgba(34, 197, 94, 0.35);
+  color: var(--ink);
+}
+.quiz-exp.bad {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.32);
+  color: var(--ink);
+}
+
+/* Lab PDF Configuration Dialog (practice.html) */
+.pdf-modal {
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 0;
+  max-width: 500px;
+  width: calc(100% - 28px);
+  background: var(--bg-surface);
+  color: var(--ink);
+  box-shadow: var(--shadow-md);
+}
+.pdf-modal::backdrop {
+  background: rgba(15, 23, 42, 0.52);
+  backdrop-filter: blur(2px);
+}
+.pdf-modal-box {
+  padding: 20px 22px;
+  display: grid;
+  gap: 14px;
+}
+.pdf-modal-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+.pdf-modal-head h3 {
+  margin: 4px 0 0;
+  font-size: 1.16rem;
+}
+.pdf-close-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: var(--bg-subtle);
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+.pdf-modal-grid {
+  display: grid;
+  grid-template-columns: 1.3fr 0.9fr;
+  gap: 10px;
+}
+.pdf-modal-grid .wide-span {
+  grid-column: 1 / -1;
+}
+.pdf-modal-grid .input-group label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+  color: var(--ink-secondary);
+}
+.pdf-modal-grid .input-group input {
+  min-height: 38px;
+  height: 38px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  background: var(--bg-subtle);
+  border: 1px solid var(--line-strong);
+  color: var(--ink);
+}
+.pdf-scope-box {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--bg-subtle);
+  display: grid;
+  gap: 7px;
+}
+.pdf-scope-box legend {
+  padding: 0 6px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+.pdf-radio,
+.pdf-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.88rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+.pdf-radio input,
+.pdf-check input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--blue);
+}
+.pdf-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding-top: 4px;
+}
+@media (max-width: 680px) {
+  .quiz-opts,
+  .pdf-modal-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 @media (max-width: 1050px) {
   .page-practice .calculator-form {
     grid-column: 1;

@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="kk">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="icon" type="image/svg+xml" href="favicon.svg"><title data-kk="MPI Lab | MPI негіздері" data-ru="MPI Lab | Основы MPI">MPI Lab | MPI негіздері</title><script>try{if(localStorage.getItem('mpi-theme')==='dark')document.documentElement.dataset.theme='dark';}catch{}</script><link rel="stylesheet" href="styles/reference.css?v=9"><link rel="stylesheet" href="styles/module-refresh.css?v=9"><link rel="stylesheet" href="styles/pro-ui.css?v=9"></head>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="icon" type="image/svg+xml" href="favicon.svg"><title data-kk="MPI Lab | MPI негіздері" data-ru="MPI Lab | Основы MPI">MPI Lab | MPI негіздері</title><script>try{if(localStorage.getItem('mpi-theme')==='dark')document.documentElement.dataset.theme='dark';}catch{}</script><link rel="stylesheet" href="styles/reference.css?v=11"><link rel="stylesheet" href="styles/module-refresh.css?v=11"><link rel="stylesheet" href="styles/pro-ui.css?v=11"></head>
 <body class="page-theory">
   <header class="app-header">
 <a class="brand" href="index.html" aria-label="MPI Lab"><span class="brand-mark">M<span>:</span></span><span><strong>mpi<span>lab</span></strong><small data-kk="Параллель есептеу практикумы" data-ru="Практикум параллельных вычислений">Параллель есептеу практикумы</small></span></a>
@@ -9,11 +9,12 @@
 <div class="sidebar-bottom"><div class="learning-note"><span class="local-dot"></span><span data-kk="Жеке оқу кеңістігі" data-ru="Личное учебное пространство">Жеке оқу кеңістігі</span></div><div class="utility-controls"><button id="themeToggle" class="utility-button" type="button" aria-label="Тақырып түсі">☾ Түн</button><button id="languageToggle" class="utility-button" type="button">ҚАЗ · RU</button></div></div></header>
 
 <main class="app-main">
-  <section class="welcome-row">
+  <section class="welcome-row theory-welcome">
     <div>
-      <h1 data-kk="MPI негіздері" data-ru="Основы MPI">MPI негіздері</h1>
-      <p class="welcome-copy" data-kk="1–5 модульдегі 36 есепті шығаруға қажет негізгі ұғымдар, функция синтаксисі және C++ мысалдары." data-ru="Ключевые понятия, сигнатуры функций и примеры на C++ для решения всех 36 задач модулей 1–5.">1–5 модульдегі 36 есепті шығаруға қажет негізгі ұғымдар, функция синтаксисі және C++ мысалдары.</p>
+      <h1 data-kk="MPI негіздері және тест" data-ru="Основы MPI и самопроверка">MPI негіздері және тест</h1>
+      <p class="welcome-copy" data-kk="1–5 модульдегі 36 есепті шығаруға қажет негізгі ұғымдар, функция синтаксисі және өзін-өзі тексеру тесті." data-ru="Ключевые понятия, сигнатуры функций и интерактивный тест по модулям 1–5.">1–5 модульдегі 36 есепті шығаруға қажет негізгі ұғымдар, функция синтаксисі және өзін-өзі тексеру тесті.</p>
     </div>
+    <a class="button secondary-accent" href="#mpiQuizRoot" data-kk="Тестке өту ↓" data-ru="Перейти к тесту ↓">Тестке өту ↓</a>
   </section>
 
   <div class="reading-page theory-stack">
@@ -102,9 +103,11 @@ MPI_Cart_shift(cart, 1, 1, &amp;src, &amp;dst); // жол бойынша +1 жы
         </article>
       </div>
     </section>
+    <section class="info-panel quiz-panel" id="mpiQuizRoot" aria-live="polite"></section>
     <a class="button primary reading-action" href="practice.html" data-kk="Практикумға өту →" data-ru="Перейти к практикуму →">Практикумға өту →</a>
   </div>
 </main>
   <footer class="app-footer"><span><b>MPI Lab</b> · <span data-kk="Оқу практикумы" data-ru="Учебный практикум">Оқу практикумы</span></span><span data-kk="Сайт авторы Алуақас Дархан" data-ru="Автор сайта Алуакас Дархан">Сайт авторы Алуақас Дархан</span></footer>
-<script src="scripts/localization.js?v=10"></script>
+<script src="scripts/quiz.js?v=11"></script>
+<script src="scripts/localization.js?v=11"></script>
 </body></html>

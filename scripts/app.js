@@ -966,22 +966,22 @@ function runCalculationNow() {
   }
 }
 
-function exportPdfReport() {
-  if (!lastCalcCache) {
-    const hasAnyInput = Array.from(dynamicFields.querySelectorAll('input,select')).some(el => !el.disabled && String(el.value).trim() !== '');
-    if (!hasAnyInput) generateRandomInputs();
-    else if (!runCalculationNow()) return;
-    if (!lastCalcCache) return;
+function readSavedReportProfile() {
+  try {
+    return JSON.parse(localStorage.getItem('mpi-report-meta') || '{}') || {};
+  } catch {
+    return {};
   }
-  const container = document.getElementById('printReportContainer');
-  if (!container) return;
-  const ru = document.documentElement.lang === 'ru';
-  const k = clampK();
-  const task = TASKS[currentModule].find(t => t.id === currentTask);
-  const lesson = window.MpiLessons?.tasks?.[currentTask];
-  const dateStr = new Date().toLocaleDateString(ru ? 'ru-RU' : 'kk-KZ');
+}
 
-  const inputRows = Array.from(dynamicFields.querySelectorAll('.rank-row')).map(row => {
+function saveReportProfile(meta) {
+  try {
+    localStorage.setItem('mpi-report-meta', JSON.stringify(meta));
+  } catch {}
+}
+
+function collectCurrentDomInputRowsHtml() {
+  return Array.from(dynamicFields.querySelectorAll('.rank-row')).map(row => {
     const tag = row.querySelector('.rank-tag')?.textContent?.trim() || '';
     const items = Array.from(row.querySelectorAll('.input-group')).map(grp => {
       const lbl = grp.querySelector('label')?.textContent?.trim() || '';
@@ -995,45 +995,182 @@ function exportPdfReport() {
     }).filter(Boolean).join(' &nbsp;·&nbsp; ');
     return `<tr><td class="rep-rank">${escapeHtml(tag)}</td><td>${items}</td></tr>`;
   }).join('');
+}
 
-  const codeText = escapeHtml(window.MpiSourceCode?.[currentTask] || '');
+function renderSingleTaskReportBlock(taskId, modNum, kVal, inputRowsHtml, resultTableHtml, includeCode, ru) {
+  const task = TASKS[modNum].find(t => t.id === taskId);
+  const lesson = window.MpiLessons?.tasks?.[taskId];
   const givenText = lesson ? escapeHtml(lesson.given[ru ? 1 : 0]) : '';
   const findText = lesson ? escapeHtml(lesson.find[ru ? 1 : 0]) : '';
   const apiText = lesson ? escapeHtml(lesson.api) : '';
-
-  container.innerHTML = `
-    <div class="print-report">
-      <header class="rep-header">
-        <div>
-          <div class="rep-kicker">MPI Lab · ${ru ? 'Вариант 11' : '11-нұсқа'} · Модуль ${currentModule}</div>
-          <h1>MPIBegin${currentTask} — ${escapeHtml(task?.short || '')}</h1>
-        </div>
-        <div class="rep-meta">
-          <div><b>${ru ? 'Процессов (K):' : 'Процестер (K):'}</b> ${k}</div>
-          <div><b>MPI API:</b> ${apiText}</div>
-          <div><b>${ru ? 'Дата:' : 'Күні:'}</b> ${escapeHtml(dateStr)}</div>
-        </div>
-      </header>
+  const codeText = escapeHtml(window.MpiSourceCode?.[taskId] || '');
+  return `
+    <article class="rep-task-block">
+      <div class="rep-task-head">
+        <h2>MPIBegin${taskId} — ${escapeHtml(task?.short || '')}</h2>
+        <span>K = ${kVal} &nbsp;·&nbsp; <code>${apiText}</code></span>
+      </div>
       <section class="rep-section">
-        <h2>1. ${ru ? 'Условие задачи' : 'Есептің шарты'}</h2>
+        <h3>1. ${ru ? 'Условие задачи' : 'Есептің шарты'}</h3>
         <p><b>${ru ? 'Дано:' : 'Берілгені:'}</b> ${givenText}</p>
         <p><b>${ru ? 'Требуется:' : 'Орындау керек:'}</b> ${findText}</p>
       </section>
       <section class="rep-section">
-        <h2>2. ${ru ? 'Входные данные' : 'Кіріс деректері'} (K = ${k})</h2>
-        <table class="rep-table"><thead><tr><th>${ru ? 'Процесс' : 'Процесс'}</th><th>${ru ? 'Значения' : 'Енгізілген мәндер'}</th></tr></thead><tbody>${inputRows}</tbody></table>
+        <h3>2. ${ru ? 'Входные данные' : 'Кіріс деректері'} (K = ${kVal})</h3>
+        <table class="rep-table"><thead><tr><th>${ru ? 'Процесс' : 'Процесс'}</th><th>${ru ? 'Значения' : 'Енгізілген мәндер'}</th></tr></thead><tbody>${inputRowsHtml}</tbody></table>
       </section>
       <section class="rep-section">
-        <h2>3. ${ru ? 'Результат вычисления' : 'Есептеу нәтижесі'}</h2>
-        <div class="rep-result">${lastCalcCache.tableHtml}</div>
+        <h3>3. ${ru ? 'Результат вычисления' : 'Есептеу нәтижесі'}</h3>
+        <div class="rep-result">${resultTableHtml}</div>
       </section>
-      <section class="rep-section rep-code-section">
-        <h2>4. ${ru ? 'Исходный код C++ (MPI)' : 'Бастапқы C++ коды (MPI)'} — MPIBegin${currentTask}.cpp</h2>
-        <pre class="rep-code"><code>${codeText}</code></pre>
-      </section>
-    </div>`;
+      ${includeCode ? `<section class="rep-section rep-code-section"><h3>4. ${ru ? 'Исходный код C++' : 'Бастапқы C++ коды'} — MPIBegin${taskId}.cpp</h3><pre class="rep-code"><code>${codeText}</code></pre></section>` : ''}
+    </article>`;
+}
 
+function buildReportHeaderHtml(titleMain, subKicker, meta, ru) {
+  const dateStr = new Date().toLocaleDateString(ru ? 'ru-RU' : 'kk-KZ');
+  const studentLine = meta.student ? `<div><b>${ru ? 'Выполнил:' : 'Орындаған:'}</b> ${escapeHtml(meta.student)}</div>` : '';
+  const groupLine = meta.group ? `<div><b>${ru ? 'Группа:' : 'Тобы:'}</b> ${escapeHtml(meta.group)}</div>` : '';
+  const teacherLine = meta.teacher ? `<div><b>${ru ? 'Проверил:' : 'Тексерген:'}</b> ${escapeHtml(meta.teacher)}</div>` : '';
+  return `
+    <header class="rep-header">
+      <div>
+        <div class="rep-kicker">${escapeHtml(subKicker)}</div>
+        <h1>${escapeHtml(titleMain)}</h1>
+      </div>
+      <div class="rep-meta">
+        ${studentLine}${groupLine}${teacherLine}
+        <div><b>${ru ? 'Дата:' : 'Күні:'}</b> ${escapeHtml(dateStr)}</div>
+      </div>
+    </header>`;
+}
+
+function generateAndPrintReport(options = {}) {
+  const scope = options.scope === 'module' ? 'module' : 'single';
+  const includeCode = options.includeCode !== false;
+  const meta = {
+    student: String(options.student ?? '').trim(),
+    group: String(options.group ?? '').trim(),
+    teacher: String(options.teacher ?? '').trim()
+  };
+  saveReportProfile(meta);
+
+  const container = document.getElementById('printReportContainer');
+  if (!container) return;
+  const ru = document.documentElement.lang === 'ru';
+
+  if (scope === 'single') {
+    if (!lastCalcCache) {
+      const hasAnyInput = Array.from(dynamicFields.querySelectorAll('input,select')).some(el => !el.disabled && String(el.value).trim() !== '');
+      if (!hasAnyInput) generateRandomInputs();
+      else if (!runCalculationNow()) return;
+      if (!lastCalcCache) return;
+    }
+    const k = clampK();
+    const task = TASKS[currentModule].find(t => t.id === currentTask);
+    const header = buildReportHeaderHtml(
+      `MPIBegin${currentTask} — ${task?.short || ''}`,
+      `MPI Lab · ${ru ? 'Вариант 11' : '11-нұсқа'} · Модуль ${currentModule}`,
+      meta,
+      ru
+    );
+    const body = renderSingleTaskReportBlock(currentTask, currentModule, k, collectCurrentDomInputRowsHtml(), lastCalcCache.tableHtml, includeCode, ru);
+    container.innerHTML = `<div class="print-report">${header}${body}</div>`;
+    window.print();
+    return;
+  }
+
+  // Full Module Report: snapshot current state, build every task in currentModule cleanly, then restore!
+  const savedTask = currentTask;
+  const savedK = processCount.value;
+  const savedVals = {};
+  dynamicFields.querySelectorAll('input,select,textarea').forEach(el => { savedVals[el.id] = el.value; });
+
+  const modNum = currentModule;
+  const modTasks = TASKS[modNum] || [];
+  const blocks = [];
+
+  for (const t of modTasks) {
+    currentTask = t.id;
+    if (t.id === savedTask && lastCalcCache) {
+      // Restore user's live values for the task they were actively working on
+      processCount.value = savedK;
+      renderInputs();
+      for (const [id, v] of Object.entries(savedVals)) {
+        const ctrl = document.getElementById(id);
+        if (ctrl) ctrl.value = v;
+      }
+      syncConditionalInputs(clampK());
+      const resHtml = calculate();
+      blocks.push(renderSingleTaskReportBlock(t.id, modNum, clampK(), collectCurrentDomInputRowsHtml(), resHtml, includeCode, ru));
+    } else {
+      loadFileExample();
+      const resHtml = calculate();
+      blocks.push(renderSingleTaskReportBlock(t.id, modNum, clampK(), collectCurrentDomInputRowsHtml(), resHtml, includeCode, ru));
+    }
+  }
+
+  // Restore exact active task & user inputs
+  currentTask = savedTask;
+  processCount.value = savedK;
+  renderInputs();
+  for (const [id, v] of Object.entries(savedVals)) {
+    const ctrl = document.getElementById(id);
+    if (ctrl) ctrl.value = v;
+  }
+  syncConditionalInputs(clampK());
+  validateAllLive();
+  try {
+    const restoredTable = calculate();
+    lastCalcCache = { tableHtml: restoredTable, cmdHtml: buildCmdOutput(restoredTable) };
+    renderActiveResult();
+    syncCopyButton();
+  } catch {}
+
+  const modTitlePair = modNum === 1
+    ? ['Рангтар және жергілікті есептеу', 'Ранги и локальные вычисления']
+    : MODULE_TITLES[modNum];
+  const header = buildReportHeaderHtml(
+    `${ru ? 'Лабораторная работа' : 'Зертханалық жұмыс'} · Модуль ${modNum}: ${modTitlePair[ru ? 1 : 0]}`,
+    `MPI Lab · ${ru ? 'Вариант 11' : '11-нұсқа'} · ${modTasks.length} ${ru ? 'задач' : 'есеп'}`,
+    meta,
+    ru
+  );
+  container.innerHTML = `<div class="print-report">${header}${blocks.join('<hr class="rep-divider">')}</div>`;
   window.print();
+}
+
+function openPdfReportModal() {
+  const dialog = document.getElementById('pdfModal');
+  if (!dialog || typeof dialog.showModal !== 'function') {
+    generateAndPrintReport({ scope: 'single', includeCode: true, ...readSavedReportProfile() });
+    return;
+  }
+  const ru = document.documentElement.lang === 'ru';
+  const saved = readSavedReportProfile();
+  const sEl = document.getElementById('repStudent');
+  const gEl = document.getElementById('repGroup');
+  const tEl = document.getElementById('repTeacher');
+  if (sEl && !sEl.value && saved.student) sEl.value = saved.student;
+  if (gEl && !gEl.value && saved.group) gEl.value = saved.group;
+  if (tEl && !tEl.value && saved.teacher) tEl.value = saved.teacher;
+
+  const singleLbl = document.getElementById('repScopeSingleLbl');
+  const modLbl = document.getElementById('repScopeModuleLbl');
+  const modCount = TASKS[currentModule]?.length || 0;
+  if (singleLbl) {
+    const kk = `Ағымдағы есеп (MPIBegin${currentTask})`;
+    const r = `Текущая задача (MPIBegin${currentTask})`;
+    singleLbl.dataset.kk = kk; singleLbl.dataset.ru = r;
+    singleLbl.textContent = ru ? r : kk;
+  }
+  if (modLbl) {
+    const kk = `Толық Модуль ${currentModule} — барлық ${modCount} есеп`;
+    const r = `Весь Модуль ${currentModule} — все ${modCount} задач`;
+    modLbl.dataset.kk = kk; modLbl.dataset.ru = r;
+    modLbl.textContent = ru ? r : kk;
+  }
+  dialog.showModal();
 }
 
 function calculate() {
@@ -1436,7 +1573,21 @@ document.querySelector('#decreaseProcesses').addEventListener('click', () => { p
 document.querySelector('#increaseProcesses').addEventListener('click', () => { processCount.value = clampK() + 1; renderInputs(); });
 document.querySelector('#randomFill')?.addEventListener('click', generateRandomInputs);
 document.querySelector('#clearFields')?.addEventListener('click', renderInputs);
-document.querySelector('#exportReport')?.addEventListener('click', exportPdfReport);
+document.querySelector('#exportReport')?.addEventListener('click', openPdfReportModal);
+document.querySelector('#closePdfModal')?.addEventListener('click', () => document.getElementById('pdfModal')?.close());
+document.querySelector('#cancelPdfModal')?.addEventListener('click', () => document.getElementById('pdfModal')?.close());
+document.querySelector('#pdfModalForm')?.addEventListener('submit', event => {
+  event.preventDefault();
+  const dialog = document.getElementById('pdfModal');
+  const scope = document.querySelector('input[name="repScope"]:checked')?.value || 'single';
+  const includeCode = document.getElementById('repIncludeCode')?.checked !== false;
+  const student = document.getElementById('repStudent')?.value || '';
+  const group = document.getElementById('repGroup')?.value || '';
+  const teacher = document.getElementById('repTeacher')?.value || '';
+  dialog?.close?.();
+  generateAndPrintReport({ scope, includeCode, student, group, teacher });
+});
+window.MpiGenerateReport = generateAndPrintReport;
 document.querySelector('#viewTableBtn')?.addEventListener('click', () => setResultMode('table'));
 document.querySelector('#viewCmdBtn')?.addEventListener('click', () => setResultMode('cmd'));
 
