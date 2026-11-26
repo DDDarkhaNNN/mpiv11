@@ -207,22 +207,12 @@ function updateTaskNavButtons() {
 
   if (prevTaskTop) {
     prevTaskTop.disabled = !prev;
-    const kk = prev ? `← MPIBegin${prev.id}` : '← Басы';
-    const ru = prev ? `← MPIBegin${prev.id}` : '← Начало';
-    prevTaskTop.dataset.kk = kk;
-    prevTaskTop.dataset.ru = ru;
-    prevTaskTop.textContent = document.documentElement.lang === 'ru' ? ru : kk;
-    prevTaskTop.title = prev ? `Модуль ${prev.module} · MPIBegin${prev.id}` : '';
+    prevTaskTop.title = prev ? `← Модуль ${prev.module} · MPIBegin${prev.id}` : '';
   }
 
   if (nextTaskTop) {
     nextTaskTop.disabled = !next;
-    const kk = next ? `Келесі: MPIBegin${next.id} →` : 'Соңғы есеп ✓';
-    const ru = next ? `Следующая: MPIBegin${next.id} →` : 'Последняя задача ✓';
-    nextTaskTop.dataset.kk = kk;
-    nextTaskTop.dataset.ru = ru;
-    nextTaskTop.textContent = document.documentElement.lang === 'ru' ? ru : kk;
-    nextTaskTop.title = next ? `Модуль ${next.module} · MPIBegin${next.id}` : '';
+    nextTaskTop.title = next ? `Модуль ${next.module} · MPIBegin${next.id} →` : '';
   }
 
   if (prevTaskBottom) {
@@ -446,7 +436,7 @@ function renderInputs() {
 
   if (currentTask === 3) {
     html = `<p class="form-note">${bi('Жұп рангтар үшін бүтін (мысалы, 4), тақ рангтар үшін нүктесі бар нақты мән (мысалы, 1.5) енгізіңіз.', 'Для чётных рангов введите целое число (например, 4), для нечётных — вещественное с точкой (например, 1.5).')}</p><div class="field-grid">` +
-      Array.from({ length: k }, (_, r) => card(r, field(r % 2 === 0 ? bi('Бүтін n', 'Целое n') : bi('Нақты x (нүктемен)', 'Вещественное x (с точкой)'), `v_${r}`, r % 2 === 0 ? String(10 + r) : (r + 0.5).toFixed(1), r % 2 ? 'real' : 'int'))).join('') + '</div>';
+      Array.from({ length: k }, (_, r) => card(r, field(r % 2 === 0 ? bi('Бүтін n', 'Целое n') : bi('Нақты x (нүктемен)', 'Вещественное x (с точкой)'), `v_${r}`, r % 2 === 0 ? String(10 + r) : (r + 0.5).toFixed(1), r % 2 ? 'real' : 'int', 'data-keep-label="1"'))).join('') + '</div>';
   } else if (currentTask === 5) {
     html = `<p class="form-note">${bi('Әр процесте 1–10 нақты сан (нүктемен, мысалы: 2.0 3.5) енгізіңіз.', 'В каждом процессе введите от 1 до 10 вещественных чисел с точкой (например: 2.0 3.5).')}</p><div class="field-grid">` +
       Array.from({ length: k }, (_, r) => card(r, area(bi('Нақты сандар жиыны', 'Набор вещественных чисел'), `set_${r}`, sampleVector(r, Math.min(10, r + 3), 'real'), 'real', 1, 10))).join('') + '</div>';
@@ -458,7 +448,7 @@ function renderInputs() {
   } else if (currentTask === 16) {
     html = `<p class="form-note">${bi('P0-де қанша оң бүтін сан күтілетінін көрсетіңіз. Ол нақты оң N санына тең болуы керек.', 'Укажите в P0 ожидаемое количество положительных целых чисел. Оно должно совпадать с фактическим.')}</p><div class="field-grid">` +
       card(0, field(bi('Күтілетін оң сандар саны', 'Ожидаемое количество положительных чисел'), 'expected_0', String(Math.ceil((k - 1) / 2)), 'int')) +
-      Array.from({ length: k - 1 }, (_, i) => i + 1).map(r => card(r, field(bi('Бүтін N', 'Целое N'), `v_${r}`, String(r % 2 ? r : -r), 'int'))).join('') + '</div>';
+      Array.from({ length: k - 1 }, (_, i) => i + 1).map(r => card(r, field(bi('Бүтін N', 'Целое N'), `v_${r}`, String(r % 2 ? r : -r), 'int', r === 1 ? 'data-keep-label="1"' : ''))).join('') + '</div>';
   } else if (currentTask === 18) {
     html = '<div class="field-grid">' + Array.from({ length: k }, (_, r) => card(r, field(bi('Бастапқы бүтін сан', 'Исходное целое число'), `v_${r}`, String((r + 1) * 10), 'int'))).join('') + '</div>';
   } else if (currentTask === 21) {
@@ -478,7 +468,7 @@ function renderInputs() {
       card(0, field(bi('Бүтін сан', 'Целое число'), 'v_0', '7', 'int')) + '</div>';
   } else if (currentTask === 34) {
     html = `<p class="form-note">${bi('Әр R процесінде дәл R+2 бүтін сан енгізіңіз.', 'В каждом процессе ранга R введите ровно R+2 целых числа.')}</p><div class="field-grid">` +
-      Array.from({ length: k }, (_, r) => card(r, area(bi(`${r + 2} бүтін сан`, `${r + 2} целых чисел`), `set_${r}`, sampleVector(r, r + 2, 'int'), 'int', r + 2, r + 2))).join('') + '</div>';
+      Array.from({ length: k }, (_, r) => card(r, `<div class="input-group wide"><label for="set_${r}">${bi(`${r + 2} бүтін сан`, `${r + 2} целых чисел`)}</label><input id="set_${r}" name="set_${r}" class="set-input" data-keep-label="1" data-vmode="int" data-vmin="${r + 2}" data-vmax="${r + 2}" type="text" autocomplete="off" spellcheck="false" placeholder="${escapeHtml(sampleVector(r, r + 2, 'int').join(' '))}" value=""><small class="live-hint" aria-live="polite" hidden></small></div>`)).join('') + '</div>';
   } else if (currentTask === 37) {
     html = `<p class="form-note">${bi(`P0-де дәл ${k} нақты сан (нүктемен) енгізіңіз: 1-шісі P${k - 1}-ге, …, соңғысы P0-ге барады.`, `Введите в P0 ровно ${k} вещественных чисел с точкой: 1-е пойдёт в P${k - 1}, …, последнее — в P0.`)}</p><div class="field-grid">` +
       card(0, area(bi(`${k} нақты сан`, `${k} вещественных чисел`), 'set_0', Array.from({ length: k }, (_, i) => ((i + 1) * 10).toFixed(1)), 'real', k, k)) + '</div>';
@@ -544,7 +534,7 @@ function renderInputs() {
       : `<p class="form-note">${bi(`2 × ${half} торы екі жолға бөлінеді: P0 (0-жол) және P${half} (1-жол) нақты A (нүктемен) енгізеді.`, `Решётка 2 × ${half} делится на две строки: P0 (строка 0) и P${half} (строка 1) вводят вещественное A с точкой.`)}</p>`) +
       '<div class="field-grid">' +
       card(0, field(bi('0-жол үшін нақты A', 'Вещественное A для строки 0'), 'v_0', '1.5', 'real')) +
-      card(half, field(bi('1-жол үшін нақты A', 'Вещественное A для строки 1'), `v_${half}`, '-2.0', 'real')) + '</div>';
+      card(half, field(bi('1-жол үшін нақты A', 'Вещественное A для строки 1'), `v_${half}`, '-2.0', 'real', 'data-keep-label="1"')) + '</div>';
   } else if (currentTask === 92) {
     const bad = k !== 8 && k !== 12;
     html = `<p class="form-note">${bad

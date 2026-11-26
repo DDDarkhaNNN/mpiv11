@@ -286,12 +286,37 @@ html[data-theme="dark"] .brand-mark {
   transition: width 220ms ease;
 }
 
-/* Compact Practice top bar: merge brief + progress into a sleek status bar */
-.page-practice .welcome-row {
-  display: none;
+/* Clean top selector row + unified Task Hero Card + docked tabs + sleek inputs */
+.destination-grid.destination-two {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.page-practice .welcome-row,
+.page-practice .module-brief,
+.page-practice .task-sidebar [hidden],
+.task-hero-card [hidden] {
+  display: none !important;
 }
 .page-practice .task-sidebar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
   padding-bottom: 8px;
+}
+.page-practice .module-tabs {
+  background: var(--bg-surface);
+  border: 1px solid var(--line);
+  padding: 3px;
+  border-radius: 10px;
+  height: auto;
+  gap: 2px;
+  box-shadow: var(--shadow-sm);
+}
+.page-practice .module-tab {
+  min-height: 34px;
+  padding: 5px 12px;
+  border-radius: 7px;
+  font-size: 0.86rem;
 }
 .page-practice .module-tab span {
   display: inline !important;
@@ -304,76 +329,169 @@ html[data-theme="dark"] .brand-mark {
   border-radius: 999px;
   background: rgba(100, 116, 139, 0.14);
   font-family: var(--font-mono);
-  font-size: 0.73rem;
+  font-size: 0.72rem;
   font-weight: 600;
 }
 .module-tab.active .mod-count {
   background: rgba(47, 84, 235, 0.16);
   color: var(--blue);
 }
-.practice-SmartBar {
+.page-practice .search-filter {
+  max-width: 230px;
+  margin-left: auto;
+}
+.page-practice .search-filter input {
+  height: 38px;
+  min-height: 38px;
+  border-radius: 9px;
+  background: var(--bg-surface);
+  border-color: var(--line);
+  font-size: 0.86rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.page-practice .module-task-strip {
+  margin: 0 0 12px;
+  padding: 6px 8px;
+  gap: 5px;
+}
+
+/* Unified Task Hero Card (Header + Tabs + Mark Complete in one clean surface) */
+.page-practice .calculator-shell {
+  grid-template-rows: auto auto auto;
+  gap: 12px 14px;
+}
+.task-hero-card {
+  grid-column: 1 / -1;
+  grid-row: 1;
+  background: var(--bg-surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+.task-hero-card .calculator-header {
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  padding: 14px 18px 12px;
+}
+.hero-tabs-bar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 14px;
-  flex-wrap: wrap;
-  margin: 0 0 10px;
-  padding: 8px 14px;
-  background: var(--bg-surface);
-  border: 1px solid var(--line);
-  border-left: 3px solid var(--blue);
-  border-radius: 10px;
-  box-shadow: var(--shadow-sm);
-}
-.page-practice .module-brief {
-  margin: 0;
-  padding: 0;
-  border: 0 !important;
-  box-shadow: none !important;
-  background: transparent !important;
   gap: 12px;
-  flex: 1 1 380px;
+  padding: 0 14px;
+  background: var(--bg-subtle);
+  border-top: 1px solid var(--line);
 }
-.page-practice .module-brief p {
-  display: none;
+.hero-tabs-bar .lesson-tabs {
+  border-bottom: 0 !important;
+  padding: 0 !important;
+  gap: 2px;
 }
-.page-practice .module-brief .brief-inline {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
+.hero-tabs-bar .lesson-tabs button {
+  position: relative;
+  border-radius: 0;
+  padding: 10px 14px;
+  font-size: 0.88rem;
+  font-weight: 500;
+  background: transparent !important;
 }
-.page-practice .module-brief h2 {
-  margin: 0;
-  font-size: 0.94rem;
-  font-weight: 600;
-  color: var(--ink);
-}
-.page-practice .brief-kicker {
-  margin: 0;
-  padding: 2px 7px;
-  border-radius: 5px;
-  background: var(--soft);
+.hero-tabs-bar .lesson-tabs button[aria-pressed="true"] {
   color: var(--blue);
-  font-size: 0.72rem;
+  font-weight: 600;
 }
-.page-practice .brief-links a {
-  min-height: 30px;
-  padding: 4px 10px;
-  font-size: 0.8rem;
+.hero-tabs-bar .lesson-tabs button[aria-pressed="true"]::after {
+  content: "";
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: 0;
+  height: 2.5px;
+  border-radius: 3px 3px 0 0;
+  background: var(--blue);
 }
 .page-practice .learning-progress {
   margin: 0;
-  gap: 10px;
+  padding: 5px 0;
   flex-shrink: 0;
 }
 .page-practice .completion-button {
   min-height: 30px;
-  padding: 4px 10px;
-  font-size: 0.8rem;
-  background: var(--bg-subtle);
+  padding: 4px 11px;
+  font-size: 0.79rem;
+  font-weight: 600;
+  border-radius: 7px;
+  background: var(--bg-surface);
   border-color: var(--line);
+  color: var(--ink-secondary);
+}
+.page-practice .completion-button[aria-pressed="true"] {
+  background: #eafaf0;
+  border-color: #86efac;
+  color: #15803d;
+}
+html[data-theme="dark"] .page-practice .completion-button[aria-pressed="true"] {
+  background: rgba(34, 197, 94, 0.16);
+  border-color: rgba(34, 197, 94, 0.4);
+  color: #86efac;
+}
+
+/* Subtle icon prev/next buttons in header so primary CTA focus stays on Calculate */
+.icon-step-btn {
+  width: 36px;
+  height: 38px;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 8px;
+  border: 1px solid var(--line-strong);
+  background: var(--bg-subtle);
   color: var(--ink);
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1;
+  padding: 0;
+}
+.icon-step-btn:hover:not(:disabled) {
+  background: var(--soft);
+  border-color: var(--blue);
+  color: var(--blue);
+}
+.icon-step-btn:disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
+}
+
+/* Grid rows now start at row 2 right below .task-hero-card */
+.page-practice .calculator-form {
+  grid-column: 1;
+  grid-row: 2;
+}
+.page-practice .result-panel {
+  grid-column: 2;
+  grid-row: 2;
+}
+.page-practice .lesson-panel {
+  grid-column: 1 / -1;
+  grid-row: 2;
+}
+
+/* Left-aligned, clean, non-stretched single-value inputs */
+.page-practice .input-group input.num-input {
+  text-align: left;
+}
+.rank-fields > .input-group:only-child:not(.wide) {
+  flex: 0 1 230px;
+  max-width: 240px;
+}
+/* Hide repetitive identical per-row labels when consecutive rows share the same single field */
+.rank-row:has(.rank-fields > .input-group:only-child) + .rank-row:has(.rank-fields > .input-group:only-child:not(:has([data-keep-label]))) .rank-fields > .input-group:only-child label {
+  display: none;
+}
+.rank-row:has(.rank-fields > .input-group:only-child) + .rank-row:has(.rank-fields > .input-group:only-child:not(:has([data-keep-label]))) .rank-tag {
+  margin-top: 3px;
 }
 
 /* Result view segmented toggle: Table | Terminal (CMD) */
@@ -750,13 +868,36 @@ html[data-theme="dark"] .live-hint {
   color: #fca5a5;
 }
 
+@media (max-width: 1050px) {
+  .page-practice .calculator-form {
+    grid-column: 1;
+    grid-row: 2;
+  }
+  .page-practice .result-panel {
+    grid-column: 1;
+    grid-row: 3;
+  }
+}
 @media (max-width: 960px) {
-  .hero-split {
+  .hero-split,
+  .destination-grid.destination-two {
     grid-template-columns: 1fr;
+  }
+  .hero-split {
     padding: 18px;
   }
   .hero-visual {
     order: -1;
+  }
+}
+@media (max-width: 680px) {
+  .hero-tabs-bar {
+    flex-wrap: wrap;
+    padding: 4px 10px 8px;
+  }
+  .rank-fields > .input-group:only-child:not(.wide) {
+    flex: 1 1 100%;
+    max-width: none;
   }
 }
 @media print {

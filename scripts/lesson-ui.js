@@ -52,8 +52,7 @@
   }
 
   function progress() {
-    const ids=Object.keys(window.MpiLessons.tasks), count=ids.filter(id=>completed[id]===true).length;
-    $('#learningProgress').innerHTML=`<div class="progress-count">${bi(`Орындалды: ${count} / ${ids.length}`,`Выполнено: ${count} / ${ids.length}`)}<progress value="${count}" max="${ids.length}" aria-label="${count} / ${ids.length}"></progress></div><button type="button" class="completion-button" id="markComplete" aria-pressed="${!!completed[currentTask]}" ${!snapshot&&!completed[currentTask]?'disabled':''}>${completed[currentTask]?bi('✓ Орындалды · белгіні алу','✓ Выполнено · снять отметку'):bi('Орындалды деп белгілеу','Отметить выполненной')}</button>${!canSave?bi('Белгілер тек осы сессияда сақталады.','Отметки сохраняются только в этой сессии.'):''}`;
+    $('#learningProgress').innerHTML=`<button type="button" class="completion-button" id="markComplete" aria-pressed="${!!completed[currentTask]}" ${!snapshot&&!completed[currentTask]?'disabled':''}>${completed[currentTask]?bi('✓ Орындалды','✓ Выполнено'):bi('✓ Орындалды деп белгілеу','✓ Отметить выполненной')}</button>`;
     $('#markComplete').addEventListener('click',()=>{completed[currentTask]=!completed[currentTask];try{localStorage.setItem('mpi-completed-v1',JSON.stringify(completed));}catch{canSave=false;}progress();window.MpiRefreshTaskChips?.();window.MpiSyncGlobalProgress?.();});
     window.MpiSyncGlobalProgress?.();
   }
