@@ -366,20 +366,14 @@ function selectTask(id) {
     const title = MODULE_TITLES[currentModule];
     brief.innerHTML = `<div class="brief-inline"><span class="brief-kicker">МОДУЛЬ ${currentModule} · MPI</span>${bi(title[0], title[1], 'h2')}</div><div class="brief-links"><a href="downloads/module-${currentModule}-variant-11.zip" download data-kk="ZIP жүктеу" data-ru="Скачать ZIP">${document.documentElement.lang === 'ru' ? 'Скачать ZIP' : 'ZIP жүктеу'}</a><a href="resources.html" data-kk="Нұсқаулық" data-ru="Инструкция">${document.documentElement.lang === 'ru' ? 'Инструкция' : 'Нұсқаулық'}</a></div>`;
   }
-  const exampleButton = document.querySelector('#resetExample');
-  exampleButton.dataset.kk = currentModule === 1 ? 'Мысалмен толтыру' : 'Файлдағы мысалды жүктеу';
-  exampleButton.dataset.ru = currentModule === 1 ? 'Заполнить примером' : 'Загрузить пример из файлов';
-  exampleButton.textContent = document.documentElement.lang === 'ru' ? exampleButton.dataset.ru : exampleButton.dataset.kk;
   renderTaskList();
   updateTaskNavButtons();
   window.MpiLessonUI?.setCalculateView?.();
   if (window.MpiFileExamples?.[id]) processCount.value = window.MpiFileExamples[id].k;
   renderInputs();
-  const exLabelKk = currentModule === 1 ? 'Мысалмен толтыру' : 'Файлдағы мысалды жүктеу';
-  const exLabelRu = currentModule === 1 ? 'Заполнить примером' : 'Загрузить пример из файлов';
   resultContent.innerHTML = bi(
-    `Мәндерді енгізіп, «Нәтижені есептеу» батырмасын басыңыз (немесе «${exLabelKk}» арқылы тексеріңіз).`,
-    `Введите данные и нажмите «Рассчитать результат» (или нажмите «${exLabelRu}»).`,
+    'Мәндерді енгізіп, «Нәтижені есептеу» немесе «Кездейсоқ мәндер» батырмасын басыңыз.',
+    'Введите данные и нажмите «Рассчитать результат» или «Случайные значения».',
     'p'
   ).replace('<p ', '<p class="result-placeholder" ');
   syncCopyButton();
@@ -985,8 +979,9 @@ function runCalculationNow() {
 function exportPdfReport() {
   if (!lastCalcCache) {
     const hasAnyInput = Array.from(dynamicFields.querySelectorAll('input,select')).some(el => !el.disabled && String(el.value).trim() !== '');
-    if (!hasAnyInput) loadFileExample();
-    if (!runCalculationNow()) return;
+    if (!hasAnyInput) generateRandomInputs();
+    else if (!runCalculationNow()) return;
+    if (!lastCalcCache) return;
   }
   const container = document.getElementById('printReportContainer');
   if (!container) return;
@@ -1449,7 +1444,6 @@ document.addEventListener('keydown', event => {
 processCount.addEventListener('change', renderInputs);
 document.querySelector('#decreaseProcesses').addEventListener('click', () => { processCount.value = clampK() - 1; renderInputs(); });
 document.querySelector('#increaseProcesses').addEventListener('click', () => { processCount.value = clampK() + 1; renderInputs(); });
-document.querySelector('#resetExample').addEventListener('click', loadFileExample);
 document.querySelector('#randomFill')?.addEventListener('click', generateRandomInputs);
 document.querySelector('#clearFields')?.addEventListener('click', renderInputs);
 document.querySelector('#exportReport')?.addEventListener('click', exportPdfReport);

@@ -93,8 +93,8 @@
 .page-practice .rank-fields .input-group input,.page-practice .rank-fields .input-group select{min-height:34px;height:34px;padding:4px 9px;font-size:.94rem;border-radius:6px}
 .page-practice .rank-fields input.set-input{text-align:left;font-family:Consolas,'Segoe UI',monospace}
 .page-practice .rank-fields input::placeholder{color:#b6bfcd;opacity:1}
-.page-practice .form-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));margin-top:10px;padding-top:0;border-top:0;gap:8px}
-.page-practice .form-actions .button{width:100%;min-height:40px;padding:7px 10px;font-size:.88rem;line-height:1.2;text-align:center}
+.page-practice .form-actions{display:grid;grid-template-columns:1.2fr 1fr auto;margin-top:10px;padding-top:0;border-top:0;gap:8px}
+.page-practice .form-actions .button{width:100%;min-height:40px;padding:7px 12px;font-size:.88rem;line-height:1.2;text-align:center;white-space:nowrap}
 .page-practice .button{min-height:38px;padding:7px 14px}
 .page-practice .result-heading{padding:10px 14px;gap:8px;flex-wrap:wrap}
 .page-practice .result-heading>div:first-child{min-width:0}
