@@ -286,12 +286,58 @@ function syncTypeBadges(id) {
   bReal.hidden = TASK_INT_ONLY.has(id);
 }
 
+let resultMode = 'table';
+let lastCalcCache = null;
+
 function syncCopyButton() {
   const btn = document.getElementById('copyResult');
   if (!btn) return;
-  const hasResult = Boolean(resultContent?.querySelector('.result-table'));
+  const hasResult = Boolean(lastCalcCache);
   btn.disabled = !hasResult;
   btn.classList.toggle('ready', hasResult);
+}
+
+function buildCmdOutput(tableHtml) {
+  const k = clampK();
+  const ru = document.documentElement.lang === 'ru';
+  const rowMatches = [...tableHtml.matchAll(/<tr>([\s\S]*?)<\/tr>/g)].slice(1);
+  const parsed = rowMatches.map(m => {
+    const cells = [...m[1].matchAll(/<td[^>]*>([\s\S]*?)<\/td>/g)].map(c =>
+      c[1].replace(/<[^>]+>/g, '').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'").trim()
+    );
+    return cells;
+  });
+
+  const answerRows = parsed.filter(c => /^P\d+$/.test(c[0]));
+  const lines = answerRows.length ? answerRows : parsed;
+  const cmdTitle = currentModule === 1
+    ? `> MPIBegin${currentTask}.exe`
+    : `> mpiexec -n ${k} MPIBegin${currentTask}.exe`;
+
+  const bodyLines = lines.map(cells => {
+    const first = cells[0] || '';
+    const val = cells[cells.length - 1] || '';
+    const mRank = first.match(/^P(\d+)$/);
+    if (mRank) {
+      const lbl = ru ? `Ответ ранга ${mRank[1]}:` : `Ранг ${mRank[1]} жауабы:`;
+      return `<span class="cmd-rank">${escapeHtml(lbl)}</span> <span class="cmd-ans">${escapeHtml(val)}</span>`;
+    }
+    return `<span class="cmd-dim">${escapeHtml(first)}:</span> <span class="cmd-ans">${escapeHtml(val)}</span>`;
+  }).join('\n');
+
+  return `<div class="cmd-terminal"><div class="cmd-bar"><span class="cmd-dots"><i></i><i></i><i></i></span><span>CMD · MPIBegin${currentTask} (K=${k})</span></div><pre class="cmd-body"><span class="cmd-prompt">${escapeHtml(cmdTitle)}</span>\n${bodyLines}</pre></div>`;
+}
+
+function renderActiveResult() {
+  if (!lastCalcCache) return;
+  resultContent.innerHTML = resultMode === 'cmd' ? lastCalcCache.cmdHtml : lastCalcCache.tableHtml;
+}
+
+function setResultMode(mode) {
+  resultMode = mode === 'cmd' ? 'cmd' : 'table';
+  document.getElementById('viewTableBtn')?.setAttribute('aria-pressed', String(resultMode === 'table'));
+  document.getElementById('viewCmdBtn')?.setAttribute('aria-pressed', String(resultMode === 'cmd'));
+  renderActiveResult();
 }
 
 function selectTask(id) {
@@ -315,10 +361,10 @@ function selectTask(id) {
   taskDescription.textContent = task.description;
   const brief = document.querySelector('#moduleBrief');
   if (currentModule === 1) {
-    brief.innerHTML = `<div><span class="brief-kicker" data-kk="МОДУЛЬ 1 · ЖЕРГІЛІКТІ ЕСЕПТЕУ" data-ru="МОДУЛЬ 1 · ЛОКАЛЬНЫЕ ВЫЧИСЛЕНИЯ">${document.documentElement.lang === 'ru' ? 'МОДУЛЬ 1 · ЛОКАЛЬНЫЕ ВЫЧИСЛЕНИЯ' : 'МОДУЛЬ 1 · ЖЕРГІЛІКТІ ЕСЕПТЕУ'}</span>${bi('Ранг пен дерек типін таңдауды үйреніңіз. C++ оқу нұсқалары MPI-сіз жұмыс істейді.', 'Изучите ранги и типы данных. Учебные версии C++ работают без MPI.', 'p')}</div>`;
+    brief.innerHTML = `<div class="brief-inline"><span class="brief-kicker" data-kk="МОДУЛЬ 1 · ОҚУ ҮЛГІСІ" data-ru="МОДУЛЬ 1 · УЧЕБНЫЙ ПРИМЕР">${document.documentElement.lang === 'ru' ? 'МОДУЛЬ 1 · УЧЕБНЫЙ ПРИМЕР' : 'МОДУЛЬ 1 · ОҚУ ҮЛГІСІ'}</span>${bi('Рангтар мен дерек типтерін жергілікті есептеу', 'Ранги и типы данных в локальных вычислениях', 'h2')}</div>`;
   } else {
     const title = MODULE_TITLES[currentModule];
-    brief.innerHTML = `<div><span class="brief-kicker">МОДУЛЬ ${currentModule} · MPI</span>${bi(title[0], title[1], 'h2')}${bi('Есептер браузерде модельденеді. «C++ коды» бөлімінде дайын MPI бағдарламалары берілген. Нақты сандар нүктемен (2.0), бүтін сандар нүктесіз (2) жазылады.', 'Задачи моделируются в браузере. В разделе «Код C++» приведены готовые программы MPI. Вещественные числа вводятся с точкой (2.0), целые — без точки (2).', 'p')}</div><div class="brief-links"><a href="downloads/module-${currentModule}-variant-11.zip" download data-kk="Модульді жүктеу" data-ru="Скачать модуль">${document.documentElement.lang === 'ru' ? 'Скачать модуль' : 'Модульді жүктеу'}</a><a href="resources.html" data-kk="Іске қосу шарттары" data-ru="Требования для запуска">${document.documentElement.lang === 'ru' ? 'Требования для запуска' : 'Іске қосу шарттары'}</a></div>`;
+    brief.innerHTML = `<div class="brief-inline"><span class="brief-kicker">МОДУЛЬ ${currentModule} · MPI</span>${bi(title[0], title[1], 'h2')}</div><div class="brief-links"><a href="downloads/module-${currentModule}-variant-11.zip" download data-kk="ZIP жүктеу" data-ru="Скачать ZIP">${document.documentElement.lang === 'ru' ? 'Скачать ZIP' : 'ZIP жүктеу'}</a><a href="resources.html" data-kk="Нұсқаулық" data-ru="Инструкция">${document.documentElement.lang === 'ru' ? 'Инструкция' : 'Нұсқаулық'}</a></div>`;
   }
   const exampleButton = document.querySelector('#resetExample');
   exampleButton.dataset.kk = currentModule === 1 ? 'Мысалмен толтыру' : 'Файлдағы мысалды жүктеу';
@@ -538,6 +584,7 @@ function renderInputs() {
   dynamicFields.querySelectorAll('select[data-toggle-a], input[data-grid-dim]').forEach(el => el.addEventListener('input', () => syncConditionalInputs(k)));
   dynamicFields.querySelectorAll('select[data-toggle-a]').forEach(el => el.addEventListener('change', () => syncConditionalInputs(k)));
   syncConditionalInputs(k);
+  lastCalcCache = null;
   resultContent.innerHTML = bi('Мәндерді енгізіп, есептеуді бастаңыз.', 'Введите значения и запустите вычисление.', 'p').replace('<p ', '<p class="result-placeholder" ');
   syncCopyButton();
   window.MpiLessonUI?.reset();
@@ -745,11 +792,14 @@ function generateRandomInputs() {
 function runCalculationNow() {
   dynamicFields.querySelectorAll('.rank-row.input-error').forEach(row => row.classList.remove('input-error'));
   try {
-    resultContent.innerHTML = calculate();
+    const tableHtml = calculate();
+    lastCalcCache = { tableHtml, cmdHtml: buildCmdOutput(tableHtml) };
+    renderActiveResult();
     syncCopyButton();
     window.MpiLessonUI?.success();
     return true;
   } catch (error) {
+    lastCalcCache = null;
     const body = error instanceof BiError
       ? bi(error.kk, error.ru)
       : escapeHtml(error.message);
@@ -765,7 +815,7 @@ function runCalculationNow() {
 }
 
 function exportPdfReport() {
-  if (!resultContent.querySelector('.result-table')) {
+  if (!lastCalcCache) {
     const hasAnyInput = Array.from(dynamicFields.querySelectorAll('input,select')).some(el => !el.disabled && String(el.value).trim() !== '');
     if (!hasAnyInput) loadFileExample();
     if (!runCalculationNow()) return;
@@ -822,7 +872,7 @@ function exportPdfReport() {
       </section>
       <section class="rep-section">
         <h2>3. ${ru ? 'Результат вычисления' : 'Есептеу нәтижесі'}</h2>
-        <div class="rep-result">${resultContent.innerHTML}</div>
+        <div class="rep-result">${lastCalcCache.tableHtml}</div>
       </section>
       <section class="rep-section rep-code-section">
         <h2>4. ${ru ? 'Исходный код C++ (MPI)' : 'Бастапқы C++ коды (MPI)'} — MPIBegin${currentTask}.cpp</h2>
@@ -1235,8 +1285,11 @@ document.querySelector('#resetExample').addEventListener('click', loadFileExampl
 document.querySelector('#randomFill')?.addEventListener('click', generateRandomInputs);
 document.querySelector('#clearFields')?.addEventListener('click', renderInputs);
 document.querySelector('#exportReport')?.addEventListener('click', exportPdfReport);
+document.querySelector('#viewTableBtn')?.addEventListener('click', () => setResultMode('table'));
+document.querySelector('#viewCmdBtn')?.addEventListener('click', () => setResultMode('cmd'));
 
 form.addEventListener('input', () => {
+  lastCalcCache = null;
   dynamicFields.querySelectorAll('.rank-row.input-error').forEach(row => row.classList.remove('input-error'));
 });
 

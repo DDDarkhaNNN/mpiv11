@@ -1,31 +1,57 @@
 <!doctype html>
 <html lang="kk">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title data-kk="MPI Lab | Басты бет" data-ru="MPI Lab | Главная">MPI Lab | Басты бет</title><link rel="stylesheet" href="styles/reference.css?v=5"></head>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title data-kk="MPI Lab | Басты бет" data-ru="MPI Lab | Главная">MPI Lab | Басты бет</title><script>try{if(localStorage.getItem('mpi-theme')==='dark')document.documentElement.dataset.theme='dark';}catch{}</script><link rel="stylesheet" href="styles/reference.css?v=6"><link rel="stylesheet" href="styles/pro-ui.css?v=6"></head>
 <body class="page-index">
   <header class="app-header">
 <a class="brand" href="index.html" aria-label="MPI Lab"><span class="brand-mark">M<span>:</span></span><span><strong>mpi<span>lab</span></strong><small data-kk="Параллель есептеу практикумы" data-ru="Практикум параллельных вычислений">Параллель есептеу практикумы</small></span></a>
 <div class="course-context"><small data-kk="Оқу курсы" data-ru="Учебный курс">Оқу курсы</small><strong data-kk="MPI бағдарламалау" data-ru="Программирование MPI">MPI бағдарламалау</strong><span data-kk="11-нұсқа · 5 модуль" data-ru="Вариант 11 · 5 модулей">11-нұсқа · 5 модуль</span></div>
 <nav class="main-nav" aria-label="Navigation"><a class="nav-link active" aria-current="page" href="index.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1Z"/><path d="M9 21v-8h6v8"/></svg><span data-kk="Басты бет" data-ru="Главная">Басты бет</span></a><a class="nav-link" href="practice.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m16 3 5 5-12 12-6 1 1-6Z"/><path d="m14 5 5 5"/></svg><span data-kk="Практикум" data-ru="Практикум">Практикум</span></a><a class="nav-link" href="theory.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v16M3 3h5a4 4 0 0 1 4 2 4 4 0 0 1 4-2h5v16h-5a4 4 0 0 0-4 2 4 4 0 0 0-4-2H3Z"/></svg><span data-kk="MPI негіздері" data-ru="Основы MPI">MPI негіздері</span></a><a class="nav-link" href="resources.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m-5-5 5 5 5-5M4 16v5h16v-5"/></svg><span data-kk="Материалдар" data-ru="Материалы">Материалдар</span></a></nav>
-<div class="sidebar-bottom"><div class="learning-note"><span class="local-dot"></span><span data-kk="Жеке оқу кеңістігі" data-ru="Личное учебное пространство">Жеке оқу кеңістігі</span></div><div class="utility-controls"><button id="languageToggle" class="utility-button" type="button">ҚАЗ · RU</button></div></div></header>
+<div class="sidebar-bottom"><div class="learning-note"><span class="local-dot"></span><span data-kk="Жеке оқу кеңістігі" data-ru="Личное учебное пространство">Жеке оқу кеңістігі</span></div><div class="utility-controls"><button id="themeToggle" class="utility-button" type="button" aria-label="Тақырып түсі">☾ Түн</button><button id="languageToggle" class="utility-button" type="button">ҚАЗ · RU</button></div></div></header>
 
 <main class="app-main">
-<section class="home-intro">
-<p class="eyebrow" data-kk="Параллель бағдарламалау · 11-нұсқа" data-ru="Параллельное программирование · Вариант 11">Параллель бағдарламалау · 11-нұсқа</p>
-<h1 data-kk="MPI-ді түсініп, тәжірибеде қолданыңыз." data-ru="Понимайте MPI и применяйте на практике.">MPI-ді түсініп, тәжірибеде қолданыңыз.</h1>
-<p data-kk="Теорияны оқыңыз, бес модульдегі 36 есепті орындаңыз және өз деректеріңізбен нәтижені зерттеңіз." data-ru="Изучайте теорию, решайте 36 задач пяти модулей и исследуйте результаты со своими данными.">Теорияны оқыңыз, бес модульдегі 36 есепті орындаңыз және өз деректеріңізбен нәтижені зерттеңіз.</p>
-<a class="button primary" href="practice.html" data-kk="Практикумды бастау" data-ru="Начать практикум">Практикумды бастау</a>
-</section>
+<div class="hero-split">
+  <section class="home-intro">
+    <p class="eyebrow" data-kk="Параллель бағдарламалау · 11-нұсқа" data-ru="Параллельное программирование · Вариант 11">Параллель бағдарламалау · 11-нұсқа</p>
+    <h1 data-kk="MPI-ді түсініп, тәжірибеде қолданыңыз." data-ru="Понимайте MPI и применяйте на практике.">MPI-ді түсініп, тәжірибеде қолданыңыз.</h1>
+    <p data-kk="Теорияны оқыңыз, бес модульдегі 36 есепті орындаңыз және өз деректеріңізбен процестер мен топологияларды зерттеңіз." data-ru="Изучайте теорию, решайте 36 задач пяти модулей и исследуйте процессы и топологии со своими данными.">Теорияны оқыңыз, бес модульдегі 36 есепті орындаңыз және өз деректеріңізбен процестер мен топологияларды зерттеңіз.</p>
+    <div class="hero-cta-row">
+      <a class="button primary" href="practice.html" data-kk="Практикумды бастау →" data-ru="Начать практикум →">Практикумды бастау →</a>
+      <a class="button ghost" href="theory.html" data-kk="MPI анықтамалығы" data-ru="Справочник MPI">MPI анықтамалығы</a>
+    </div>
+    <div class="hero-stats">
+      <span class="stat-pill"><b>5</b> <span data-kk="модуль" data-ru="модулей">модуль</span></span>
+      <span class="stat-pill"><b>36</b> <span data-kk="MPIBegin есебі" data-ru="задач MPIBegin">MPIBegin есебі</span></span>
+      <span class="stat-pill"><b>C++17</b> <span>+ MPI</span></span>
+    </div>
+  </section>
+  <div class="hero-visual" aria-hidden="true">
+    <svg class="hero-svg" viewBox="0 0 340 220">
+      <text class="hv-cap" x="170" y="16">MPI_COMM_WORLD · K = 5</text>
+      <line class="hv-edge-solid" x1="170" y1="112" x2="72" y2="56"/>
+      <line class="hv-edge-solid" x1="170" y1="112" x2="268" y2="56"/>
+      <line class="hv-edge-solid" x1="170" y1="112" x2="72" y2="172"/>
+      <line class="hv-edge-solid" x1="170" y1="112" x2="268" y2="172"/>
+      <path class="hv-edge" d="M 72 56 L 268 56 L 268 172 L 72 172 Z" fill="none"/>
+      <g><circle class="hv-node" cx="72" cy="56" r="22"/><text x="72" y="56">P1</text></g>
+      <g><circle class="hv-node" cx="268" cy="56" r="22"/><text x="268" y="56">P2</text></g>
+      <g><circle class="hv-node" cx="72" cy="172" r="22"/><text x="72" y="172">P3</text></g>
+      <g><circle class="hv-node" cx="268" cy="172" r="22"/><text x="268" y="172">P4</text></g>
+      <g><circle class="hv-node hv-root" cx="170" cy="112" r="27"/><text class="hv-root-txt" x="170" y="112">P0</text></g>
+      <text class="hv-cap" x="170" y="208">Send · Recv · Reduce · Split · Cart</text>
+    </svg>
+  </div>
+</div>
 <section class="home-modules" aria-label="Модульдер тізімі">
   <div class="home-modules-head">
     <h2 data-kk="Модульдер бойынша есептер (36 есеп)" data-ru="Задачи по модулям (36 задач)">Модульдер бойынша есептер (36 есеп)</h2>
     <a class="home-all-link" href="practice.html" data-kk="Барлығын ашу →" data-ru="Открыть все →">Барлығын ашу →</a>
   </div>
   <div class="home-module-grid">
-    <a class="home-module-card" href="practice.html?module=1"><span class="hm-badge">M1</span><strong>Модуль 1</strong><small data-kk="2 есеп · MPIBegin 3, 5" data-ru="2 задачи · MPIBegin 3, 5">2 есеп · MPIBegin 3, 5</small></a>
-    <a class="home-module-card" href="practice.html?module=2"><span class="hm-badge">M2</span><strong>Модуль 2</strong><small data-kk="8 есеп · Хабар алмасу" data-ru="8 задач · Обмен сообщениями">8 есеп · Хабар алмасу</small></a>
-    <a class="home-module-card" href="practice.html?module=3"><span class="hm-badge">M3</span><strong>Модуль 3</strong><small data-kk="9 есеп · Редукция, типтер" data-ru="9 задач · Редукция, типы">9 есеп · Редукция, типтер</small></a>
-    <a class="home-module-card" href="practice.html?module=4"><span class="hm-badge">M4</span><strong>Модуль 4</strong><small data-kk="11 есеп · Коммуникаторлар" data-ru="11 задач · Коммуникаторы">11 есеп · Коммуникаторлар</small></a>
-    <a class="home-module-card" href="practice.html?module=5"><span class="hm-badge">M5</span><strong>Модуль 5</strong><small data-kk="6 есеп · Топологиялар" data-ru="6 задач · Топологии">6 есеп · Топологиялар</small></a>
+    <a class="home-module-card" data-home-mod="1" data-mod-total="2" href="practice.html?module=1"><div class="hm-top"><span class="hm-badge">M1</span><span class="hm-count">0/2</span></div><strong>Модуль 1</strong><small data-kk="2 есеп · MPIBegin 3, 5" data-ru="2 задачи · MPIBegin 3, 5">2 есеп · MPIBegin 3, 5</small><div class="hm-prog"><i style="width:0%"></i></div></a>
+    <a class="home-module-card" data-home-mod="2" data-mod-total="8" href="practice.html?module=2"><div class="hm-top"><span class="hm-badge">M2</span><span class="hm-count">0/8</span></div><strong>Модуль 2</strong><small data-kk="8 есеп · Хабар алмасу" data-ru="8 задач · Обмен сообщениями">8 есеп · Хабар алмасу</small><div class="hm-prog"><i style="width:0%"></i></div></a>
+    <a class="home-module-card" data-home-mod="3" data-mod-total="9" href="practice.html?module=3"><div class="hm-top"><span class="hm-badge">M3</span><span class="hm-count">0/9</span></div><strong>Модуль 3</strong><small data-kk="9 есеп · Редукция, типтер" data-ru="9 задач · Редукция, типы">9 есеп · Редукция, типтер</small><div class="hm-prog"><i style="width:0%"></i></div></a>
+    <a class="home-module-card" data-home-mod="4" data-mod-total="11" href="practice.html?module=4"><div class="hm-top"><span class="hm-badge">M4</span><span class="hm-count">0/11</span></div><strong>Модуль 4</strong><small data-kk="11 есеп · Коммуникаторлар" data-ru="11 задач · Коммуникаторы">11 есеп · Коммуникаторлар</small><div class="hm-prog"><i style="width:0%"></i></div></a>
+    <a class="home-module-card" data-home-mod="5" data-mod-total="6" href="practice.html?module=5"><div class="hm-top"><span class="hm-badge">M5</span><span class="hm-count">0/6</span></div><strong>Модуль 5</strong><small data-kk="6 есеп · Топологиялар" data-ru="6 задач · Топологии">6 есеп · Топологиялар</small><div class="hm-prog"><i style="width:0%"></i></div></a>
   </div>
 </section>
 <div class="destination-grid">
@@ -34,5 +60,5 @@
 <a class="destination" href="resources.html"><span class="destination-number">03</span><h2 data-kk="Материалдар" data-ru="Материалы">Материалдар</h2><p data-kk="Практикум кітабын, 2–5 модуль архивтерін және MPI сілтемесін алыңыз." data-ru="Скачайте книгу практикума, архивы модулей 2–5 и ссылку на MPI.">Практикум кітабын, 2–5 модуль архивтерін және MPI сілтемесін алыңыз.</p><span class="destination-link" data-kk="Жүктеулерді ашу →" data-ru="Открыть загрузки →">Жүктеулерді ашу →</span></a>
 </div></main>
   <footer class="app-footer"><span><b>MPI Lab</b> · Оқу практикумы</span><span>Нәтижелер браузерде модельденеді; нақты параллель орындалу іске қосылмайды.</span></footer>
-<script src="scripts/localization.js?v=5"></script>
+<script src="scripts/localization.js?v=6"></script>
 </body></html>

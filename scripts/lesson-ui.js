@@ -29,10 +29,33 @@
       btn.addEventListener('click', () => window.MpiNavigateTask?.(Number(btn.dataset.lessonNav)))
     );
   }
+  function highlightCppLine(rawLine) {
+    const tokenRe = /(\/\/.*$)|("(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*')|(^\s*#\s*[a-zA-Z_]\w*)|\b(MPI_[A-Za-z0-9_]+)\b|\b(int|double|float|char|void|bool|long|size_t|auto|const|constexpr|struct|enum|class|using|namespace|std|string|vector|array)\b|\b(if|else|for|while|do|return|break|continue|switch|case|try|catch|throw|true|false|nullptr)\b|\b(\d+(?:\.\d+)?)\b/g;
+    let out = '', last = 0, m;
+    while ((m = tokenRe.exec(rawLine)) !== null) {
+      if (m.index > last) out += escape(rawLine.slice(last, m.index));
+      const full = m[0];
+      const cls = m[1] ? 'tok-com' : m[2] ? 'tok-str' : m[3] ? 'tok-pre' : m[4] ? 'tok-mpi' : m[5] ? 'tok-type' : m[6] ? 'tok-kw' : 'tok-num';
+      out += `<span class="${cls}">${escape(full)}</span>`;
+      last = m.index + full.length;
+    }
+    if (last < rawLine.length) out += escape(rawLine.slice(last));
+    return out || ' ';
+  }
+
+  function renderIdeCode(sourceText, fileName, langBadge) {
+    const clean = String(sourceText || '').replace(/\r\n/g, '\n');
+    const lines = clean.split('\n');
+    if (lines.length > 1 && lines[lines.length - 1] === '') lines.pop();
+    const rows = lines.map((ln, idx) => `<tr><td class="ide-ln">${idx + 1}</td><td class="ide-lc">${highlightCppLine(ln)}</td></tr>`).join('');
+    return `<div class="ide-frame"><div class="ide-toolbar"><div class="ide-file"><span>${escape(fileName)}</span><span class="ide-lang-pill">${escape(langBadge)}</span></div><button type="button" class="ide-copy-btn" id="copyCppCode" data-kk="Кодты көшіру" data-ru="Копировать код">${document.documentElement.lang==='ru'?'Копировать код':'Кодты көшіру'}</button></div><div class="ide-scroll"><table class="ide-table"><tbody>${rows}</tbody></table></div></div>`;
+  }
+
   function progress() {
     const ids=Object.keys(window.MpiLessons.tasks), count=ids.filter(id=>completed[id]===true).length;
     $('#learningProgress').innerHTML=`<div class="progress-count">${bi(`Орындалды: ${count} / ${ids.length}`,`Выполнено: ${count} / ${ids.length}`)}<progress value="${count}" max="${ids.length}" aria-label="${count} / ${ids.length}"></progress></div><button type="button" class="completion-button" id="markComplete" aria-pressed="${!!completed[currentTask]}" ${!snapshot&&!completed[currentTask]?'disabled':''}>${completed[currentTask]?bi('✓ Орындалды · белгіні алу','✓ Выполнено · снять отметку'):bi('Орындалды деп белгілеу','Отметить выполненной')}</button>${!canSave?bi('Белгілер тек осы сессияда сақталады.','Отметки сохраняются только в этой сессии.'):''}`;
-    $('#markComplete').addEventListener('click',()=>{completed[currentTask]=!completed[currentTask];try{localStorage.setItem('mpi-completed-v1',JSON.stringify(completed));}catch{canSave=false;}progress();window.MpiRefreshTaskChips?.();});
+    $('#markComplete').addEventListener('click',()=>{completed[currentTask]=!completed[currentTask];try{localStorage.setItem('mpi-completed-v1',JSON.stringify(completed));}catch{canSave=false;}progress();window.MpiRefreshTaskChips?.();window.MpiSyncGlobalProgress?.();});
+    window.MpiSyncGlobalProgress?.();
   }
   function setView(next) {stop();view=next;render();}
   function render() {
@@ -56,8 +79,21 @@
     if(view==='code') {
       const mpi=currentModule>1;
       const path=mpi?`downloads/code/module-${currentModule}/MPIBegin${currentTask}.cpp`:`downloads/code/MPIBegin${currentTask}.cpp`;
-      panel.innerHTML=`<div class="code-heading"><div><p class="eyebrow">${mpi?'MPI · C++17':'C++17'}</p><h3>MPIBegin${currentTask}.cpp</h3></div><div class="code-actions"><a class="button ghost" href="${path}" download>${bi('Кодты жүктеу','Скачать код')}</a>${mpi?`<a class="button ghost" href="downloads/module-${currentModule}-variant-11.zip" download>${bi('Толық модуль ZIP','Весь модуль ZIP')}</a>`:''}</div></div><p class="lesson-lead">${mpi?bi('Бұл тапсырманың C++17 және MPI стандартындағы толық бағдарламасы. Модуль архивінде дайын EXE файлдары, ортақ console_mpi.hpp, build.cmd және іске қосу нұсқаулығы жинақталған (іске қосуға MPI Runtime, қайта құрастыруға MPI SDK мен C++17 компиляторы қажет).','Полная программа задачи на C++17 с использованием MPI. В архиве модуля собраны готовые EXE, общий заголовок console_mpi.hpp, скрипт build.cmd и инструкция по запуску (для запуска нужен MPI Runtime, для пересборки — MPI SDK и компилятор C++17).'):bi('Windows үшін MPI-сіз C++ оқу үлгісі. VS Code — редактор; іске қосу үшін C++ компиляторы керек.','Учебный пример C++ без MPI для Windows. VS Code — редактор; для запуска нужен компилятор C++.')}</p><pre class="code-view"><code id="sourceCode"></code></pre>${lessonNavFooter()}`;
-      $('#sourceCode').textContent=window.MpiSourceCode[currentTask];
+      const rawCode=window.MpiSourceCode[currentTask]||'';
+      panel.innerHTML=`<div class="code-heading"><div><p class="eyebrow">${mpi?'MPI · C++17':'C++17'}</p><h3>MPIBegin${currentTask}.cpp</h3></div><div class="code-actions"><a class="button ghost" href="${path}" download>${bi('Кодты жүктеу','Скачать код')}</a>${mpi?`<a class="button ghost" href="downloads/module-${currentModule}-variant-11.zip" download>${bi('Толық модуль ZIP','Весь модуль ZIP')}</a>`:''}</div></div><p class="lesson-lead">${mpi?bi('Бұл тапсырманың C++17 және MPI стандартындағы толық бағдарламасы. Модуль архивінде дайын EXE файлдары, ортақ console_mpi.hpp, build.cmd және іске қосу нұсқаулығы жинақталған (іске қосуға MPI Runtime, қайта құрастыруға MPI SDK мен C++17 компиляторы қажет).','Полная программа задачи на C++17 с использованием MPI. В архиве модуля собраны готовые EXE, общий заголовок console_mpi.hpp, скрипт build.cmd и инструкция по запуску (для запуска нужен MPI Runtime, для пересборки — MPI SDK и компилятор C++17).'):bi('Windows үшін MPI-сіз C++ оқу үлгісі. VS Code — редактор; іске қосу үшін C++ компиляторы керек.','Учебный пример C++ без MPI для Windows. VS Code — редактор; для запуска нужен компилятор C++.')}</p>${renderIdeCode(rawCode,`MPIBegin${currentTask}.cpp`,mpi?'C++17 · MPI':'C++17')}${lessonNavFooter()}`;
+      $('#copyCppCode')?.addEventListener('click', async ev => {
+        const btn = ev.currentTarget;
+        const ru = document.documentElement.lang === 'ru';
+        try {
+          await navigator.clipboard.writeText(rawCode);
+          btn.textContent = ru ? '✓ Скопировано' : '✓ Көшірілді';
+        } catch {
+          btn.textContent = 'Ctrl+C';
+        }
+        setTimeout(() => {
+          btn.textContent = document.documentElement.lang === 'ru' ? 'Копировать код' : 'Кодты көшіру';
+        }, 1600);
+      });
       bindLessonNav();
     }
     if(view==='steps') { renderSteps(); panel.insertAdjacentHTML('beforeend', lessonNavFooter()); bindLessonNav(); }

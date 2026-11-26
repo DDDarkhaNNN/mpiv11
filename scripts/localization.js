@@ -5,7 +5,7 @@
     'Task views':'Разделы задачи',
     'Тапсырма табылмады':'Задача не найдена','Тапсырманы таңдаңыз':'Выберите задачу',
     'Есептер практикумы':'Практикум задач','Процестер':'Процессы',
-    'Модульдер тізімі':'Список модулей','Есептер тізімі':'Список задач','Есептер арасында өту':'Переход между задачами',
+    'Модульдер тізімі':'Список модулей','Есептер тізімі':'Список задач','Есептер арасында өту':'Переход между задачами','Нәтиже түрі':'Вид результата','Тақырып түсі':'Тема оформления',
     'MPIBegin нөмірі':'Номер MPIBegin',
     '3 модуль':'3 модуля','4 модуль':'4 модуля','5 модуль':'5 модулей','19 есеп':'19 задач','30 есеп':'30 задач','36 есеп':'36 задач',
     'Нәтижелер браузерде модельденеді; нақты параллель орындалу іске қосылмайды.':'Результаты моделируются в браузере; реальные параллельные процессы не запускаются.',
@@ -96,7 +96,7 @@
     const walker=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);
     while(walker.nextNode()) {
       const n=walker.currentNode;
-      if(n.parentElement.closest('script,style,pre,code,[data-kk],#languageToggle')) continue;
+      if(n.parentElement.closest('script,style,pre,code,.ide-frame,[data-kk],#languageToggle,#themeToggle')) continue;
       let record=sourceNodes.get(n);
       if(!record || n.nodeValue!==record.rendered) record={original:n.nodeValue,rendered:n.nodeValue};
       const next=translateText(record.original);
@@ -120,8 +120,70 @@
     try { localStorage.setItem('mpi-language',language); } catch {}
     observer.observe(document.body,{childList:true,subtree:true,characterData:true});
   }
+  const MOD_TASK_IDS = {
+    1: [3, 5],
+    2: [10, 11, 16, 18, 21, 24, 26, 29],
+    3: [48, 51, 54, 57, 59, 62, 64, 67, 69],
+    4: [30, 34, 37, 40, 43, 45, 71, 75, 77, 79, 80],
+    5: [83, 85, 92, 94, 96, 100]
+  };
+
+  function syncGlobalProgress() {
+    let completed = {};
+    try {
+      const raw = JSON.parse(localStorage.getItem('mpi-completed-v1') || '{}');
+      if (raw && typeof raw === 'object' && !Array.isArray(raw)) completed = raw;
+    } catch {}
+    const allIds = Object.values(MOD_TASK_IDS).flat();
+    const doneTotal = allIds.filter(id => completed[id] === true).length;
+    const pct = Math.round((doneTotal / allIds.length) * 100);
+
+    const ctx = document.querySelector('.course-context');
+    if (ctx) {
+      let sp = ctx.querySelector('.sidebar-progress');
+      if (!sp) {
+        sp = document.createElement('div');
+        sp.className = 'sidebar-progress';
+        ctx.appendChild(sp);
+      }
+      const lbl = language === 'ru' ? 'Прогресс' : 'Орындалуы';
+      sp.innerHTML = `<div class="sp-row"><span data-kk="Орындалуы" data-ru="Прогресс">${lbl}</span><b>${doneTotal}/36 (${pct}%)</b></div><div class="sp-bar"><i style="width:${pct}%"></i></div>`;
+    }
+
+    document.querySelectorAll('[data-home-mod]').forEach(card => {
+      const m = Number(card.getAttribute('data-home-mod'));
+      const ids = MOD_TASK_IDS[m] || [];
+      const done = ids.filter(id => completed[id] === true).length;
+      const mPct = ids.length ? Math.round((done / ids.length) * 100) : 0;
+      const cnt = card.querySelector('.hm-count');
+      const bar = card.querySelector('.hm-prog > i');
+      if (cnt) cnt.textContent = `${done}/${ids.length}`;
+      if (bar) bar.style.width = `${mPct}%`;
+    });
+  }
+  window.MpiSyncGlobalProgress = syncGlobalProgress;
+
+  function syncThemeButton() {
+    const btn = document.querySelector('#themeToggle');
+    if (!btn) return;
+    const dark = document.documentElement.dataset.theme === 'dark';
+    btn.textContent = dark
+      ? (language === 'ru' ? '☀ Светлая' : '☀ Күн')
+      : (language === 'ru' ? '☾ Тёмная' : '☾ Түн');
+  }
+
+  document.querySelector('#themeToggle')?.addEventListener('click', () => {
+    const nextDark = document.documentElement.dataset.theme !== 'dark';
+    if (nextDark) document.documentElement.dataset.theme = 'dark';
+    else delete document.documentElement.dataset.theme;
+    try { localStorage.setItem('mpi-theme', nextDark ? 'dark' : 'light'); } catch {}
+    syncThemeButton();
+  });
+
   let queued=false;
-  const observer=new MutationObserver(()=>{ if(!queued){queued=true;requestAnimationFrame(()=>{queued=false;apply();});} });
-  document.querySelector('#languageToggle')?.addEventListener('click',()=>{language=language==='kk'?'ru':'kk';apply();});
+  const observer=new MutationObserver(()=>{ if(!queued){queued=true;requestAnimationFrame(()=>{queued=false;apply();syncThemeButton();});} });
+  document.querySelector('#languageToggle')?.addEventListener('click',()=>{language=language==='kk'?'ru':'kk';apply();syncGlobalProgress();syncThemeButton();});
   apply();
+  syncGlobalProgress();
+  syncThemeButton();
 })();
